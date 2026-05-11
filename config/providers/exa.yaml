@@ -1,0 +1,9 @@
+provider_id: exa
+base_url: https://api.exa.ai/search
+search_type: auto
+max_results: 10
+cost_per_query_usd: 0.005
+contents:
+  highlights:
+    maxCharacters: 4000
+

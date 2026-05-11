@@ -1,0 +1,29 @@
+[
+  {
+    "trace_id": "trace_3b03d21da10b4c0db450883d67c009ec",
+    "query_id": "sealhard_0117c1361b85",
+    "provider_id": "brave",
+    "model_id": "azure:gpt-5.4",
+    "freshness": "never-changing",
+    "topic": "Science & Technology",
+    "search_results": "conflicting",
+    "question_types": [
+      "advanced reasoning"
+    ],
+    "effective_year": "before 2024",
+    "answered": true,
+    "ceiling_hit": false,
+    "exact_match": false,
+    "f1": 0.0,
+    "total_search_calls": 4,
+    "reformulation_rate": 1.0,
+    "redundant_search_rate": 0.0,
+    "source_diversity": 13,
+    "gold_document_hit": false,
+    "premature_termination": true,
+    "failure_mode": "retrieval_failure",
+    "total_prompt_tokens": 17823,
+    "total_completion_tokens": 154,
+    "total_cost_usd": 0.0
+  }
+]

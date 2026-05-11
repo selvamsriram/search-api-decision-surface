@@ -1,0 +1,9 @@
+provider_id: brave
+base_url: https://api.search.brave.com/res/v1/web/search
+country: US
+search_lang: en
+ui_lang: en-US
+safesearch: moderate
+max_results: 10
+cost_per_query_usd: 0.0
+

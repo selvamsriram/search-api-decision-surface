@@ -1,0 +1,11 @@
+model_id: azure:gpt-5.4
+deployment_env: AZURE_OPENAI_DEPLOYMENT
+endpoint_env: AZURE_OPENAI_ENDPOINT
+api_key_env: AZURE_OPENAI_API_KEY
+api_version_env: AZURE_OPENAI_API_VERSION
+default_api_version: "2024-10-21"
+temperature: 0
+max_tokens: 4096
+input_price_per_1k_usd: 0.0
+output_price_per_1k_usd: 0.0
+

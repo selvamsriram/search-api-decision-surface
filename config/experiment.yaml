@@ -1,0 +1,23 @@
+experiment_id: phase1_v1
+dataset:
+  source: vtllms/sealqa
+  subset: seal_hard
+  raw_path: data/raw/seal-hard.jsonl
+  selected_queries_path: data/queries/phase1_100.json
+  rationale_path: data/100-dataset-selection-rationale.md
+agent:
+  max_iterations: 10
+  max_results_per_search: 10
+  temperature: 0
+  max_tokens: 4096
+provider:
+  id: brave
+  country: US
+  search_lang: en
+  ui_lang: en-US
+  safesearch: moderate
+model:
+  id: azure:gpt-5.4
+  deployment_env: AZURE_OPENAI_DEPLOYMENT
+outputs:
+  trace_jsonl: data/traces/phase1_v1_brave_gpt54.jsonl

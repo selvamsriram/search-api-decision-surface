@@ -1,0 +1,41 @@
+<example name="neutral_evidence_use">
+<purpose>
+This example shows how to separate the question from retrieved documents and how to decide based on evidence.
+It is not a recommendation to always search, always answer, or always abstain.
+</purpose>
+
+<system_instructions_example>
+You are answering a factual question. Use search_web only when more evidence is needed.
+Answer only when the retrieved documents support the answer. 
+</system_instructions_example>
+
+<user_query_example>
+Which company was the prime contractor for NASA's James Webb Space Telescope?
+</user_query_example>
+
+<search_documents_example>
+<search query="NASA James Webb Space Telescope prime contractor company" provider="brave">
+  <document rank="1">
+    <title>NASA's Webb Space Telescope Mission</title>
+    <url>https://www.nasa.gov/mission/webb/</url>
+    <snippet>NASA describes the Webb mission and identifies Northrop Grumman as the observatory's prime contractor.</snippet>
+  </document>
+  <document rank="2">
+    <title>Northrop Grumman Completes Webb Telescope</title>
+    <url>https://news.northropgrumman.com/</url>
+    <snippet>Northrop Grumman says it served as prime contractor for Webb and integrated the observatory before launch.</snippet>
+  </document>
+  <document rank="3">
+    <title>James Webb Space Telescope Overview</title>
+    <url>https://www.nasa.gov/</url>
+    <snippet>NASA overview of Webb's mission, instruments, and deployment. This snippet does not identify the contractor.</snippet>
+  </document>
+</search>
+</search_documents_example>
+
+<decision_guidance_example>
+If the current documents support the answer, give `FINAL ANSWER: Northrop Grumman`.
+If the documents were missing the contractor, call `search_web` with a more targeted query.
+If the searching doesn't give you the answer you are looking for, then give `FINAL ANSWER: I cannot determine the answer from available sources.`
+</decision_guidance_example>
+</example>

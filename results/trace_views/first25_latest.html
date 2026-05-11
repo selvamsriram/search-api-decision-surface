@@ -1,0 +1,1157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Trace View: sealhard_4a3db339e0a0</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f8fa;
+      --panel: #ffffff;
+      --text: #17202a;
+      --muted: #657383;
+      --line: #d9e0e7;
+      --soft: #eef3f7;
+      --good: #126b43;
+      --bad: #9b2c2c;
+      --warn: #805b10;
+      --accent: #255c99;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+    }
+    header {
+      background: #182331;
+      color: white;
+      padding: 24px 32px;
+    }
+    header h1 { margin: 0 0 8px; font-size: 24px; }
+    header p { margin: 0; color: #c9d4df; }
+    main { max-width: 1280px; margin: 0 auto; padding: 24px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+    .card, .iteration, .panel, .message, .search {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 1px 2px rgba(20, 32, 44, 0.04);
+    }
+    .card { padding: 16px; margin-bottom: 16px; }
+    .card h2, .iteration h2 { margin: 0 0 10px; font-size: 18px; }
+    .meta { color: var(--muted); font-size: 13px; }
+    .pill, .chip {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      padding: 4px 9px;
+      margin: 3px 4px 3px 0;
+      background: var(--soft);
+      font-size: 13px;
+    }
+    .pill.good strong { color: var(--good); }
+    .pill.bad strong { color: var(--bad); }
+    table { width: 100%; border-collapse: collapse; background: var(--panel); }
+    th, td { border-bottom: 1px solid var(--line); text-align: left; padding: 9px; vertical-align: top; }
+    th { background: var(--soft); font-size: 13px; }
+    .iteration { margin: 18px 0; padding: 0; overflow: hidden; }
+    .iteration-head { padding: 16px; border-bottom: 1px solid var(--line); }
+    .panel, .message, .search { margin: 12px 16px; box-shadow: none; }
+    summary { cursor: pointer; padding: 10px 12px; font-weight: 650; }
+    .panel > summary, .search > summary { background: var(--soft); }
+    .message.system summary { border-left: 4px solid #5c6f82; }
+    .message.user summary { border-left: 4px solid var(--accent); }
+    .message.assistant summary { border-left: 4px solid #7a5ea8; }
+    .message.tool summary { border-left: 4px solid #2f7d67; }
+    pre {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      margin: 0;
+      padding: 12px;
+      background: #0f1720;
+      color: #e7edf3;
+      border-radius: 6px;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .message-content { margin: 0 12px 12px; }
+    .json { margin: 8px 12px 12px; }
+    .subhead { font-size: 13px; font-weight: 700; color: var(--muted); margin: 10px 12px 4px; }
+    .kv strong { display: block; margin: 10px 12px 4px; }
+    .search-meta, .muted { color: var(--muted); font-size: 13px; }
+    .search-meta { padding: 0 12px 8px; }
+    .result { display: grid; grid-template-columns: 44px 1fr; gap: 10px; padding: 12px; border-top: 1px solid var(--line); }
+    .rank { color: var(--muted); font-weight: 700; }
+    .result h4 { margin: 0 0 4px; }
+    .result a { color: var(--accent); word-break: break-all; }
+    .domain { color: var(--muted); font-size: 13px; margin-top: 2px; }
+    .result p { margin: 8px 0; }
+    ul { margin-top: 6px; }
+    @media (max-width: 720px) {
+      header { padding: 18px; }
+      main { padding: 14px; }
+      .result { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Trace View: sealhard_4a3db339e0a0</h1>
+    <p>Who was the most recent Sheriff of Los Angeles County killed in the line of duty?</p>
+  </header>
+  <main>
+    <section class="card">
+      <h2>Run Summary</h2>
+      <div class="meta">Source JSONL: data/traces/phase1_v1_brave_gpt54_first25.jsonl line 25</div>
+      <div>
+        <span class="pill bad"><span>failed</span><strong>False</strong></span>
+        <span class="pill good"><span>answered</span><strong>True</strong></span>
+        <span class="pill bad"><span>exact_match</span><strong>False</strong></span>
+        <span class="pill bad"><span>gold_hit</span><strong>False</strong></span>
+        <span class="pill bad"><span>ceiling_hit</span><strong>False</strong></span>
+      </div>
+      <div class="grid">
+        <div><strong>Trace</strong><br>trace_8794fffc4264440eb9c6c435e5ffc210</div>
+        <div><strong>Provider / Model</strong><br>brave / azure:gpt-5.4</div>
+        <div><strong>Searches</strong><br>1</div>
+        <div><strong>Tokens</strong><br>5358 prompt / 49 completion</div>
+        <div><strong>Wall Time</strong><br>3.03 sec</div>
+        <div><strong>Cost</strong><br>$0.0</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Question And Answers</h2>
+      <p><strong>Question:</strong> Who was the most recent Sheriff of Los Angeles County killed in the line of duty?</p>
+      <p><strong>Final response:</strong> FINAL ANSWER: Deputy Alfredo “Freddy” Flores</p>
+      <p><strong>Extracted final answer:</strong> Deputy Alfredo “Freddy” Flores</p>
+      <p><strong>Gold answer:</strong> William C. Getman</p>
+      <p><strong>Gold URLs:</strong></p>
+      <ul><li><a href="https://en.wikipedia.org/wiki/List_of_Los_Angeles_County_sheriffs#:~:text=7-,William%20C.%20Getman%20%E2%80%A0,-1858">https://en.wikipedia.org/wiki/List_of_Los_Angeles_County_sheriffs#:~:text=7-,William%20C.%20Getman%20%E2%80%A0,-1858</a></li></ul>
+    </section>
+
+    <section class="card">
+      <h2>Metrics</h2>
+      <pre class="json">{
+  &quot;trace_id&quot;: &quot;trace_8794fffc4264440eb9c6c435e5ffc210&quot;,
+  &quot;query_id&quot;: &quot;sealhard_4a3db339e0a0&quot;,
+  &quot;provider_id&quot;: &quot;brave&quot;,
+  &quot;model_id&quot;: &quot;azure:gpt-5.4&quot;,
+  &quot;freshness&quot;: &quot;slow-changing&quot;,
+  &quot;topic&quot;: &quot;Politics&quot;,
+  &quot;search_results&quot;: &quot;conflicting&quot;,
+  &quot;question_types&quot;: [
+    &quot;advanced reasoning&quot;,
+    &quot;entity/event disambiguation&quot;
+  ],
+  &quot;effective_year&quot;: &quot;before 2024&quot;,
+  &quot;answered&quot;: true,
+  &quot;ceiling_hit&quot;: false,
+  &quot;exact_match&quot;: false,
+  &quot;f1&quot;: 0.0,
+  &quot;total_search_calls&quot;: 1,
+  &quot;reformulation_rate&quot;: null,
+  &quot;redundant_search_rate&quot;: null,
+  &quot;source_diversity&quot;: 2,
+  &quot;gold_document_hit&quot;: false,
+  &quot;premature_termination&quot;: true,
+  &quot;failure_mode&quot;: &quot;retrieval_failure&quot;,
+  &quot;total_prompt_tokens&quot;: 5358,
+  &quot;total_completion_tokens&quot;: 49,
+  &quot;total_cost_usd&quot;: 0.0
+}</pre>
+    </section>
+
+    <section class="card">
+      <h2>Timeline</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Iteration</th>
+            <th>Decision</th>
+            <th>Search Query</th>
+            <th>Results</th>
+            <th>Prompt / Completion</th>
+            <th>LLM Latency</th>
+          </tr>
+        </thead>
+        <tbody>
+            <tr>
+              <td>1</td>
+              <td>search</td>
+              <td>site:lasd.org Los Angeles County Sheriff killed in the line of duty most recent</td>
+              <td>10</td>
+              <td>890 / 34</td>
+              <td>1329 ms</td>
+            </tr>
+            
+
+            <tr>
+              <td>2</td>
+              <td>answer</td>
+              <td><span class="muted">none</span></td>
+              <td>0</td>
+              <td>4468 / 15</td>
+              <td>1185 ms</td>
+            </tr>
+            </tbody>
+      </table>
+    </section>
+
+    
+
+    
+    <section class="iteration">
+      <div class="iteration-head">
+        <h2>Iteration 1</h2>
+        <div class="chips">
+          <span class="chip">decision: search</span>
+          <span class="chip">latency: 1329 ms</span>
+          <span class="chip">prompt: 890</span>
+          <span class="chip">completion: 34</span>
+        </div>
+      </div>
+      <details class="panel" open>
+        <summary>LLM Request Snapshot</summary>
+        <div class="kv"><strong>Config</strong><pre class="json">{
+  &quot;provider&quot;: &quot;azure_openai&quot;,
+  &quot;model_id&quot;: &quot;azure:gpt-5.4&quot;,
+  &quot;endpoint&quot;: &quot;https://selva-m9q555e6-eastus2.cognitiveservices.azure.com&quot;,
+  &quot;deployment&quot;: &quot;gpt-5.4&quot;,
+  &quot;api_version&quot;: &quot;2024-12-01-preview&quot;,
+  &quot;temperature&quot;: 0.0,
+  &quot;max_tokens_field&quot;: &quot;max_completion_tokens&quot;,
+  &quot;max_tokens&quot;: 4096,
+  &quot;tool_choice&quot;: &quot;auto&quot;
+}</pre></div>
+        <div class="kv"><strong>Tool schema names</strong><pre class="json">[
+  &quot;search_web&quot;
+]</pre></div>
+        <div class="messages"><details class="message system"><summary>message 0 | role=system | 3,321 chars</summary><pre class="message-content">&lt;system_instructions&gt;
+You are a assistant answering factual questions from a user.
+You have one tool: `search_web` It takes a query string and returns search results (title, URL, snippet) from a web search engine.
+Your responses must be factually grounded with a document from web search.
+
+How to work:
+1. Read the user query carefully and determine web search queries needed to retrieve documents for answering the question.
+2. Call `search_web` for retrieving documents from the web.
+3. You may make more than one `search_web` call per turn if you need to fan out to collect evidence.
+4. If search results are insufficient, conflicting, stale, or ambiguous, reformulate and search again.
+5. If you are unable to answer the given question and can&#x27;t think of any more search queries for information retrieval say exactly: `FINAL ANSWER: I cannot determine the answer from available sources.`
+
+
+Output rules:
+1. Final responses must contain only the factual answer prefixed with `FINAL ANSWER: `.
+2. Do not include chain-of-thought, explanations, or source summaries in the final response.
+3. If the answer is a name, title, date, number, organization, or short phrase, return only that value after the prefix.
+
+Input demarcation:
+The live user query will be presented inside `&lt;user_query&gt;`.
+Retrieved search documents will be presented inside `&lt;search_documents&gt;`.
+&lt;/system_instructions&gt;
+
+&lt;example name=&quot;neutral_evidence_use&quot;&gt;
+&lt;purpose&gt;
+This example shows how to separate the question from retrieved documents and how to decide based on evidence.
+It is not a recommendation to always search, always answer, or always abstain.
+&lt;/purpose&gt;
+
+&lt;system_instructions_example&gt;
+You are answering a factual question. Use search_web only when more evidence is needed.
+Answer only when the retrieved documents support the answer. 
+&lt;/system_instructions_example&gt;
+
+&lt;user_query_example&gt;
+Which company was the prime contractor for NASA&#x27;s James Webb Space Telescope?
+&lt;/user_query_example&gt;
+
+&lt;search_documents_example&gt;
+&lt;search query=&quot;NASA James Webb Space Telescope prime contractor company&quot; provider=&quot;brave&quot;&gt;
+  &lt;document rank=&quot;1&quot;&gt;
+    &lt;title&gt;NASA&#x27;s Webb Space Telescope Mission&lt;/title&gt;
+    &lt;url&gt;https://www.nasa.gov/mission/webb/&lt;/url&gt;
+    &lt;snippet&gt;NASA describes the Webb mission and identifies Northrop Grumman as the observatory&#x27;s prime contractor.&lt;/snippet&gt;
+  &lt;/document&gt;
+  &lt;document rank=&quot;2&quot;&gt;
+    &lt;title&gt;Northrop Grumman Completes Webb Telescope&lt;/title&gt;
+    &lt;url&gt;https://news.northropgrumman.com/&lt;/url&gt;
+    &lt;snippet&gt;Northrop Grumman says it served as prime contractor for Webb and integrated the observatory before launch.&lt;/snippet&gt;
+  &lt;/document&gt;
+  &lt;document rank=&quot;3&quot;&gt;
+    &lt;title&gt;James Webb Space Telescope Overview&lt;/title&gt;
+    &lt;url&gt;https://www.nasa.gov/&lt;/url&gt;
+    &lt;snippet&gt;NASA overview of Webb&#x27;s mission, instruments, and deployment. This snippet does not identify the contractor.&lt;/snippet&gt;
+  &lt;/document&gt;
+&lt;/search&gt;
+&lt;/search_documents_example&gt;
+
+&lt;decision_guidance_example&gt;
+If the current documents support the answer, give `FINAL ANSWER: Northrop Grumman`.
+If the documents were missing the contractor, call `search_web` with a more targeted query.
+If the searching doesn&#x27;t give you the answer you are looking for, then give `FINAL ANSWER: I cannot determine the answer from available sources.`
+&lt;/decision_guidance_example&gt;
+&lt;/example&gt;</pre></details>
+<details class="message user"><summary>message 1 | role=user | 108 chars</summary><pre class="message-content">&lt;user_query&gt;
+Who was the most recent Sheriff of Los Angeles County killed in the line of duty?
+&lt;/user_query&gt;</pre></details></div>
+      </details>
+      <details class="panel" open>
+        <summary>LLM Response</summary>
+        <p class="muted">No assistant text content. The model returned tool call(s).</p>
+        <div class="subhead">Tool Calls</div>
+        <pre class="json">[
+  {
+    &quot;function&quot;: {
+      &quot;arguments&quot;: &quot;{\&quot;query\&quot;:\&quot;site:lasd.org Los Angeles County Sheriff killed in the line of duty most recent\&quot;}&quot;,
+      &quot;name&quot;: &quot;search_web&quot;
+    },
+    &quot;id&quot;: &quot;call_MIF26zK2xwSQEClPn6P2vKja&quot;,
+    &quot;type&quot;: &quot;function&quot;
+  }
+]</pre>
+      </details>
+      <details class="panel" open>
+        <summary>Searches Performed After This Response</summary>
+        
+    <details class="search" open>
+      <summary>Search: site:lasd.org Los Angeles County Sheriff killed in the line of duty most recent (10 results, 511 ms)</summary>
+      <div class="search-meta">
+        provider=brave
+        retrieval_id=trace_8794fffc4264440eb9c6c435e5ffc210_it1_search1
+        tool_call_id=call_MIF26zK2xwSQEClPn6P2vKja
+      </div>
+      <div class="results">
+    <article class="result">
+      <div class="rank">#1</div>
+      <div>
+        <h4>LASD Peace Officers Killed in the Line of Duty</h4>
+        <a href="https://lasd.org/pdf-lasd-museum/LASD%20Deputies%20Killed%20in%20the%20Line%20of%20Duty%20Revised.doc">https://lasd.org/pdf-lasd-museum/LASD%20Deputies%20Killed%20in%20the%20Line%20of%20Duty%20Revised.doc</a>
+        <div class="domain">lasd.org</div>
+        <p>According to the National Law ... but Reed’s actions certainly seem to be an early example of this phenomenon. Getman was the last Los Angeles County Sheriff killed in the line of duty....</p>
+        <details><summary>extra snippets (4)</summary><ul><li>LASD Peace Officers Killed in the Line of Duty By Deputy Chris Miller (retired) &amp; Lieutenant John Stanley As of this writing, 123 peace officers assigned to the Los Angeles Sheriff’s Department, or one of the eleven law enforcement agencies that it has either absorbed or merged with, have been recognized as being killed in the line of duty since the formation of Los Angeles County in 1850.</li><li>As we did our research, we discovered that there were a couple of peace officers enrolled on the County, State and National memorials who do not meet the criteria for inclusion on any memorial. We remain silent on the presence of these peace officers on this list. The decision to honor them was made decades in the past by others for reasons we may never know. After an exhaustive scouring of surviving historical documents, we believe that the last peace officers killed in the line of duty while serving with the Los Angeles Sheriff’s Department or one of its affiliated agencies have been located and the names of the last five peace officers will be presented for inscription in 2014.</li><li>Deputy Rosa was leaving a friend&#x27;s home to report for duty when two juveniles approached her on bicycles and attempted to rob her. As they took items from her they discovered her gun and badge and immediately opened fire, fatally wounding her. Both suspects were apprehended and charged with her murder. In 2007 the suspect who shot Deputy Rosa was convicted of murder. Deputy Rosa had served with the Los Angeles County Sheriff&#x27;s Department for 6 years.</li></ul></details>
+      </div>
+    </article>
+    
+
+    <article class="result">
+      <div class="rank">#2</div>
+      <div>
+        <h4>Memorial Messages for SEB Deputies</h4>
+        <a href="https://lasd.org/memorial-messages-for-seb-deputies">https://lasd.org/memorial-messages-for-seb-deputies</a>
+        <div class="domain">lasd.org</div>
+        <p>The City of Malibu mourns the tragic loss of three Los Angeles County Sheriff’s Department Detectives-Joshua Kelley-Eklund, Victor Lemus, and William Osborn-who were tragically killed in an explosion while performing their duty protecting ...</p>
+        <details><summary>extra snippets (4)</summary><ul><li>The Los Angeles County Sheriff’s Department is profoundly grateful for the immense kindness and support we have received following the tragic loss of our three…</li><li>It is with profound sorrow and heavy hearts that we extend our deepest condolences to the families, friends, and colleagues of the three Los Angeles County Sheriff’s Department deputies who were tragically killed today. Their commitment to public safety and sacrifice in the line of duty exemplifies the highest ideals of our profession.</li><li>The City of Malibu mourns the tragic loss of three Los Angeles County Sheriff’s Department Detectives-Joshua Kelley-Eklund, Victor Lemus, and William Osborn-who were tragically killed in an explosion while performing their duty protecting the community. These dedicated public servants, with a combined 74 years of honorable service, were part of the Arson-Explosives unit.</li></ul></details>
+      </div>
+    </article>
+    
+
+    <article class="result">
+      <div class="rank">#3</div>
+      <div>
+        <h4>Update on the Murder of Deputy Ryan Clinkunbroomer in Palmdale</h4>
+        <a href="https://lasd.org/update-on-the-murder-of-deputy-ryan-clinkunbroomer-in-palmdale">https://lasd.org/update-on-the-murder-of-deputy-ryan-clinkunbroomer-in-palmdale</a>
+        <div class="domain">lasd.org</div>
+        <p>The Los Angeles County Sheriff’s Department remains dedicated to identifying the perpetrator(s) responsible for the tragic murder of Deputy Ryan Clinkunbroomer. Deputy Clinkunbroomer, an eight-year veteran of the Sheriff’s Department, tragically ...</p>
+        <details><summary>extra snippets (4)</summary><ul><li>Update 9/18/2023 – See Third Press Conference video below for update regarding detainment of person of interest Following a pivotal 4:00 p.m. press conference held yesterday on 09/17/2023…</li><li>The Los Angeles County Sheriff’s Department remains dedicated to identifying the perpetrator(s) responsible for the tragic murder of Deputy Ryan Clinkunbroomer. Deputy Clinkunbroomer, an eight-year veteran of the Sheriff’s Department, tragically lost his life while on duty at Palmdale Sheriff Station.</li><li>Their cooperation and valuable information have led to a significant development in the murder investigation of Deputy Ryan Clinkunbroomer. Early this morning 09/18/2023, our highly specialized Los Angeles County Sheriff Department Special Enforcement Bureau executed a warrant at the residence of the prime suspect, located in the 37600 block of Barrinson Street, Palmdale.</li></ul></details>
+      </div>
+    </article>
+    
+
+    <article class="result">
+      <div class="rank">#4</div>
+      <div>
+        <h4>Sheriff Barton and Posse Mound Plaque Dedication | Los Angeles County Sheriff’s Department</h4>
+        <a href="https://lasd.org/sheriff-barton-and-posse-mound-plaque-dedication">https://lasd.org/sheriff-barton-and-posse-mound-plaque-dedication</a>
+        <div class="domain">lasd.org</div>
+        <p>In 2025, Sheriff Barton and his posse were honored and commemorated at the San Diego Creek Trail which marks the exact location in which they lost their lives. Sheriff Robert Luna joined the community and city leaders for the unveiling of the ...</p>
+        <details><summary>extra snippets (4)</summary><ul><li>On January 23, 1857, Sheriff James Barton and his posse of Deputy Charles Daly and Constables William Little and Charles Baker, were killed while courageously…</li><li>In 2025, Sheriff Barton and his posse were honored and commemorated at the San Diego Creek Trail which marks the exact location in which they lost their lives. Sheriff Robert Luna joined the community and city leaders for the unveiling of the Barton Mound Memorial Plaque, honoring the legacy of Sheriff James Barton, the first Los Angeles County Sheriff member to die in the line of duty.</li><li>On January 23, 1857, Sheriff James Barton and his posse of Deputy Charles Daly and Constables William Little and Charles Baker, were killed while courageously pursuing outlaws. This act of service forever shaped the history of law enforcement in Los Angeles County.</li></ul></details>
+      </div>
+    </article>
+    
+
+    <article class="result">
+      <div class="rank">#5</div>
+      <div>
+        <h4>Los Angeles County Sheriff’s Department | A Tradition of Service</h4>
+        <a href="https://lasd.org">https://lasd.org</a>
+        <div class="domain">lasd.org</div>
+        <p>On January 23, 1857, Sheriff James Barton and his posse of Deputy Charles Daly and Constables William Little and Charles Baker, were killed while courageously pursuing outlaws.</p>
+        <details><summary>extra snippets (4)</summary><ul><li>On January 23, 1857, Sheriff James Barton and his posse of Deputy Charles Daly and Constables William Little and Charles Baker, were killed while courageously pursuing outlaws.</li><li>Sheriff Luna commands the largest Sheriff’s Department in the United States, with nearly 18,000 budgeted sworn and professional staff. ... Custody Services information for the Los Angeles County Area: Jail addresses, contact numbers, visitation scheduling and other custody related services.</li><li>Records and ID responsibilities include archival, retention, and release of the Department’s records, which comprises 19.4 million crime reports and booking jackets stored in the Sheriff’s Electronic Criminal Documents Archive (SECDA). The Los Angeles County Sheriff’s Department believes in being forthcoming regarding our activities and policing efforts.</li></ul></details>
+      </div>
+    </article>
+    
+
+    <article class="result">
+      <div class="rank">#6</div>
+      <div>
+        <h4>Deputy Alfredo “Freddy” Flores, EOW | Los Angeles County Sheriff’s Department</h4>
+        <a href="https://lasd.org/deputy-alfredo-freddy-flores-eow-04-20-2024">https://lasd.org/deputy-alfredo-freddy-flores-eow-04-20-2024</a>
+        <div class="domain">lasd.org</div>
+        <p>On behalf of @lasdhq, we mourn the profound loss of Deputy Alfredo “Freddy” Flores, who tragically passed away last night following a valiant fight for recovery…</p>
+        <details><summary>extra snippets (1)</summary><ul><li>On behalf of @lasdhq, we mourn the profound loss of Deputy Alfredo “Freddy” Flores, who tragically passed away last night following a valiant fight for recovery from injuries sustained in the line of duty. Freddy graduated from academy class #327 and honorably served the residents of Los Angeles County for 22 years and will forever be remembered.</li></ul></details>
+      </div>
+    </article>
+    
+
+    <article class="result">
+      <div class="rank">#7</div>
+      <div>
+        <h4>Homicide Reports | Los Angeles County Sheriff’s Department</h4>
+        <a href="https://sheriff33.lasd.org/transparency/homicidereports">https://sheriff33.lasd.org/transparency/homicidereports</a>
+        <div class="domain">sheriff33.lasd.org</div>
+        <p>Los Angeles County Sheriff’s Department Homicides from 1925 – 2020 – PDF</p>
+        <details><summary>extra snippets (4)</summary><ul><li>The reports and statistics on this page are reflective of murder incidents investigated by the Los Angeles County Sheriff’s Department – Homicide Bureau.</li><li>This data file contains Murder incidents investigated by the Los Angeles County Sheriff’s Department – Homicide Bureau which occurred in Los Angeles County Sheriff’s Department patrol areas from 1925 to present.</li><li>The homicide data is gathered from areas patrolled by the Los Angeles County Sheriff’s Department.</li></ul></details>
+      </div>
+    </article>
+    
+
+    <article class="result">
+      <div class="rank">#8</div>
+      <div>
+        <h4>Fact Check | Los Angeles County Sheriff’s Department</h4>
+        <a href="https://sheriff33.lasd.org/factcheck">https://sheriff33.lasd.org/factcheck</a>
+        <div class="domain">sheriff33.lasd.org</div>
+        <p>The department’s website, sheriff33.lasd.org, now has all information previously hidden from the public’s view, including data on deputy-involved shootings, discipline, conditions of confinement in the jail system, and the impact of COVID-19, along with the entire organization’s rules and regulations.</p>
+        <details><summary>extra snippets (3)</summary><ul><li>As the first and only sheriff to hold employees accountable for participating in these harmful groups, I implemented a policy that bans their formation and participation in activities that harm the public or their fellow employees.</li><li>The department’s website, sheriff33.lasd.org, now has all information previously hidden from the public’s view, including data on deputy-involved shootings, discipline, conditions of confinement in the jail system, and the impact of COVID-19, along with the entire organization’s rules and regulations.</li><li>Sheriff Villanueva promoted the first two Latinas to the position of Assistant Sheriff and had both serving at the same time.</li></ul></details>
+      </div>
+    </article>
+    
+
+    <article class="result">
+      <div class="rank">#9</div>
+      <div>
+        <h4>1850 Los Angeles County was formed.</h4>
+        <a href="https://lasd.org/pdf-lasd-museum/timeline/1850%20-%201859.pdf">https://lasd.org/pdf-lasd-museum/timeline/1850%20-%201859.pdf</a>
+        <div class="domain">lasd.org</div>
+        <p>William Getman was the second and last Sheriff killed in the line of duty in Los Angeles County.</p>
+        <details><summary>extra snippets (4)</summary><ul><li>territories that are now Los Angeles, San Bernardino, Riverside, Orange and Kern Counties. Sheriff Burrill’s duties included not only enforcing the law, but collecting taxes.</li><li>hundreds of citizens watched this historic event, Ignacio Herrera was hanged for killing a young · man involved in a love triangle. Between 1851 and 1874, Los Angeles witnessed 40 legal · hangings, 38 lynchings and 32 executions by vigilance committee. Late in 1854, Sheriff Barton was mistreating an Indian woman and was confronted by Andres</li><li>of Miguel Soto. Sheriff Barton’s pistol was still in Soto’s possession when he was killed. Tempers in Los Angeles continued to flare from the Sheriff’s murder.</li></ul></details>
+      </div>
+    </article>
+    
+
+    <article class="result">
+      <div class="rank">#10</div>
+      <div>
+        <h4>Deputy Involved Shootings - Current</h4>
+        <a href="https://lasd.org/transparency/deputyinvolvedshootingcurrent">https://lasd.org/transparency/deputyinvolvedshootingcurrent</a>
+        <div class="domain">lasd.org</div>
+        <p>The Sheriff’s Department conducts very thorough and clearly-defined investigations into shootings and uses of force. The Internal Affairs Bureau Force/Shooting Response Team conducts an administrative review of all deputy-involved shootings, when no one is struck by gunfire.</p>
+        <details><summary>extra snippets (3)</summary><ul><li>Upon completion of the initial criminal investigation, Homicide Bureau presents the case to the Los Angeles County District Attorney&#x27;s Office, Justice System Integrity Division (JSID). JSID evaluates the force used by the involved Sheriff’s personnel to determine whether or not the shooting was legally justified or in violation of the law.</li><li>Each deputy-involved shooting is reviewed by independent investigative agencies. The Los Angeles County District Attorney’s Office Justice System Integrity Division (JSID) members respond to the scene to conduct an independent and thorough review of the evidence.</li><li>The Sheriff’s Department conducts very thorough and clearly-defined investigations into shootings and uses of force. The Internal Affairs Bureau Force/Shooting Response Team conducts an administrative review of all deputy-involved shootings, when no one is struck by gunfire.</li></ul></details>
+      </div>
+    </article>
+    </div>
+      <details class="raw-response">
+        <summary>Full raw provider response</summary>
+        <pre class="json">{
+  &quot;mixed&quot;: {
+    &quot;main&quot;: [
+      {
+        &quot;all&quot;: false,
+        &quot;index&quot;: 0,
+        &quot;type&quot;: &quot;web&quot;
+      },
+      {
+        &quot;all&quot;: false,
+        &quot;index&quot;: 1,
+        &quot;type&quot;: &quot;web&quot;
+      },
+      {
+        &quot;all&quot;: false,
+        &quot;index&quot;: 2,
+        &quot;type&quot;: &quot;web&quot;
+      },
+      {
+        &quot;all&quot;: false,
+        &quot;index&quot;: 3,
+        &quot;type&quot;: &quot;web&quot;
+      },
+      {
+        &quot;all&quot;: false,
+        &quot;index&quot;: 4,
+        &quot;type&quot;: &quot;web&quot;
+      },
+      {
+        &quot;all&quot;: false,
+        &quot;index&quot;: 5,
+        &quot;type&quot;: &quot;web&quot;
+      },
+      {
+        &quot;all&quot;: false,
+        &quot;index&quot;: 6,
+        &quot;type&quot;: &quot;web&quot;
+      },
+      {
+        &quot;all&quot;: false,
+        &quot;index&quot;: 7,
+        &quot;type&quot;: &quot;web&quot;
+      },
+      {
+        &quot;all&quot;: false,
+        &quot;index&quot;: 8,
+        &quot;type&quot;: &quot;web&quot;
+      },
+      {
+        &quot;all&quot;: false,
+        &quot;index&quot;: 9,
+        &quot;type&quot;: &quot;web&quot;
+      },
+      {
+        &quot;all&quot;: false,
+        &quot;index&quot;: 10,
+        &quot;type&quot;: &quot;web&quot;
+      },
+      {
+        &quot;all&quot;: false,
+        &quot;index&quot;: 11,
+        &quot;type&quot;: &quot;web&quot;
+      },
+      {
+        &quot;all&quot;: false,
+        &quot;index&quot;: 12,
+        &quot;type&quot;: &quot;web&quot;
+      },
+      {
+        &quot;all&quot;: false,
+        &quot;index&quot;: 13,
+        &quot;type&quot;: &quot;web&quot;
+      },
+      {
+        &quot;all&quot;: false,
+        &quot;index&quot;: 14,
+        &quot;type&quot;: &quot;web&quot;
+      },
+      {
+        &quot;all&quot;: false,
+        &quot;index&quot;: 15,
+        &quot;type&quot;: &quot;web&quot;
+      },
+      {
+        &quot;all&quot;: false,
+        &quot;index&quot;: 16,
+        &quot;type&quot;: &quot;web&quot;
+      },
+      {
+        &quot;all&quot;: false,
+        &quot;index&quot;: 17,
+        &quot;type&quot;: &quot;web&quot;
+      },
+      {
+        &quot;all&quot;: false,
+        &quot;index&quot;: 18,
+        &quot;type&quot;: &quot;web&quot;
+      }
+    ],
+    &quot;side&quot;: [],
+    &quot;top&quot;: [],
+    &quot;type&quot;: &quot;mixed&quot;
+  },
+  &quot;query&quot;: {
+    &quot;bad_results&quot;: false,
+    &quot;city&quot;: &quot;&quot;,
+    &quot;cleaned&quot;: &quot;Los Angeles County Sheriff killed in the line of duty most recent&quot;,
+    &quot;country&quot;: &quot;us&quot;,
+    &quot;header_country&quot;: &quot;&quot;,
+    &quot;is_navigational&quot;: false,
+    &quot;is_news_breaking&quot;: false,
+    &quot;more_results_available&quot;: true,
+    &quot;original&quot;: &quot;site:lasd.org Los Angeles County Sheriff killed in the line of duty most recent&quot;,
+    &quot;postal_code&quot;: &quot;&quot;,
+    &quot;search_operators&quot;: {
+      &quot;applied&quot;: true,
+      &quot;cleaned_query&quot;: &quot;Los Angeles County Sheriff killed in the line of duty most recent&quot;,
+      &quot;sites&quot;: [
+        &quot;lasd.org&quot;
+      ]
+    },
+    &quot;should_fallback&quot;: false,
+    &quot;show_strict_warning&quot;: false,
+    &quot;spellcheck_off&quot;: false,
+    &quot;state&quot;: &quot;&quot;
+  },
+  &quot;type&quot;: &quot;search&quot;,
+  &quot;web&quot;: {
+    &quot;family_friendly&quot;: true,
+    &quot;results&quot;: [
+      {
+        &quot;content_type&quot;: &quot;doc&quot;,
+        &quot;description&quot;: &quot;According to the National Law ... but Reed’s actions certainly seem to be an early example of this phenomenon. Getman was the last Los Angeles County Sheriff killed in the line of duty....&quot;,
+        &quot;extra_snippets&quot;: [
+          &quot;LASD Peace Officers Killed in the Line of Duty By Deputy Chris Miller (retired) &amp; Lieutenant John Stanley As of this writing, 123 peace officers assigned to the Los Angeles Sheriff’s Department, or one of the eleven law enforcement agencies that it has either absorbed or merged with, have been recognized as being killed in the line of duty since the formation of Los Angeles County in 1850.&quot;,
+          &quot;As we did our research, we discovered that there were a couple of peace officers enrolled on the County, State and National memorials who do not meet the criteria for inclusion on any memorial. We remain silent on the presence of these peace officers on this list. The decision to honor them was made decades in the past by others for reasons we may never know. After an exhaustive scouring of surviving historical documents, we believe that the last peace officers killed in the line of duty while serving with the Los Angeles Sheriff’s Department or one of its affiliated agencies have been located and the names of the last five peace officers will be presented for inscription in 2014.&quot;,
+          &quot;Deputy Rosa was leaving a friend&#x27;s home to report for duty when two juveniles approached her on bicycles and attempted to rob her. As they took items from her they discovered her gun and badge and immediately opened fire, fatally wounding her. Both suspects were apprehended and charged with her murder. In 2007 the suspect who shot Deputy Rosa was convicted of murder. Deputy Rosa had served with the Los Angeles County Sheriff&#x27;s Department for 6 years.&quot;,
+          &quot;According to the National Law Enforcement Officer’s Memorial Fund website, Getman’s murder was determined to be the first in the nation of a peace officer by a mentally deranged individual. The modern syndrome known as “suicide by cop” was foreign in the nineteenth century, but Reed’s actions certainly seem to be an early example of this phenomenon. Getman was the last Los Angeles County Sheriff killed in the line of duty.&quot;
+        ],
+        &quot;family_friendly&quot;: true,
+        &quot;is_live&quot;: false,
+        &quot;is_source_both&quot;: false,
+        &quot;is_source_local&quot;: false,
+        &quot;language&quot;: &quot;en&quot;,
+        &quot;meta_url&quot;: {
+          &quot;favicon&quot;: &quot;https://imgs.search.brave.com/vlPVvX7eWxrc60a9HUVpcBmZdO_BMbe0VhXadAJJkWs/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvYTE4NTAzYWVj/MzQ0YjhiMWViYWI2/M2NkNzY3M2UzN2Q4/M2Y1OGNjOGFhYTcw/NTcxMjgzMDRkNzNi/NmRkNTFhMy9sYXNk/Lm9yZy8&quot;,
+          &quot;hostname&quot;: &quot;lasd.org&quot;,
+          &quot;netloc&quot;: &quot;lasd.org&quot;,
+          &quot;path&quot;: &quot;› pdf-lasd-museum  › LASD Deputies Killed in the Line of Duty Revised.doc&quot;,
+          &quot;scheme&quot;: &quot;https&quot;
+        },
+        &quot;profile&quot;: {
+          &quot;img&quot;: &quot;https://imgs.search.brave.com/vlPVvX7eWxrc60a9HUVpcBmZdO_BMbe0VhXadAJJkWs/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvYTE4NTAzYWVj/MzQ0YjhiMWViYWI2/M2NkNzY3M2UzN2Q4/M2Y1OGNjOGFhYTcw/NTcxMjgzMDRkNzNi/NmRkNTFhMy9sYXNk/Lm9yZy8&quot;,
+          &quot;long_name&quot;: &quot;lasd.org&quot;,
+          &quot;name&quot;: &quot;Los Angeles County Sheriff&#x27;s Department&quot;,
+          &quot;url&quot;: &quot;https://lasd.org/pdf-lasd-museum/LASD%20Deputies%20Killed%20in%20the%20Line%20of%20Duty%20Revised.doc&quot;
+        },
+        &quot;subtype&quot;: &quot;generic&quot;,
+        &quot;title&quot;: &quot;LASD Peace Officers Killed in the Line of Duty&quot;,
+        &quot;type&quot;: &quot;search_result&quot;,
+        &quot;url&quot;: &quot;https://lasd.org/pdf-lasd-museum/LASD%20Deputies%20Killed%20in%20the%20Line%20of%20Duty%20Revised.doc&quot;
+      },
+      {
+        &quot;age&quot;: &quot;August 14, 2025&quot;,
+        &quot;description&quot;: &quot;The City of Malibu mourns the tragic loss of three Los Angeles County Sheriff’s Department Detectives-Joshua Kelley-Eklund, Victor Lemus, and William Osborn-who were tragically killed in an explosion while performing their duty protecting ...&quot;,
+        &quot;extra_snippets&quot;: [
+          &quot;The Los Angeles County Sheriff’s Department is profoundly grateful for the immense kindness and support we have received following the tragic loss of our three…&quot;,
+          &quot;It is with profound sorrow and heavy hearts that we extend our deepest condolences to the families, friends, and colleagues of the three Los Angeles County Sheriff’s Department deputies who were tragically killed today. Their commitment to public safety and sacrifice in the line of duty exemplifies the highest ideals of our profession.&quot;,
+          &quot;The City of Malibu mourns the tragic loss of three Los Angeles County Sheriff’s Department Detectives-Joshua Kelley-Eklund, Victor Lemus, and William Osborn-who were tragically killed in an explosion while performing their duty protecting the community. These dedicated public servants, with a combined 74 years of honorable service, were part of the Arson-Explosives unit.&quot;,
+          &quot;The City stands united with our Sheriff’s Dept. partners in grief and support, honoring their bravery and commitment. City of Malibu · We mourn the loss of Bill Osborn. All of us in the Yankees family are thinking about you, praying for you and sending our heartfelt condolences to you guys.Aaron Boon, Manager New York Yankees · It is impossible to express the extreme sadness in Los Angeles County today. We mourn the loss of three brave souls who were tragically killed at a training facility in East Los Angeles.&quot;
+        ],
+        &quot;family_friendly&quot;: true,
+        &quot;is_live&quot;: false,
+        &quot;is_source_both&quot;: false,
+        &quot;is_source_local&quot;: false,
+        &quot;language&quot;: &quot;en&quot;,
+        &quot;meta_url&quot;: {
+          &quot;favicon&quot;: &quot;https://imgs.search.brave.com/vlPVvX7eWxrc60a9HUVpcBmZdO_BMbe0VhXadAJJkWs/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvYTE4NTAzYWVj/MzQ0YjhiMWViYWI2/M2NkNzY3M2UzN2Q4/M2Y1OGNjOGFhYTcw/NTcxMjgzMDRkNzNi/NmRkNTFhMy9sYXNk/Lm9yZy8&quot;,
+          &quot;hostname&quot;: &quot;lasd.org&quot;,
+          &quot;netloc&quot;: &quot;lasd.org&quot;,
+          &quot;path&quot;: &quot;› memorial-messages-for-seb-deputies&quot;,
+          &quot;scheme&quot;: &quot;https&quot;
+        },
+        &quot;page_age&quot;: &quot;2025-08-14T22:41:18&quot;,
+        &quot;profile&quot;: {
+          &quot;img&quot;: &quot;https://imgs.search.brave.com/vlPVvX7eWxrc60a9HUVpcBmZdO_BMbe0VhXadAJJkWs/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvYTE4NTAzYWVj/MzQ0YjhiMWViYWI2/M2NkNzY3M2UzN2Q4/M2Y1OGNjOGFhYTcw/NTcxMjgzMDRkNzNi/NmRkNTFhMy9sYXNk/Lm9yZy8&quot;,
+          &quot;long_name&quot;: &quot;lasd.org&quot;,
+          &quot;name&quot;: &quot;Los Angeles County Sheriff&#x27;s Department&quot;,
+          &quot;url&quot;: &quot;https://lasd.org/memorial-messages-for-seb-deputies/&quot;
+        },
+        &quot;subtype&quot;: &quot;generic&quot;,
+        &quot;thumbnail&quot;: {
+          &quot;logo&quot;: false,
+          &quot;original&quot;: &quot;https://lasd.org/wp-content/uploads/2025/07/Graphic_bereavement_Star.jpg&quot;,
+          &quot;src&quot;: &quot;https://imgs.search.brave.com/k6KyUfr_HJW4QYqKoKvlRS_zxTuPrzkQgEhdxA4Hw3k/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9sYXNk/Lm9yZy93cC1jb250/ZW50L3VwbG9hZHMv/MjAyNS8wNy9HcmFw/aGljX2JlcmVhdmVt/ZW50X1N0YXIuanBn&quot;
+        },
+        &quot;title&quot;: &quot;Memorial Messages for SEB Deputies&quot;,
+        &quot;type&quot;: &quot;search_result&quot;,
+        &quot;url&quot;: &quot;https://lasd.org/memorial-messages-for-seb-deputies/&quot;
+      },
+      {
+        &quot;age&quot;: &quot;September 18, 2023&quot;,
+        &quot;description&quot;: &quot;The Los Angeles County Sheriff’s Department remains dedicated to identifying the perpetrator(s) responsible for the tragic murder of Deputy Ryan Clinkunbroomer. Deputy Clinkunbroomer, an eight-year veteran of the Sheriff’s Department, tragically ...&quot;,
+        &quot;extra_snippets&quot;: [
+          &quot;Update 9/18/2023 – See Third Press Conference video below for update regarding detainment of person of interest Following a pivotal 4:00 p.m. press conference held yesterday on 09/17/2023…&quot;,
+          &quot;The Los Angeles County Sheriff’s Department remains dedicated to identifying the perpetrator(s) responsible for the tragic murder of Deputy Ryan Clinkunbroomer. Deputy Clinkunbroomer, an eight-year veteran of the Sheriff’s Department, tragically lost his life while on duty at Palmdale Sheriff Station.&quot;,
+          &quot;Their cooperation and valuable information have led to a significant development in the murder investigation of Deputy Ryan Clinkunbroomer. Early this morning 09/18/2023, our highly specialized Los Angeles County Sheriff Department Special Enforcement Bureau executed a warrant at the residence of the prime suspect, located in the 37600 block of Barrinson Street, Palmdale.&quot;,
+          &quot;The suspect, 29-year-old Kevin Cataneo Salazar of Palmdale, was promptly apprehended and transported to the Palmdale Sheriff’s Station, where he will remain in custody pending further investigation. Los Angeles County Sheriff Robert Luna confirmed that this case will be meticulously presented to the Los Angeles County District Attorney’s Office for filing considerations, underscoring our unwavering commitment to pursuing justice to the fullest extent of the law.&quot;
+        ],
+        &quot;family_friendly&quot;: true,
+        &quot;is_live&quot;: false,
+        &quot;is_source_both&quot;: false,
+        &quot;is_source_local&quot;: false,
+        &quot;language&quot;: &quot;en&quot;,
+        &quot;meta_url&quot;: {
+          &quot;favicon&quot;: &quot;https://imgs.search.brave.com/vlPVvX7eWxrc60a9HUVpcBmZdO_BMbe0VhXadAJJkWs/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvYTE4NTAzYWVj/MzQ0YjhiMWViYWI2/M2NkNzY3M2UzN2Q4/M2Y1OGNjOGFhYTcw/NTcxMjgzMDRkNzNi/NmRkNTFhMy9sYXNk/Lm9yZy8&quot;,
+          &quot;hostname&quot;: &quot;lasd.org&quot;,
+          &quot;netloc&quot;: &quot;lasd.org&quot;,
+          &quot;path&quot;: &quot;› update-on-the-murder-of-deputy-ryan-clinkunbroomer-in-palmdale&quot;,
+          &quot;scheme&quot;: &quot;https&quot;
+        },
+        &quot;page_age&quot;: &quot;2023-09-18T23:34:45&quot;,
+        &quot;profile&quot;: {
+          &quot;img&quot;: &quot;https://imgs.search.brave.com/vlPVvX7eWxrc60a9HUVpcBmZdO_BMbe0VhXadAJJkWs/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvYTE4NTAzYWVj/MzQ0YjhiMWViYWI2/M2NkNzY3M2UzN2Q4/M2Y1OGNjOGFhYTcw/NTcxMjgzMDRkNzNi/NmRkNTFhMy9sYXNk/Lm9yZy8&quot;,
+          &quot;long_name&quot;: &quot;lasd.org&quot;,
+          &quot;name&quot;: &quot;Los Angeles County Sheriff&#x27;s Department&quot;,
+          &quot;url&quot;: &quot;https://lasd.org/update-on-the-murder-of-deputy-ryan-clinkunbroomer-in-palmdale/&quot;
+        },
+        &quot;subtype&quot;: &quot;generic&quot;,
+        &quot;thumbnail&quot;: {
+          &quot;logo&quot;: false,
+          &quot;original&quot;: &quot;https://lasd.org/wp-content/uploads/2023/09/EOW_2023_Deputy-Ryan-Clinkunbroomer_a.jpg&quot;,
+          &quot;src&quot;: &quot;https://imgs.search.brave.com/Ai2WOW4lCpOfFXb-BmwdcCuCdbl-cu5IKg0toaHJB_E/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9sYXNk/Lm9yZy93cC1jb250/ZW50L3VwbG9hZHMv/MjAyMy8wOS9FT1df/MjAyM19EZXB1dHkt/Unlhbi1DbGlua3Vu/YnJvb21lcl9hLmpw/Zw&quot;
+        },
+        &quot;title&quot;: &quot;Update on the Murder of Deputy Ryan Clinkunbroomer in Palmdale&quot;,
+        &quot;type&quot;: &quot;search_result&quot;,
+        &quot;url&quot;: &quot;https://lasd.org/update-on-the-murder-of-deputy-ryan-clinkunbroomer-in-palmdale/&quot;
+      },
+      {
+        &quot;age&quot;: &quot;January 23, 2026&quot;,
+        &quot;description&quot;: &quot;In 2025, Sheriff Barton and his posse were honored and commemorated at the San Diego Creek Trail which marks the exact location in which they lost their lives. Sheriff Robert Luna joined the community and city leaders for the unveiling of the ...&quot;,
+        &quot;extra_snippets&quot;: [
+          &quot;On January 23, 1857, Sheriff James Barton and his posse of Deputy Charles Daly and Constables William Little and Charles Baker, were killed while courageously…&quot;,
+          &quot;In 2025, Sheriff Barton and his posse were honored and commemorated at the San Diego Creek Trail which marks the exact location in which they lost their lives. Sheriff Robert Luna joined the community and city leaders for the unveiling of the Barton Mound Memorial Plaque, honoring the legacy of Sheriff James Barton, the first Los Angeles County Sheriff member to die in the line of duty.&quot;,
+          &quot;On January 23, 1857, Sheriff James Barton and his posse of Deputy Charles Daly and Constables William Little and Charles Baker, were killed while courageously pursuing outlaws. This act of service forever shaped the history of law enforcement in Los Angeles County.&quot;,
+          &quot;Sheriff Barton and Posse Mound Plaque Dedication https://lasd.org/wp-content/uploads/2026/01/Post_Barton_New_Plaque-1024x768.jpg 1024 768 SIB Staff SIB Staff https://secure.gravatar.com/avatar/179d7335802e3daded4330485a5562ec1de93760eb3e7e694ec84645300a95c0?s=96&amp;d=blank&amp;r=g January 23, 2026 January 22, 2026&quot;
+        ],
+        &quot;family_friendly&quot;: true,
+        &quot;is_live&quot;: false,
+        &quot;is_source_both&quot;: false,
+        &quot;is_source_local&quot;: false,
+        &quot;language&quot;: &quot;en&quot;,
+        &quot;meta_url&quot;: {
+          &quot;favicon&quot;: &quot;https://imgs.search.brave.com/vlPVvX7eWxrc60a9HUVpcBmZdO_BMbe0VhXadAJJkWs/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvYTE4NTAzYWVj/MzQ0YjhiMWViYWI2/M2NkNzY3M2UzN2Q4/M2Y1OGNjOGFhYTcw/NTcxMjgzMDRkNzNi/NmRkNTFhMy9sYXNk/Lm9yZy8&quot;,
+          &quot;hostname&quot;: &quot;lasd.org&quot;,
+          &quot;netloc&quot;: &quot;lasd.org&quot;,
+          &quot;path&quot;: &quot;› sheriff-barton-and-posse-mound-plaque-dedication&quot;,
+          &quot;scheme&quot;: &quot;https&quot;
+        },
+        &quot;page_age&quot;: &quot;2026-01-23T00:00:00&quot;,
+        &quot;profile&quot;: {
+          &quot;img&quot;: &quot;https://imgs.search.brave.com/vlPVvX7eWxrc60a9HUVpcBmZdO_BMbe0VhXadAJJkWs/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvYTE4NTAzYWVj/MzQ0YjhiMWViYWI2/M2NkNzY3M2UzN2Q4/M2Y1OGNjOGFhYTcw/NTcxMjgzMDRkNzNi/NmRkNTFhMy9sYXNk/Lm9yZy8&quot;,
+          &quot;long_name&quot;: &quot;lasd.org&quot;,
+          &quot;name&quot;: &quot;Los Angeles County Sheriff&#x27;s Department&quot;,
+          &quot;url&quot;: &quot;https://lasd.org/sheriff-barton-and-posse-mound-plaque-dedication/&quot;
+        },
+        &quot;subtype&quot;: &quot;generic&quot;,
+        &quot;thumbnail&quot;: {
+          &quot;logo&quot;: false,
+          &quot;original&quot;: &quot;https://lasd.org/wp-content/uploads/2026/01/Post_Barton_New_Plaque.jpg&quot;,
+          &quot;src&quot;: &quot;https://imgs.search.brave.com/VSfcFhbY8Wy73f109aITZqfhcA7JV7YqZsxLXSukm-M/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9sYXNk/Lm9yZy93cC1jb250/ZW50L3VwbG9hZHMv/MjAyNi8wMS9Qb3N0/X0JhcnRvbl9OZXdf/UGxhcXVlLmpwZw&quot;
+        },
+        &quot;title&quot;: &quot;Sheriff Barton and Posse Mound Plaque Dedication | Los Angeles County Sheriff’s Department&quot;,
+        &quot;type&quot;: &quot;search_result&quot;,
+        &quot;url&quot;: &quot;https://lasd.org/sheriff-barton-and-posse-mound-plaque-dedication/&quot;
+      },
+      {
+        &quot;description&quot;: &quot;On January 23, 1857, Sheriff James Barton and his posse of Deputy Charles Daly and Constables William Little and Charles Baker, were killed while courageously pursuing outlaws.&quot;,
+        &quot;extra_snippets&quot;: [
+          &quot;On January 23, 1857, Sheriff James Barton and his posse of Deputy Charles Daly and Constables William Little and Charles Baker, were killed while courageously pursuing outlaws.&quot;,
+          &quot;Sheriff Luna commands the largest Sheriff’s Department in the United States, with nearly 18,000 budgeted sworn and professional staff. ... Custody Services information for the Los Angeles County Area: Jail addresses, contact numbers, visitation scheduling and other custody related services.&quot;,
+          &quot;Records and ID responsibilities include archival, retention, and release of the Department’s records, which comprises 19.4 million crime reports and booking jackets stored in the Sheriff’s Electronic Criminal Documents Archive (SECDA). The Los Angeles County Sheriff’s Department believes in being forthcoming regarding our activities and policing efforts.&quot;,
+          &quot;Find the Los Angeles County Sheriff station that patrols your area.&quot;
+        ],
+        &quot;family_friendly&quot;: true,
+        &quot;is_live&quot;: false,
+        &quot;is_source_both&quot;: false,
+        &quot;is_source_local&quot;: false,
+        &quot;language&quot;: &quot;en&quot;,
+        &quot;meta_url&quot;: {
+          &quot;favicon&quot;: &quot;https://imgs.search.brave.com/vlPVvX7eWxrc60a9HUVpcBmZdO_BMbe0VhXadAJJkWs/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvYTE4NTAzYWVj/MzQ0YjhiMWViYWI2/M2NkNzY3M2UzN2Q4/M2Y1OGNjOGFhYTcw/NTcxMjgzMDRkNzNi/NmRkNTFhMy9sYXNk/Lm9yZy8&quot;,
+          &quot;hostname&quot;: &quot;lasd.org&quot;,
+          &quot;netloc&quot;: &quot;lasd.org&quot;,
+          &quot;path&quot;: &quot;&quot;,
+          &quot;scheme&quot;: &quot;https&quot;
+        },
+        &quot;profile&quot;: {
+          &quot;img&quot;: &quot;https://imgs.search.brave.com/vlPVvX7eWxrc60a9HUVpcBmZdO_BMbe0VhXadAJJkWs/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvYTE4NTAzYWVj/MzQ0YjhiMWViYWI2/M2NkNzY3M2UzN2Q4/M2Y1OGNjOGFhYTcw/NTcxMjgzMDRkNzNi/NmRkNTFhMy9sYXNk/Lm9yZy8&quot;,
+          &quot;long_name&quot;: &quot;lasd.org&quot;,
+          &quot;name&quot;: &quot;Los Angeles County Sheriff&#x27;s Department&quot;,
+          &quot;url&quot;: &quot;https://lasd.org/&quot;
+        },
+        &quot;subtype&quot;: &quot;generic&quot;,
+        &quot;thumbnail&quot;: {
+          &quot;logo&quot;: false,
+          &quot;original&quot;: &quot;https://lasd.org/wp-content/uploads/2019/02/LASDstar_thumbnail.png&quot;,
+          &quot;src&quot;: &quot;https://imgs.search.brave.com/1-SzC1yPW85JkHtjWDG4jOXhjNVRHlN5SEY8JWC0BEc/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9sYXNk/Lm9yZy93cC1jb250/ZW50L3VwbG9hZHMv/MjAxOS8wMi9MQVNE/c3Rhcl90aHVtYm5h/aWwucG5n&quot;
+        },
+        &quot;title&quot;: &quot;Los Angeles County Sheriff’s Department | A Tradition of Service&quot;,
+        &quot;type&quot;: &quot;search_result&quot;,
+        &quot;url&quot;: &quot;https://lasd.org/&quot;
+      },
+      {
+        &quot;age&quot;: &quot;June 13, 2024&quot;,
+        &quot;description&quot;: &quot;On behalf of @lasdhq, we mourn the profound loss of Deputy Alfredo “Freddy” Flores, who tragically passed away last night following a valiant fight for recovery…&quot;,
+        &quot;extra_snippets&quot;: [
+          &quot;On behalf of @lasdhq, we mourn the profound loss of Deputy Alfredo “Freddy” Flores, who tragically passed away last night following a valiant fight for recovery from injuries sustained in the line of duty. Freddy graduated from academy class #327 and honorably served the residents of Los Angeles County for 22 years and will forever be remembered.&quot;
+        ],
+        &quot;family_friendly&quot;: true,
+        &quot;is_live&quot;: false,
+        &quot;is_source_both&quot;: false,
+        &quot;is_source_local&quot;: false,
+        &quot;language&quot;: &quot;en&quot;,
+        &quot;meta_url&quot;: {
+          &quot;favicon&quot;: &quot;https://imgs.search.brave.com/vlPVvX7eWxrc60a9HUVpcBmZdO_BMbe0VhXadAJJkWs/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvYTE4NTAzYWVj/MzQ0YjhiMWViYWI2/M2NkNzY3M2UzN2Q4/M2Y1OGNjOGFhYTcw/NTcxMjgzMDRkNzNi/NmRkNTFhMy9sYXNk/Lm9yZy8&quot;,
+          &quot;hostname&quot;: &quot;lasd.org&quot;,
+          &quot;netloc&quot;: &quot;lasd.org&quot;,
+          &quot;path&quot;: &quot;› deputy-alfredo-freddy-flores-eow-04-20-2024&quot;,
+          &quot;scheme&quot;: &quot;https&quot;
+        },
+        &quot;page_age&quot;: &quot;2024-06-13T21:01:19&quot;,
+        &quot;profile&quot;: {
+          &quot;img&quot;: &quot;https://imgs.search.brave.com/vlPVvX7eWxrc60a9HUVpcBmZdO_BMbe0VhXadAJJkWs/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvYTE4NTAzYWVj/MzQ0YjhiMWViYWI2/M2NkNzY3M2UzN2Q4/M2Y1OGNjOGFhYTcw/NTcxMjgzMDRkNzNi/NmRkNTFhMy9sYXNk/Lm9yZy8&quot;,
+          &quot;long_name&quot;: &quot;lasd.org&quot;,
+          &quot;name&quot;: &quot;Los Angeles County Sheriff&#x27;s Department&quot;,
+          &quot;url&quot;: &quot;https://lasd.org/deputy-alfredo-freddy-flores-eow-04-20-2024/&quot;
+        },
+        &quot;subtype&quot;: &quot;generic&quot;,
+        &quot;thumbnail&quot;: {
+          &quot;logo&quot;: false,
+          &quot;original&quot;: &quot;https://lasd.org/wp-content/uploads/2024/04/439311479_828345736000211_4174467406272395921_n.jpg&quot;,
+          &quot;src&quot;: &quot;https://imgs.search.brave.com/rQp-HCbiQuvraOh-zRiJIpMQoDLtY_XJwnQMZAgV-iQ/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9sYXNk/Lm9yZy93cC1jb250/ZW50L3VwbG9hZHMv/MjAyNC8wNC80Mzkz/MTE0NzlfODI4MzQ1/NzM2MDAwMjExXzQx/NzQ0Njc0MDYyNzIz/OTU5MjFfbi5qcGc&quot;
+        },
+        &quot;title&quot;: &quot;Deputy Alfredo “Freddy” Flores, EOW | Los Angeles County Sheriff’s Department&quot;,
+        &quot;type&quot;: &quot;search_result&quot;,
+        &quot;url&quot;: &quot;https://lasd.org/deputy-alfredo-freddy-flores-eow-04-20-2024/&quot;
+      },
+      {
+        &quot;description&quot;: &quot;Los Angeles County Sheriff’s Department Homicides from 1925 – 2020 – PDF&quot;,
+        &quot;extra_snippets&quot;: [
+          &quot;The reports and statistics on this page are reflective of murder incidents investigated by the Los Angeles County Sheriff’s Department – Homicide Bureau.&quot;,
+          &quot;This data file contains Murder incidents investigated by the Los Angeles County Sheriff’s Department – Homicide Bureau which occurred in Los Angeles County Sheriff’s Department patrol areas from 1925 to present.&quot;,
+          &quot;The homicide data is gathered from areas patrolled by the Los Angeles County Sheriff’s Department.&quot;,
+          &quot;Los Angeles County Sheriff’s Department Homicides from 1925 – 2020 – PDF&quot;
+        ],
+        &quot;family_friendly&quot;: true,
+        &quot;is_live&quot;: false,
+        &quot;is_source_both&quot;: false,
+        &quot;is_source_local&quot;: false,
+        &quot;language&quot;: &quot;en&quot;,
+        &quot;meta_url&quot;: {
+          &quot;favicon&quot;: &quot;https://imgs.search.brave.com/gOh0cniVES-8f8WiIgQFSaHoI3M9zcuJ3lNwYrJ8GbU/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDhlZGRlM2Ey/ZmJlODFjMTkxYzY0/YzE2ZGYyYjY2ZmNj/MjA5ZjllMDhjMDMy/ZmRiNzYyYTgzZTJh/ODlmNDFhNS9zaGVy/aWZmMzMubGFzZC5v/cmcv&quot;,
+          &quot;hostname&quot;: &quot;sheriff33.lasd.org&quot;,
+          &quot;netloc&quot;: &quot;sheriff33.lasd.org&quot;,
+          &quot;path&quot;: &quot;  › home  › transparency promise main&quot;,
+          &quot;scheme&quot;: &quot;https&quot;
+        },
+        &quot;profile&quot;: {
+          &quot;img&quot;: &quot;https://imgs.search.brave.com/gOh0cniVES-8f8WiIgQFSaHoI3M9zcuJ3lNwYrJ8GbU/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDhlZGRlM2Ey/ZmJlODFjMTkxYzY0/YzE2ZGYyYjY2ZmNj/MjA5ZjllMDhjMDMy/ZmRiNzYyYTgzZTJh/ODlmNDFhNS9zaGVy/aWZmMzMubGFzZC5v/cmcv&quot;,
+          &quot;long_name&quot;: &quot;sheriff33.lasd.org&quot;,
+          &quot;name&quot;: &quot;Lasd&quot;,
+          &quot;url&quot;: &quot;https://sheriff33.lasd.org/transparency/homicidereports/&quot;
+        },
+        &quot;subtype&quot;: &quot;generic&quot;,
+        &quot;thumbnail&quot;: {
+          &quot;logo&quot;: false,
+          &quot;original&quot;: &quot;https://sheriff33.lasd.org/wp-content/uploads/2019/02/LASDstar_thumbnail.png&quot;,
+          &quot;src&quot;: &quot;https://imgs.search.brave.com/KOY0h80SIByE7wV5ltc08Ah2AJkSiQGzZTjcZuIN2os/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9zaGVy/aWZmMzMubGFzZC5v/cmcvd3AtY29udGVu/dC91cGxvYWRzLzIw/MTkvMDIvTEFTRHN0/YXJfdGh1bWJuYWls/LnBuZw&quot;
+        },
+        &quot;title&quot;: &quot;Homicide Reports | Los Angeles County Sheriff’s Department&quot;,
+        &quot;type&quot;: &quot;search_result&quot;,
+        &quot;url&quot;: &quot;https://sheriff33.lasd.org/transparency/homicidereports/&quot;
+      },
+      {
+        &quot;description&quot;: &quot;The department’s website, sheriff33.lasd.org, now has all information previously hidden from the public’s view, including data on deputy-involved shootings, discipline, conditions of confinement in the jail system, and the impact of COVID-19, along with the entire organization’s rules and regulations.&quot;,
+        &quot;extra_snippets&quot;: [
+          &quot;As the first and only sheriff to hold employees accountable for participating in these harmful groups, I implemented a policy that bans their formation and participation in activities that harm the public or their fellow employees.&quot;,
+          &quot;The department’s website, sheriff33.lasd.org, now has all information previously hidden from the public’s view, including data on deputy-involved shootings, discipline, conditions of confinement in the jail system, and the impact of COVID-19, along with the entire organization’s rules and regulations.&quot;,
+          &quot;Sheriff Villanueva promoted the first two Latinas to the position of Assistant Sheriff and had both serving at the same time.&quot;
+        ],
+        &quot;family_friendly&quot;: true,
+        &quot;is_live&quot;: false,
+        &quot;is_source_both&quot;: false,
+        &quot;is_source_local&quot;: false,
+        &quot;language&quot;: &quot;en&quot;,
+        &quot;meta_url&quot;: {
+          &quot;favicon&quot;: &quot;https://imgs.search.brave.com/gOh0cniVES-8f8WiIgQFSaHoI3M9zcuJ3lNwYrJ8GbU/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDhlZGRlM2Ey/ZmJlODFjMTkxYzY0/YzE2ZGYyYjY2ZmNj/MjA5ZjllMDhjMDMy/ZmRiNzYyYTgzZTJh/ODlmNDFhNS9zaGVy/aWZmMzMubGFzZC5v/cmcv&quot;,
+          &quot;hostname&quot;: &quot;sheriff33.lasd.org&quot;,
+          &quot;netloc&quot;: &quot;sheriff33.lasd.org&quot;,
+          &quot;path&quot;: &quot;  › home&quot;,
+          &quot;scheme&quot;: &quot;https&quot;
+        },
+        &quot;profile&quot;: {
+          &quot;img&quot;: &quot;https://imgs.search.brave.com/gOh0cniVES-8f8WiIgQFSaHoI3M9zcuJ3lNwYrJ8GbU/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvZDhlZGRlM2Ey/ZmJlODFjMTkxYzY0/YzE2ZGYyYjY2ZmNj/MjA5ZjllMDhjMDMy/ZmRiNzYyYTgzZTJh/ODlmNDFhNS9zaGVy/aWZmMzMubGFzZC5v/cmcv&quot;,
+          &quot;long_name&quot;: &quot;sheriff33.lasd.org&quot;,
+          &quot;name&quot;: &quot;Lasd&quot;,
+          &quot;url&quot;: &quot;https://sheriff33.lasd.org/factcheck/&quot;
+        },
+        &quot;subtype&quot;: &quot;generic&quot;,
+        &quot;thumbnail&quot;: {
+          &quot;logo&quot;: false,
+          &quot;original&quot;: &quot;https://sheriff33.lasd.org/wp-content/uploads/2019/02/LASDstar_thumbnail.png&quot;,
+          &quot;src&quot;: &quot;https://imgs.search.brave.com/KOY0h80SIByE7wV5ltc08Ah2AJkSiQGzZTjcZuIN2os/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9zaGVy/aWZmMzMubGFzZC5v/cmcvd3AtY29udGVu/dC91cGxvYWRzLzIw/MTkvMDIvTEFTRHN0/YXJfdGh1bWJuYWls/LnBuZw&quot;
+        },
+        &quot;title&quot;: &quot;Fact Check | Los Angeles County Sheriff’s Department&quot;,
+        &quot;type&quot;: &quot;search_result&quot;,
+        &quot;url&quot;: &quot;https://sheriff33.lasd.org/factcheck/&quot;
+      },
+      {
+        &quot;content_type&quot;: &quot;pdf&quot;,
+        &quot;description&quot;: &quot;William Getman was the second and last Sheriff killed in the line of duty in Los Angeles County.&quot;,
+        &quot;extra_snippets&quot;: [
+          &quot;territories that are now Los Angeles, San Bernardino, Riverside, Orange and Kern Counties. Sheriff Burrill’s duties included not only enforcing the law, but collecting taxes.&quot;,
+          &quot;hundreds of citizens watched this historic event, Ignacio Herrera was hanged for killing a young · man involved in a love triangle. Between 1851 and 1874, Los Angeles witnessed 40 legal · hangings, 38 lynchings and 32 executions by vigilance committee. Late in 1854, Sheriff Barton was mistreating an Indian woman and was confronted by Andres&quot;,
+          &quot;of Miguel Soto. Sheriff Barton’s pistol was still in Soto’s possession when he was killed. Tempers in Los Angeles continued to flare from the Sheriff’s murder.&quot;,
+          &quot;Andres Pico supported Sheriff Alexander by forming a posse of twenty vaqueros who rode out · and captured Cariergue. Now Cariergue was in jail with Jenkins, the man he was going to lynch · for killing his friend.&quot;
+        ],
+        &quot;family_friendly&quot;: true,
+        &quot;is_live&quot;: false,
+        &quot;is_source_both&quot;: false,
+        &quot;is_source_local&quot;: false,
+        &quot;language&quot;: &quot;en&quot;,
+        &quot;meta_url&quot;: {
+          &quot;favicon&quot;: &quot;https://imgs.search.brave.com/vlPVvX7eWxrc60a9HUVpcBmZdO_BMbe0VhXadAJJkWs/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvYTE4NTAzYWVj/MzQ0YjhiMWViYWI2/M2NkNzY3M2UzN2Q4/M2Y1OGNjOGFhYTcw/NTcxMjgzMDRkNzNi/NmRkNTFhMy9sYXNk/Lm9yZy8&quot;,
+          &quot;hostname&quot;: &quot;lasd.org&quot;,
+          &quot;netloc&quot;: &quot;lasd.org&quot;,
+          &quot;path&quot;: &quot;› pdf-lasd-museum  › timeline  › 1850 - 1859.pdf&quot;,
+          &quot;scheme&quot;: &quot;https&quot;
+        },
+        &quot;profile&quot;: {
+          &quot;img&quot;: &quot;https://imgs.search.brave.com/vlPVvX7eWxrc60a9HUVpcBmZdO_BMbe0VhXadAJJkWs/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvYTE4NTAzYWVj/MzQ0YjhiMWViYWI2/M2NkNzY3M2UzN2Q4/M2Y1OGNjOGFhYTcw/NTcxMjgzMDRkNzNi/NmRkNTFhMy9sYXNk/Lm9yZy8&quot;,
+          &quot;long_name&quot;: &quot;lasd.org&quot;,
+          &quot;name&quot;: &quot;Los Angeles County Sheriff&#x27;s Department&quot;,
+          &quot;url&quot;: &quot;https://lasd.org/pdf-lasd-museum/timeline/1850%20-%201859.pdf&quot;
+        },
+        &quot;subtype&quot;: &quot;generic&quot;,
+        &quot;title&quot;: &quot;1850 Los Angeles County was formed.&quot;,
+        &quot;type&quot;: &quot;search_result&quot;,
+        &quot;url&quot;: &quot;https://lasd.org/pdf-lasd-museum/timeline/1850%20-%201859.pdf&quot;
+      },
+      {
+        &quot;age&quot;: &quot;2 weeks ago&quot;,
+        &quot;description&quot;: &quot;The Sheriff’s Department conducts very thorough and clearly-defined investigations into shootings and uses of force. The Internal Affairs Bureau Force/Shooting Response Team conducts an administrative review of all deputy-involved shootings, when no one is struck by gunfire.&quot;,
+        &quot;extra_snippets&quot;: [
+          &quot;Upon completion of the initial criminal investigation, Homicide Bureau presents the case to the Los Angeles County District Attorney&#x27;s Office, Justice System Integrity Division (JSID). JSID evaluates the force used by the involved Sheriff’s personnel to determine whether or not the shooting was legally justified or in violation of the law.&quot;,
+          &quot;Each deputy-involved shooting is reviewed by independent investigative agencies. The Los Angeles County District Attorney’s Office Justice System Integrity Division (JSID) members respond to the scene to conduct an independent and thorough review of the evidence.&quot;,
+          &quot;The Sheriff’s Department conducts very thorough and clearly-defined investigations into shootings and uses of force. The Internal Affairs Bureau Force/Shooting Response Team conducts an administrative review of all deputy-involved shootings, when no one is struck by gunfire.&quot;
+        ],
+        &quot;family_friendly&quot;: true,
+        &quot;is_live&quot;: false,
+        &quot;is_source_both&quot;: false,
+        &quot;is_source_local&quot;: false,
+        &quot;language&quot;: &quot;en&quot;,
+        &quot;meta_url&quot;: {
+          &quot;favicon&quot;: &quot;https://imgs.search.brave.com/vlPVvX7eWxrc60a9HUVpcBmZdO_BMbe0VhXadAJJkWs/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvYTE4NTAzYWVj/MzQ0YjhiMWViYWI2/M2NkNzY3M2UzN2Q4/M2Y1OGNjOGFhYTcw/NTcxMjgzMDRkNzNi/NmRkNTFhMy9sYXNk/Lm9yZy8&quot;,
+          &quot;hostname&quot;: &quot;lasd.org&quot;,
+          &quot;netloc&quot;: &quot;lasd.org&quot;,
+          &quot;path&quot;: &quot;  › home  › transparency main&quot;,
+          &quot;scheme&quot;: &quot;https&quot;
+        },
+        &quot;page_age&quot;: &quot;2026-04-29T20:01:01&quot;,
+        &quot;profile&quot;: {
+          &quot;img&quot;: &quot;https://imgs.search.brave.com/vlPVvX7eWxrc60a9HUVpcBmZdO_BMbe0VhXadAJJkWs/rs:fit:32:32:1:0/g:ce/aHR0cDovL2Zhdmlj/b25zLnNlYXJjaC5i/cmF2ZS5jb20vaWNv/bnMvYTE4NTAzYWVj/MzQ0YjhiMWViYWI2/M2NkNzY3M2UzN2Q4/M2Y1OGNjOGFhYTcw/NTcxMjgzMDRkNzNi/NmRkNTFhMy9sYXNk/Lm9yZy8&quot;,
+          &quot;long_name&quot;: &quot;lasd.org&quot;,
+          &quot;name&quot;: &quot;Los Angeles County Sheriff&#x27;s Department&quot;,
+          &quot;url&quot;: &quot;https://lasd.org/transparency/deputyinvolvedshootingcurrent/&quot;
+        },
+        &quot;subtype&quot;: &quot;generic&quot;,
+        &quot;thumbnail&quot;: {
+          &quot;logo&quot;: false,
+          &quot;original&quot;: &quot;https://lasd.org/wp-content/uploads/2019/02/LASDstar_thumbnail.png&quot;,
+          &quot;src&quot;: &quot;https://imgs.search.brave.com/1-SzC1yPW85JkHtjWDG4jOXhjNVRHlN5SEY8JWC0BEc/rs:fit:200:200:1:0/g:ce/aHR0cHM6Ly9sYXNk/Lm9yZy93cC1jb250/ZW50L3VwbG9hZHMv/MjAxOS8wMi9MQVNE/c3Rhcl90aHVtYm5h/aWwucG5n&quot;
+        },
+        &quot;title&quot;: &quot;Deputy Involved Shootings - Current&quot;,
+        &quot;type&quot;: &quot;search_result&quot;,
+        &quot;url&quot;: &quot;https://lasd.org/transparency/deputyinvolvedshootingcurrent/&quot;
+      }
+    ],
+    &quot;type&quot;: &quot;search&quot;
+  }
+}</pre>
+      </details>
+    </details>
+    
+      </details>
+    </section>
+    
+
+    <section class="iteration">
+      <div class="iteration-head">
+        <h2>Iteration 2</h2>
+        <div class="chips">
+          <span class="chip">decision: answer</span>
+          <span class="chip">latency: 1185 ms</span>
+          <span class="chip">prompt: 4468</span>
+          <span class="chip">completion: 15</span>
+        </div>
+      </div>
+      <details class="panel" open>
+        <summary>LLM Request Snapshot</summary>
+        <div class="kv"><strong>Config</strong><pre class="json">{
+  &quot;provider&quot;: &quot;azure_openai&quot;,
+  &quot;model_id&quot;: &quot;azure:gpt-5.4&quot;,
+  &quot;endpoint&quot;: &quot;https://selva-m9q555e6-eastus2.cognitiveservices.azure.com&quot;,
+  &quot;deployment&quot;: &quot;gpt-5.4&quot;,
+  &quot;api_version&quot;: &quot;2024-12-01-preview&quot;,
+  &quot;temperature&quot;: 0.0,
+  &quot;max_tokens_field&quot;: &quot;max_completion_tokens&quot;,
+  &quot;max_tokens&quot;: 4096,
+  &quot;tool_choice&quot;: &quot;auto&quot;
+}</pre></div>
+        <div class="kv"><strong>Tool schema names</strong><pre class="json">[
+  &quot;search_web&quot;
+]</pre></div>
+        <div class="messages"><details class="message system"><summary>message 0 | role=system | 3,321 chars</summary><pre class="message-content">&lt;system_instructions&gt;
+You are a assistant answering factual questions from a user.
+You have one tool: `search_web` It takes a query string and returns search results (title, URL, snippet) from a web search engine.
+Your responses must be factually grounded with a document from web search.
+
+How to work:
+1. Read the user query carefully and determine web search queries needed to retrieve documents for answering the question.
+2. Call `search_web` for retrieving documents from the web.
+3. You may make more than one `search_web` call per turn if you need to fan out to collect evidence.
+4. If search results are insufficient, conflicting, stale, or ambiguous, reformulate and search again.
+5. If you are unable to answer the given question and can&#x27;t think of any more search queries for information retrieval say exactly: `FINAL ANSWER: I cannot determine the answer from available sources.`
+
+
+Output rules:
+1. Final responses must contain only the factual answer prefixed with `FINAL ANSWER: `.
+2. Do not include chain-of-thought, explanations, or source summaries in the final response.
+3. If the answer is a name, title, date, number, organization, or short phrase, return only that value after the prefix.
+
+Input demarcation:
+The live user query will be presented inside `&lt;user_query&gt;`.
+Retrieved search documents will be presented inside `&lt;search_documents&gt;`.
+&lt;/system_instructions&gt;
+
+&lt;example name=&quot;neutral_evidence_use&quot;&gt;
+&lt;purpose&gt;
+This example shows how to separate the question from retrieved documents and how to decide based on evidence.
+It is not a recommendation to always search, always answer, or always abstain.
+&lt;/purpose&gt;
+
+&lt;system_instructions_example&gt;
+You are answering a factual question. Use search_web only when more evidence is needed.
+Answer only when the retrieved documents support the answer. 
+&lt;/system_instructions_example&gt;
+
+&lt;user_query_example&gt;
+Which company was the prime contractor for NASA&#x27;s James Webb Space Telescope?
+&lt;/user_query_example&gt;
+
+&lt;search_documents_example&gt;
+&lt;search query=&quot;NASA James Webb Space Telescope prime contractor company&quot; provider=&quot;brave&quot;&gt;
+  &lt;document rank=&quot;1&quot;&gt;
+    &lt;title&gt;NASA&#x27;s Webb Space Telescope Mission&lt;/title&gt;
+    &lt;url&gt;https://www.nasa.gov/mission/webb/&lt;/url&gt;
+    &lt;snippet&gt;NASA describes the Webb mission and identifies Northrop Grumman as the observatory&#x27;s prime contractor.&lt;/snippet&gt;
+  &lt;/document&gt;
+  &lt;document rank=&quot;2&quot;&gt;
+    &lt;title&gt;Northrop Grumman Completes Webb Telescope&lt;/title&gt;
+    &lt;url&gt;https://news.northropgrumman.com/&lt;/url&gt;
+    &lt;snippet&gt;Northrop Grumman says it served as prime contractor for Webb and integrated the observatory before launch.&lt;/snippet&gt;
+  &lt;/document&gt;
+  &lt;document rank=&quot;3&quot;&gt;
+    &lt;title&gt;James Webb Space Telescope Overview&lt;/title&gt;
+    &lt;url&gt;https://www.nasa.gov/&lt;/url&gt;
+    &lt;snippet&gt;NASA overview of Webb&#x27;s mission, instruments, and deployment. This snippet does not identify the contractor.&lt;/snippet&gt;
+  &lt;/document&gt;
+&lt;/search&gt;
+&lt;/search_documents_example&gt;
+
+&lt;decision_guidance_example&gt;
+If the current documents support the answer, give `FINAL ANSWER: Northrop Grumman`.
+If the documents were missing the contractor, call `search_web` with a more targeted query.
+If the searching doesn&#x27;t give you the answer you are looking for, then give `FINAL ANSWER: I cannot determine the answer from available sources.`
+&lt;/decision_guidance_example&gt;
+&lt;/example&gt;</pre></details>
+<details class="message user"><summary>message 1 | role=user | 108 chars</summary><pre class="message-content">&lt;user_query&gt;
+Who was the most recent Sheriff of Los Angeles County killed in the line of duty?
+&lt;/user_query&gt;</pre></details>
+<details class="message assistant"><summary>message 2 | role=assistant | 1 tool call(s)</summary><div class="subhead">Tool Calls</div><pre class="json">[
+  {
+    &quot;function&quot;: {
+      &quot;arguments&quot;: &quot;{\&quot;query\&quot;:\&quot;site:lasd.org Los Angeles County Sheriff killed in the line of duty most recent\&quot;}&quot;,
+      &quot;name&quot;: &quot;search_web&quot;
+    },
+    &quot;id&quot;: &quot;call_MIF26zK2xwSQEClPn6P2vKja&quot;,
+    &quot;type&quot;: &quot;function&quot;
+  }
+]</pre></details>
+<details class="message tool"><summary>message 3 | role=tool | 15,838 chars</summary><pre class="message-content">&lt;search_documents&gt;
+&lt;search query=&quot;site:lasd.org Los Angeles County Sheriff killed in the line of duty most recent&quot; provider=&quot;brave&quot;&gt;
+&lt;document rank=&quot;1&quot;&gt;
+    &lt;title&gt;LASD Peace Officers Killed in the Line of Duty&lt;/title&gt;
+    &lt;url&gt;https://lasd.org/pdf-lasd-museum/LASD%20Deputies%20Killed%20in%20the%20Line%20of%20Duty%20Revised.doc&lt;/url&gt;
+    &lt;domain&gt;lasd.org&lt;/domain&gt;
+    &lt;snippet&gt;According to the National Law ... but Reed’s actions certainly seem to be an early example of this phenomenon. Getman was the last Los Angeles County Sheriff killed in the line of duty....&lt;/snippet&gt;
+    &lt;extra_snippet&gt;LASD Peace Officers Killed in the Line of Duty By Deputy Chris Miller (retired) &amp;amp; Lieutenant John Stanley As of this writing, 123 peace officers assigned to the Los Angeles Sheriff’s Department, or one of the eleven law enforcement agencies that it has either absorbed or merged with, have been recognized as being killed in the line of duty since the formation of Los Angeles County in 1850.&lt;/extra_snippet&gt;
+    &lt;extra_snippet&gt;As we did our research, we discovered that there were a couple of peace officers enrolled on the County, State and National memorials who do not meet the criteria for inclusion on any memorial. We remain silent on the presence of these peace officers on this list. The decision to honor them was made decades in the past by others for reasons we may never know. After an exhaustive scouring of surviving historical documents, we believe that the last peace officers killed in the line of duty while serving with the Los Angeles Sheriff’s Department or one of its affiliated agencies have been located and the names of the last five peace officers will be presented for inscription in 2014.&lt;/extra_snippet&gt;
+    &lt;extra_snippet&gt;Deputy Rosa was leaving a friend&amp;#x27;s home to report for duty when two juveniles approached her on bicycles and attempted to rob her. As they took items from her they discovered her gun and badge and immediately opened fire, fatally wounding her. Both suspects were apprehended and charged with her murder. In 2007 the suspect who shot Deputy Rosa was convicted of murder. Deputy Rosa had served with the Los Angeles County Sheriff&amp;#x27;s Department for 6 years.&lt;/extra_snippet&gt;
+    &lt;extra_snippet&gt;According to the National Law Enforcement Officer’s Memorial Fund website, Getman’s murder was determined to be the first in the nation of a peace officer by a mentally deranged individual. The modern syndrome known as “suicide by cop” was foreign in the nineteenth century, but Reed’s actions certainly seem to be an early example of this phenomenon. Getman was the last Los Angeles County Sheriff killed in the line of duty.&lt;/extra_snippet&gt;
+  &lt;/document&gt;&lt;document rank=&quot;2&quot;&gt;
+    &lt;title&gt;Memorial Messages for SEB Deputies&lt;/title&gt;
+    &lt;url&gt;https://lasd.org/memorial-messages-for-seb-deputies&lt;/url&gt;
+    &lt;domain&gt;lasd.org&lt;/domain&gt;
+    &lt;snippet&gt;The City of Malibu mourns the tragic loss of three Los Angeles County Sheriff’s Department Detectives-Joshua Kelley-Eklund, Victor Lemus, and William Osborn-who were tragically killed in an explosion while performing their duty protecting ...&lt;/snippet&gt;
+    &lt;extra_snippet&gt;The Los Angeles County Sheriff’s Department is profoundly grateful for the immense kindness and support we have received following the tragic loss of our three…&lt;/extra_snippet&gt;
+    &lt;extra_snippet&gt;It is with profound sorrow and heavy hearts that we extend our deepest condolences to the families, friends, and colleagues of the three Los Angeles County Sheriff’s Department deputies who were tragically killed today. Their commitment to public safety and sacrifice in the line of duty exemplifies the highest ideals of our profession.&lt;/extra_snippet&gt;
+    &lt;extra_snippet&gt;The City of Malibu mourns the tragic loss of three Los Angeles County Sheriff’s Department Detectives-Joshua Kelley-Eklund, Victor Lemus, and William Osborn-who were tragically killed in an explosion while performing their duty protecting the community. These dedicated public servants, with a combined 74 years of honorable service, were part of the Arson-Explosives unit.&lt;/extra_snippet&gt;
+    &lt;extra_snippet&gt;The City stands united with our Sheriff’s Dept. partners in grief and support, honoring their bravery and commitment. City of Malibu · We mourn the loss of Bill Osborn. All of us in the Yankees family are thinking about you, praying for you and sending our heartfelt condolences to you guys.Aaron Boon, Manager New York Yankees · It is impossible to express the extreme sadness in Los Angeles County today. We mourn the loss of three brave souls who were tragically killed at a training facility in East Los Angeles.&lt;/extra_snippet&gt;
+  &lt;/document&gt;&lt;document rank=&quot;3&quot;&gt;
+    &lt;title&gt;Update on the Murder of Deputy Ryan Clinkunbroomer in Palmdale&lt;/title&gt;
+    &lt;url&gt;https://lasd.org/update-on-the-murder-of-deputy-ryan-clinkunbroomer-in-palmdale&lt;/url&gt;
+    &lt;domain&gt;lasd.org&lt;/domain&gt;
+    &lt;snippet&gt;The Los Angeles County Sheriff’s Department remains dedicated to identifying the perpetrator(s) responsible for the tragic murder of Deputy Ryan Clinkunbroomer. Deputy Clinkunbroomer, an eight-year veteran of the Sheriff’s Department, tragically ...&lt;/snippet&gt;
+    &lt;extra_snippet&gt;Update 9/18/2023 – See Third Press Conference video below for update regarding detainment of person of interest Following a pivotal 4:00 p.m. press conference held yesterday on 09/17/2023…&lt;/extra_snippet&gt;
+    &lt;extra_snippet&gt;The Los Angeles County Sheriff’s Department remains dedicated to identifying the perpetrator(s) responsible for the tragic murder of Deputy Ryan Clinkunbroomer. Deputy Clinkunbroomer, an eight-year veteran of the Sheriff’s Department, tragically lost his life while on duty at Palmdale Sheriff Station.&lt;/extra_snippet&gt;
+    &lt;extra_snippet&gt;Their cooperation and valuable information have led to a significant development in the murder investigation of Deputy Ryan Clinkunbroomer. Early this morning 09/18/2023, our highly specialized Los Angeles County Sheriff Department Special Enforcement Bureau executed a warrant at the residence of the prime suspect, located in the 37600 block of Barrinson Street, Palmdale.&lt;/extra_snippet&gt;
+    &lt;extra_snippet&gt;The suspect, 29-year-old Kevin Cataneo Salazar of Palmdale, was promptly apprehended and transported to the Palmdale Sheriff’s Station, where he will remain in custody pending further investigation. Los Angeles County Sheriff Robert Luna confirmed that this case will be meticulously presented to the Los Angeles County District Attorney’s Office for filing considerations, underscoring our unwavering commitment to pursuing justice to the fullest extent of the law.&lt;/extra_snippet&gt;
+  &lt;/document&gt;&lt;document rank=&quot;4&quot;&gt;
+    &lt;title&gt;Sheriff Barton and Posse Mound Plaque Dedication | Los Angeles County Sheriff’s Department&lt;/title&gt;
+    &lt;url&gt;https://lasd.org/sheriff-barton-and-posse-mound-plaque-dedication&lt;/url&gt;
+    &lt;domain&gt;lasd.org&lt;/domain&gt;
+    &lt;snippet&gt;In 2025, Sheriff Barton and his posse were honored and commemorated at the San Diego Creek Trail which marks the exact location in which they lost their lives. Sheriff Robert Luna joined the community and city leaders for the unveiling of the ...&lt;/snippet&gt;
+    &lt;extra_snippet&gt;On January 23, 1857, Sheriff James Barton and his posse of Deputy Charles Daly and Constables William Little and Charles Baker, were killed while courageously…&lt;/extra_snippet&gt;
+    &lt;extra_snippet&gt;In 2025, Sheriff Barton and his posse were honored and commemorated at the San Diego Creek Trail which marks the exact location in which they lost their lives. Sheriff Robert Luna joined the community and city leaders for the unveiling of the Barton Mound Memorial Plaque, honoring the legacy of Sheriff James Barton, the first Los Angeles County Sheriff member to die in the line of duty.&lt;/extra_snippet&gt;
+    &lt;extra_snippet&gt;On January 23, 1857, Sheriff James Barton and his posse of Deputy Charles Daly and Constables William Little and Charles Baker, were killed while courageously pursuing outlaws. This act of service forever shaped the history of law enforcement in Los Angeles County.&lt;/extra_snippet&gt;
+    &lt;extra_snippet&gt;Sheriff Barton and Posse Mound Plaque Dedication https://lasd.org/wp-content/uploads/2026/01/Post_Barton_New_Plaque-1024x768.jpg 1024 768 SIB Staff SIB Staff https://secure.gravatar.com/avatar/179d7335802e3daded4330485a5562ec1de93760eb3e7e694ec84645300a95c0?s=96&amp;amp;d=blank&amp;amp;r=g January 23, 2026 January 22, 2026&lt;/extra_snippet&gt;
+  &lt;/document&gt;&lt;document rank=&quot;5&quot;&gt;
+    &lt;title&gt;Los Angeles County Sheriff’s Department | A Tradition of Service&lt;/title&gt;
+    &lt;url&gt;https://lasd.org&lt;/url&gt;
+    &lt;domain&gt;lasd.org&lt;/domain&gt;
+    &lt;snippet&gt;On January 23, 1857, Sheriff James Barton and his posse of Deputy Charles Daly and Constables William Little and Charles Baker, were killed while courageously pursuing outlaws.&lt;/snippet&gt;
+    &lt;extra_snippet&gt;On January 23, 1857, Sheriff James Barton and his posse of Deputy Charles Daly and Constables William Little and Charles Baker, were killed while courageously pursuing outlaws.&lt;/extra_snippet&gt;
+    &lt;extra_snippet&gt;Sheriff Luna commands the largest Sheriff’s Department in the United States, with nearly 18,000 budgeted sworn and professional staff. ... Custody Services information for the Los Angeles County Area: Jail addresses, contact numbers, visitation scheduling and other custody related services.&lt;/extra_snippet&gt;
+    &lt;extra_snippet&gt;Records and ID responsibilities include archival, retention, and release of the Department’s records, which comprises 19.4 million crime reports and booking jackets stored in the Sheriff’s Electronic Criminal Documents Archive (SECDA). The Los Angeles County Sheriff’s Department believes in being forthcoming regarding our activities and policing efforts.&lt;/extra_snippet&gt;
+    &lt;extra_snippet&gt;Find the Los Angeles County Sheriff station that patrols your area.&lt;/extra_snippet&gt;
+  &lt;/document&gt;&lt;document rank=&quot;6&quot;&gt;
+    &lt;title&gt;Deputy Alfredo “Freddy” Flores, EOW | Los Angeles County Sheriff’s Department&lt;/title&gt;
+    &lt;url&gt;https://lasd.org/deputy-alfredo-freddy-flores-eow-04-20-2024&lt;/url&gt;
+    &lt;domain&gt;lasd.org&lt;/domain&gt;
+    &lt;snippet&gt;On behalf of @lasdhq, we mourn the profound loss of Deputy Alfredo “Freddy” Flores, who tragically passed away last night following a valiant fight for recovery…&lt;/snippet&gt;
+    &lt;extra_snippet&gt;On behalf of @lasdhq, we mourn the profound loss of Deputy Alfredo “Freddy” Flores, who tragically passed away last night following a valiant fight for recovery from injuries sustained in the line of duty. Freddy graduated from academy class #327 and honorably served the residents of Los Angeles County for 22 years and will forever be remembered.&lt;/extra_snippet&gt;
+  &lt;/document&gt;&lt;document rank=&quot;7&quot;&gt;
+    &lt;title&gt;Homicide Reports | Los Angeles County Sheriff’s Department&lt;/title&gt;
+    &lt;url&gt;https://sheriff33.lasd.org/transparency/homicidereports&lt;/url&gt;
+    &lt;domain&gt;sheriff33.lasd.org&lt;/domain&gt;
+    &lt;snippet&gt;Los Angeles County Sheriff’s Department Homicides from 1925 – 2020 – PDF&lt;/snippet&gt;
+    &lt;extra_snippet&gt;The reports and statistics on this page are reflective of murder incidents investigated by the Los Angeles County Sheriff’s Department – Homicide Bureau.&lt;/extra_snippet&gt;
+    &lt;extra_snippet&gt;This data file contains Murder incidents investigated by the Los Angeles County Sheriff’s Department – Homicide Bureau which occurred in Los Angeles County Sheriff’s Department patrol areas from 1925 to present.&lt;/extra_snippet&gt;
+    &lt;extra_snippet&gt;The homicide data is gathered from areas patrolled by the Los Angeles County Sheriff’s Department.&lt;/extra_snippet&gt;
+    &lt;extra_snippet&gt;Los Angeles County Sheriff’s Department Homicides from 1925 – 2020 – PDF&lt;/extra_snippet&gt;
+  &lt;/document&gt;&lt;document rank=&quot;8&quot;&gt;
+    &lt;title&gt;Fact Check | Los Angeles County Sheriff’s Department&lt;/title&gt;
+    &lt;url&gt;https://sheriff33.lasd.org/factcheck&lt;/url&gt;
+    &lt;domain&gt;sheriff33.lasd.org&lt;/domain&gt;
+    &lt;snippet&gt;The department’s website, sheriff33.lasd.org, now has all information previously hidden from the public’s view, including data on deputy-involved shootings, discipline, conditions of confinement in the jail system, and the impact of COVID-19, along with the entire organization’s rules and regulations.&lt;/snippet&gt;
+    &lt;extra_snippet&gt;As the first and only sheriff to hold employees accountable for participating in these harmful groups, I implemented a policy that bans their formation and participation in activities that harm the public or their fellow employees.&lt;/extra_snippet&gt;
+    &lt;extra_snippet&gt;The department’s website, sheriff33.lasd.org, now has all information previously hidden from the public’s view, including data on deputy-involved shootings, discipline, conditions of confinement in the jail system, and the impact of COVID-19, along with the entire organization’s rules and regulations.&lt;/extra_snippet&gt;
+    &lt;extra_snippet&gt;Sheriff Villanueva promoted the first two Latinas to the position of Assistant Sheriff and had both serving at the same time.&lt;/extra_snippet&gt;
+  &lt;/document&gt;&lt;document rank=&quot;9&quot;&gt;
+    &lt;title&gt;1850 Los Angeles County was formed.&lt;/title&gt;
+    &lt;url&gt;https://lasd.org/pdf-lasd-museum/timeline/1850%20-%201859.pdf&lt;/url&gt;
+    &lt;domain&gt;lasd.org&lt;/domain&gt;
+    &lt;snippet&gt;William Getman was the second and last Sheriff killed in the line of duty in Los Angeles County.&lt;/snippet&gt;
+    &lt;extra_snippet&gt;territories that are now Los Angeles, San Bernardino, Riverside, Orange and Kern Counties. Sheriff Burrill’s duties included not only enforcing the law, but collecting taxes.&lt;/extra_snippet&gt;
+    &lt;extra_snippet&gt;hundreds of citizens watched this historic event, Ignacio Herrera was hanged for killing a young · man involved in a love triangle. Between 1851 and 1874, Los Angeles witnessed 40 legal · hangings, 38 lynchings and 32 executions by vigilance committee. Late in 1854, Sheriff Barton was mistreating an Indian woman and was confronted by Andres&lt;/extra_snippet&gt;
+    &lt;extra_snippet&gt;of Miguel Soto. Sheriff Barton’s pistol was still in Soto’s possession when he was killed. Tempers in Los Angeles continued to flare from the Sheriff’s murder.&lt;/extra_snippet&gt;
+    &lt;extra_snippet&gt;Andres Pico supported Sheriff Alexander by forming a posse of twenty vaqueros who rode out · and captured Cariergue. Now Cariergue was in jail with Jenkins, the man he was going to lynch · for killing his friend.&lt;/extra_snippet&gt;
+  &lt;/document&gt;&lt;document rank=&quot;10&quot;&gt;
+    &lt;title&gt;Deputy Involved Shootings - Current&lt;/title&gt;
+    &lt;url&gt;https://lasd.org/transparency/deputyinvolvedshootingcurrent&lt;/url&gt;
+    &lt;domain&gt;lasd.org&lt;/domain&gt;
+    &lt;snippet&gt;The Sheriff’s Department conducts very thorough and clearly-defined investigations into shootings and uses of force. The Internal Affairs Bureau Force/Shooting Response Team conducts an administrative review of all deputy-involved shootings, when no one is struck by gunfire.&lt;/snippet&gt;
+    &lt;extra_snippet&gt;Upon completion of the initial criminal investigation, Homicide Bureau presents the case to the Los Angeles County District Attorney&amp;#x27;s Office, Justice System Integrity Division (JSID). JSID evaluates the force used by the involved Sheriff’s personnel to determine whether or not the shooting was legally justified or in violation of the law.&lt;/extra_snippet&gt;
+    &lt;extra_snippet&gt;Each deputy-involved shooting is reviewed by independent investigative agencies. The Los Angeles County District Attorney’s Office Justice System Integrity Division (JSID) members respond to the scene to conduct an independent and thorough review of the evidence.&lt;/extra_snippet&gt;
+    &lt;extra_snippet&gt;The Sheriff’s Department conducts very thorough and clearly-defined investigations into shootings and uses of force. The Internal Affairs Bureau Force/Shooting Response Team conducts an administrative review of all deputy-involved shootings, when no one is struck by gunfire.&lt;/extra_snippet&gt;
+  &lt;/document&gt;
+&lt;/search&gt;
+&lt;/search_documents&gt;</pre></details></div>
+      </details>
+      <details class="panel" open>
+        <summary>LLM Response</summary>
+        <pre class="message-content">FINAL ANSWER: Deputy Alfredo “Freddy” Flores</pre>
+        <div class="subhead">Tool Calls</div>
+        <pre class="json">[]</pre>
+      </details>
+      <details class="panel" open>
+        <summary>Searches Performed After This Response</summary>
+        <p class="muted">No search calls in this iteration.</p>
+      </details>
+    </section>
+    
+  </main>
+</body>
+</html>

@@ -1,0 +1,13 @@
+<search_documents>
+<search query="{{ search_query }}" provider="{{ provider_id }}">
+{% for result in results %}
+  <document rank="{{ result.rank }}">
+    <title>{{ result.title }}</title>
+    <url>{{ result.url }}</url>
+    <domain>{{ result.domain }}</domain>
+    <snippet>{{ result.snippet }}</snippet>
+{{{ result.extra_snippets_xml }}}
+  </document>
+{% endfor %}
+</search>
+</search_documents>

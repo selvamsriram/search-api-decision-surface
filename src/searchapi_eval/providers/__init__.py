@@ -1,0 +1,2 @@
+"""Search provider adapters."""
+
