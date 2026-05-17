@@ -83,6 +83,25 @@ def format_json(data: Any) -> str:
     return esc(json.dumps(data, indent=2, ensure_ascii=False))
 
 
+def render_page_fetch(page_fetch: dict[str, Any], *, open_by_default: bool = False) -> str:
+    if not page_fetch:
+        return '<p class="muted">No page fetch payload recorded.</p>'
+    open_attr = " open" if open_by_default else ""
+    return f"""
+    <details class="page-fetch"{open_attr}>
+      <summary>extracted page: {esc(page_fetch.get('fetch_status'))} · {esc(page_fetch.get('extractor'))} · {esc(page_fetch.get('extracted_text_chars'))} chars</summary>
+      <div class="search-meta">
+        backend={esc(page_fetch.get('fetch_backend') or 'local')}<br>
+        artifact={esc(page_fetch.get('artifact_path'))}<br>
+        final_url={esc(page_fetch.get('final_url'))}<br>
+        reader_url={esc(page_fetch.get('reader_url'))}<br>
+        http={esc(page_fetch.get('http_status'))} · type={esc(page_fetch.get('content_type'))}
+      </div>
+      <pre class="message-content">{esc(page_fetch.get('extracted_text') or '')}</pre>
+    </details>
+    """
+
+
 def render_message(message: dict[str, Any], index: int) -> str:
     role = message.get("role", "")
     content = message.get("content") or ""
@@ -112,19 +131,23 @@ def render_result(result: dict[str, Any]) -> str:
     url = result.get("url", "")
     metadata = result.get("provider_metadata") or {}
     extra = metadata.get("extra_snippets") or []
+    page_fetch = result.get("page_fetch") or {}
     extra_html = ""
     if extra:
         items = "".join(f"<li>{esc(snippet)}</li>" for snippet in extra[:3])
         extra_html = f"<details><summary>extra snippets ({len(extra)})</summary><ul>{items}</ul></details>"
+    page_fetch_html = render_page_fetch(page_fetch) if page_fetch else ""
     return f"""
     <article class="result">
       <div class="rank">#{esc(result.get('rank'))}</div>
       <div>
         <h4>{esc(result.get('title'))}</h4>
+        <div class="domain">document_id={esc(result.get('document_id'))}</div>
         <a href="{esc(url)}">{esc(url)}</a>
         <div class="domain">{esc(result.get('domain'))}</div>
         <p>{esc(result.get('snippet'))}</p>
         {extra_html}
+        {page_fetch_html}
       </div>
     </article>
     """
@@ -152,13 +175,51 @@ def render_search(retrieval: dict[str, Any]) -> str:
     """
 
 
+def render_fetch(fetch: dict[str, Any]) -> str:
+    page_fetch = fetch.get("page_fetch") or {}
+    source_bits = [
+        f"seen_in_search_results={esc(fetch.get('seen_in_search_results'))}",
+        f"source_retrieval_id={esc(fetch.get('source_retrieval_id'))}",
+        f"source_rank={esc(fetch.get('source_rank'))}",
+        f"source_query={esc(fetch.get('source_search_query'))}",
+    ]
+    source_html = "<br>".join(source_bits)
+    source_snippet = fetch.get("source_snippet")
+    snippet_html = f"<p>{esc(source_snippet)}</p>" if source_snippet else ""
+    return f"""
+    <details class="fetch" open>
+      <summary>Fetch: {esc(fetch.get('url'))}</summary>
+      <div class="search-meta">
+        fetch_id={esc(fetch.get('fetch_id'))}
+        tool_call_id={esc(fetch.get('tool_call_id'))}
+        requested_document_id={esc(fetch.get('requested_document_id'))}
+        reason={esc(fetch.get('reason'))}
+      </div>
+      <article class="result">
+        <div class="rank">#{esc(fetch.get('source_rank'))}</div>
+        <div>
+          <h4>{esc(fetch.get('source_title'))}</h4>
+          <div class="domain">source_document_id={esc(fetch.get('source_document_id'))}</div>
+          <a href="{esc(fetch.get('url'))}">{esc(fetch.get('url'))}</a>
+          <div class="domain">{esc(fetch.get('source_domain'))}</div>
+          {snippet_html}
+          <div class="search-meta">{source_html}</div>
+          {render_page_fetch(page_fetch, open_by_default=True)}
+        </div>
+      </article>
+    </details>
+    """
+
+
 def render_iteration(iteration: dict[str, Any]) -> str:
     request = iteration.get("llm_request") or {}
     messages = request.get("messages") or []
     tools = request.get("tools") or []
     searches = iteration.get("searches") or []
+    fetches = iteration.get("fetches") or []
     rendered_messages = "\n".join(render_message(message, index) for index, message in enumerate(messages))
     rendered_searches = "\n".join(render_search(search) for search in searches) or '<p class="muted">No search calls in this iteration.</p>'
+    rendered_fetches = "\n".join(render_fetch(fetch) for fetch in fetches) or '<p class="muted">No fetch calls in this iteration.</p>'
     request_config = {
         key: request.get(key)
         for key in (
@@ -209,6 +270,10 @@ def render_iteration(iteration: dict[str, Any]) -> str:
         <summary>Searches Performed After This Response</summary>
         {rendered_searches}
       </details>
+      <details class="panel" open>
+        <summary>Fetches Performed After This Response</summary>
+        {rendered_fetches}
+      </details>
     </section>
     """
 
@@ -217,9 +282,13 @@ def render_timeline(trace: dict[str, Any]) -> str:
     rows = []
     for iteration in trace.get("iterations", []):
         searches = iteration.get("searches") or []
+        fetches = iteration.get("fetches") or []
         query_preview = "<br>".join(esc(short(search.get("search_query", ""), 120)) for search in searches)
         if not query_preview:
             query_preview = '<span class="muted">none</span>'
+        fetch_preview = "<br>".join(esc(short(fetch.get("url", ""), 120)) for fetch in fetches)
+        if not fetch_preview:
+            fetch_preview = '<span class="muted">none</span>'
         usage = iteration.get("llm_usage") or {}
         rows.append(
             f"""
@@ -227,6 +296,7 @@ def render_timeline(trace: dict[str, Any]) -> str:
               <td>{esc(iteration.get('iteration_num'))}</td>
               <td>{esc(iteration.get('agent_decision'))}</td>
               <td>{query_preview}</td>
+              <td>{fetch_preview}</td>
               <td>{sum(len((search.get('search_response') or {}).get('results', [])) for search in searches)}</td>
               <td>{esc(usage.get('prompt_tokens', 0))} / {esc(usage.get('completion_tokens', 0))}</td>
               <td>{iteration.get('llm_latency_ms', 0):.0f} ms</td>
@@ -287,7 +357,7 @@ def render_html(trace: dict[str, Any], source_path: Path) -> str:
     header p {{ margin: 0; color: #c9d4df; }}
     main {{ max-width: 1280px; margin: 0 auto; padding: 24px; }}
     .grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }}
-    .card, .iteration, .panel, .message, .search {{
+    .card, .iteration, .panel, .message, .search, .fetch {{
       background: var(--panel);
       border: 1px solid var(--line);
       border-radius: 8px;
@@ -314,9 +384,9 @@ def render_html(trace: dict[str, Any], source_path: Path) -> str:
     th {{ background: var(--soft); font-size: 13px; }}
     .iteration {{ margin: 18px 0; padding: 0; overflow: hidden; }}
     .iteration-head {{ padding: 16px; border-bottom: 1px solid var(--line); }}
-    .panel, .message, .search {{ margin: 12px 16px; box-shadow: none; }}
+    .panel, .message, .search, .fetch {{ margin: 12px 16px; box-shadow: none; }}
     summary {{ cursor: pointer; padding: 10px 12px; font-weight: 650; }}
-    .panel > summary, .search > summary {{ background: var(--soft); }}
+    .panel > summary, .search > summary, .fetch > summary {{ background: var(--soft); }}
     .message.system summary {{ border-left: 4px solid #5c6f82; }}
     .message.user summary {{ border-left: 4px solid var(--accent); }}
     .message.assistant summary {{ border-left: 4px solid #7a5ea8; }}
@@ -372,6 +442,7 @@ def render_html(trace: dict[str, Any], source_path: Path) -> str:
         <div><strong>Trace</strong><br>{esc(trace.get('trace_id'))}</div>
         <div><strong>Provider / Model</strong><br>{esc(trace.get('provider_id'))} / {esc(trace.get('model_id'))}</div>
         <div><strong>Searches</strong><br>{esc(trace.get('total_search_calls'))}</div>
+        <div><strong>Fetches</strong><br>{esc(trace.get('total_fetch_calls', 0))}</div>
         <div><strong>Tokens</strong><br>{esc(trace.get('total_prompt_tokens'))} prompt / {esc(trace.get('total_completion_tokens'))} completion</div>
         <div><strong>Wall Time</strong><br>{esc(trace.get('wall_time_seconds'))} sec</div>
         <div><strong>Cost</strong><br>${esc(trace.get('total_cost_usd'))}</div>
@@ -401,6 +472,7 @@ def render_html(trace: dict[str, Any], source_path: Path) -> str:
             <th>Iteration</th>
             <th>Decision</th>
             <th>Search Query</th>
+            <th>Fetched URL</th>
             <th>Results</th>
             <th>Prompt / Completion</th>
             <th>LLM Latency</th>

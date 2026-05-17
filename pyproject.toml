@@ -3,9 +3,10 @@ name = "searchapi-hard-eval"
 version = "0.1.0"
 description = "V1 infrastructure for Search API provider effects on SealQA Hard."
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+  "trafilatura>=1.9.0",
+]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
-

@@ -1,12 +1,14 @@
 <search_documents>
 <search query="{{ search_query }}" provider="{{ provider_id }}">
 {% for result in results %}
-  <document rank="{{ result.rank }}">
+  <document id="{{ result.document_id }}" rank="{{ result.rank }}">
+    <document_id>{{ result.document_id }}</document_id>
     <title>{{ result.title }}</title>
     <url>{{ result.url }}</url>
     <domain>{{ result.domain }}</domain>
     <snippet>{{ result.snippet }}</snippet>
 {{{ result.extra_snippets_xml }}}
+{{{ result.extracted_page_xml }}}
   </document>
 {% endfor %}
 </search>

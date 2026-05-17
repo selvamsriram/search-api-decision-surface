@@ -51,7 +51,7 @@ class AzureOpenAIChatClient(LLMClient):
         return await asyncio.to_thread(self._chat_sync, messages, tools)
 
     def request_snapshot(self, messages: list[dict[str, Any]], tools: list[dict[str, Any]]) -> dict[str, Any]:
-        return {
+        snapshot = {
             "provider": "azure_openai",
             "model_id": self.model_id,
             "endpoint": self.endpoint,
@@ -60,10 +60,12 @@ class AzureOpenAIChatClient(LLMClient):
             "temperature": self.temperature,
             "max_tokens_field": self.max_tokens_field,
             "max_tokens": self.max_tokens,
-            "tool_choice": "auto",
             "messages": messages,
-            "tools": tools,
         }
+        if tools:
+            snapshot["tools"] = tools
+            snapshot["tool_choice"] = "auto"
+        return snapshot
 
     def _chat_sync(self, messages: list[dict[str, Any]], tools: list[dict[str, Any]]) -> LLMResponse:
         if not self.endpoint or not self.api_key:
@@ -92,11 +94,12 @@ class AzureOpenAIChatClient(LLMClient):
         )
         body: dict[str, Any] = {
             "messages": messages,
-            "tools": tools,
-            "tool_choice": "auto",
             "temperature": self.temperature,
             max_tokens_field: self.max_tokens,
         }
+        if tools:
+            body["tools"] = tools
+            body["tool_choice"] = "auto"
         request = Request(
             url,
             data=json.dumps(body).encode("utf-8"),

@@ -1,4 +1,4 @@
-experiment_id: phase1_v1
+experiment_id: phase1_fetch_tool_jina_v1
 dataset:
   source: vtllms/sealqa
   subset: seal_hard
@@ -10,14 +10,41 @@ agent:
   max_results_per_search: 10
   temperature: 0
   max_tokens: 4096
+page_fetch:
+  enabled: true
+  fetch_tool_enabled: true
+  cache_dir: data/page_cache
+  timeout_seconds: 15
+  max_bytes: 2000000
+  concurrency: 4
+  backend: jina
+  jina_reader_base_url: https://r.jina.ai
+  jina_api_key_env: JINA_API_KEY
 provider:
+  ids:
+    - brave
+    - tavily
+    - firecrawl
   id: brave
   country: US
   search_lang: en
   ui_lang: en-US
   safesearch: moderate
+  tavily_search_depth: basic
+  tavily_topic: general
+  tavily_include_raw_content: false
+  tavily_include_favicon: false
+  firecrawl_country: US
+  firecrawl_location: ""
+  firecrawl_include_markdown: false
+  firecrawl_ignore_invalid_urls: false
+  firecrawl_timeout_ms: 60000
 model:
   id: azure:gpt-5.4
   deployment_env: AZURE_OPENAI_DEPLOYMENT
 outputs:
-  trace_jsonl: data/traces/phase1_v1_brave_gpt54.jsonl
+  trace_jsonl_by_provider:
+    brave: data/traces/phase1_v1_brave_gpt54_fetch_tool_jina_100.jsonl
+    tavily: data/traces/phase1_v1_tavily_gpt54_fetch_tool_jina_100.jsonl
+    firecrawl: data/traces/phase1_v1_firecrawl_gpt54_fetch_tool_jina_100.jsonl
+  run_id_prefix: phase1_fetch_tool_jina
