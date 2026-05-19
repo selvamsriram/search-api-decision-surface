@@ -1,0 +1,32 @@
+{
+  "brave_vs_firecrawl": {
+    "common_queries": 100,
+    "classes": {
+      "both_wrong": 57,
+      "brave_correct_only": 9,
+      "both_correct": 12,
+      "both_wrong_one_has_answer_text": 11,
+      "firecrawl_correct_only": 11
+    }
+  },
+  "brave_vs_tavily": {
+    "common_queries": 100,
+    "classes": {
+      "both_wrong": 57,
+      "both_wrong_one_has_answer_text": 13,
+      "brave_correct_only": 9,
+      "both_correct": 12,
+      "tavily_correct_only": 9
+    }
+  },
+  "firecrawl_vs_tavily": {
+    "common_queries": 100,
+    "classes": {
+      "both_wrong": 61,
+      "both_wrong_one_has_answer_text": 7,
+      "tavily_correct_only": 9,
+      "both_correct": 12,
+      "firecrawl_correct_only": 11
+    }
+  }
+}

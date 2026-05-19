@@ -94,7 +94,11 @@ def compact_judge_record(record: dict[str, Any]) -> dict[str, Any]:
         "title": record.get("title"),
         "url": record.get("url"),
         "domain": record.get("domain"),
+        "page_fetch_source": record.get("page_fetch_source"),
+        "model_fetched_document": record.get("model_fetched_document"),
         "contains_gold_answer": judgment.get("contains_gold_answer"),
+        "gold_answer_in_snippets": judgment.get("gold_answer_in_snippets"),
+        "gold_answer_in_extracted_page": judgment.get("gold_answer_in_extracted_page"),
         "supports_gold_answer": judgment.get("supports_gold_answer"),
         "supports_model_answer": judgment.get("supports_model_answer"),
         "contradicts_gold_answer": judgment.get("contradicts_gold_answer"),
@@ -111,6 +115,8 @@ def judge_flags(record: dict[str, Any]) -> dict[str, bool]:
     precheck = record.get("document_garbage_precheck") or {}
     return {
         "contains_gold": judgment.get("contains_gold_answer") is True,
+        "gold_in_snippets": judgment.get("gold_answer_in_snippets") is True,
+        "gold_in_extracted_page": judgment.get("gold_answer_in_extracted_page") is True,
         "supports_gold": judgment.get("supports_gold_answer") is True,
         "supports_model": judgment.get("supports_model_answer") is True,
         "contradicts_gold": judgment.get("contradicts_gold_answer") is True,
@@ -139,6 +145,8 @@ def summarize_judge_records(records: list[dict[str, Any]]) -> dict[str, Any]:
     total = len(records)
     flag_totals = {key: sum(1 for record in records if judge_flags(record)[key]) for key in (
         "contains_gold",
+        "gold_in_snippets",
+        "gold_in_extracted_page",
         "supports_gold",
         "supports_model",
         "contradicts_gold",
@@ -154,6 +162,51 @@ def summarize_judge_records(records: list[dict[str, Any]]) -> dict[str, Any]:
         "providers": provider_counts,
         "quality_counts": dict(sorted(quality_counts.items())),
         "avg_confidence": round(mean(confidence_values), 3) if confidence_values else 0.0,
+        "gold_answer_only_in_snippets": {
+            "count": sum(
+                1
+                for record in records
+                if judge_flags(record)["gold_in_snippets"] and not judge_flags(record)["gold_in_extracted_page"]
+            ),
+            "pct": pct(
+                sum(
+                    1
+                    for record in records
+                    if judge_flags(record)["gold_in_snippets"] and not judge_flags(record)["gold_in_extracted_page"]
+                ),
+                total,
+            ),
+        },
+        "gold_answer_only_in_extracted_page": {
+            "count": sum(
+                1
+                for record in records
+                if judge_flags(record)["gold_in_extracted_page"] and not judge_flags(record)["gold_in_snippets"]
+            ),
+            "pct": pct(
+                sum(
+                    1
+                    for record in records
+                    if judge_flags(record)["gold_in_extracted_page"] and not judge_flags(record)["gold_in_snippets"]
+                ),
+                total,
+            ),
+        },
+        "gold_answer_in_both": {
+            "count": sum(
+                1
+                for record in records
+                if judge_flags(record)["gold_in_snippets"] and judge_flags(record)["gold_in_extracted_page"]
+            ),
+            "pct": pct(
+                sum(
+                    1
+                    for record in records
+                    if judge_flags(record)["gold_in_snippets"] and judge_flags(record)["gold_in_extracted_page"]
+                ),
+                total,
+            ),
+        },
         **{
             key: {"count": count, "pct": pct(count, total)}
             for key, count in flag_totals.items()
@@ -500,6 +553,8 @@ class JudgeStore:
                     "supports_gold": row_summary["supports_gold"],
                     "supports_model": row_summary["supports_model"],
                     "contains_gold": row_summary["contains_gold"],
+                    "gold_in_snippets": row_summary["gold_in_snippets"],
+                    "gold_in_extracted_page": row_summary["gold_in_extracted_page"],
                     "effective_garbage": row_summary["effective_garbage"],
                     "contradicts_gold": row_summary["contradicts_gold"],
                     "quality_counts": row_summary["quality_counts"],
@@ -1378,6 +1433,8 @@ INDEX_HTML = r"""<!doctype html>
           <div class="question">${esc(short(row.question || 'No question captured in prompt.', 210))}</div>
           <div>
             ${pill('supports gold', `${row.supports_gold.count}/${row.docs}`)}
+            ${pill('gold in snippets', `${row.gold_in_snippets.count}/${row.docs}`)}
+            ${pill('gold in page', `${row.gold_in_extracted_page.count}/${row.docs}`)}
             ${pill('garbage', `${row.effective_garbage.count}/${row.docs}`)}
             ${pill('contradicts', `${row.contradicts_gold.count}/${row.docs}`)}
           </div>
@@ -1419,6 +1476,8 @@ INDEX_HTML = r"""<!doctype html>
         <div class="summary-grid">
           ${summaryCard('Documents', fmtNum(summary.records), `Queries: ${fmtNum(summary.queries)} · Providers: ${esc(Object.keys(summary.providers || {}).join(', ') || '—')}`)}
           ${summaryCard('Supports Gold', fmtPctCount(summary.supports_gold), `Contains gold string: ${fmtPctCount(summary.contains_gold)}`)}
+          ${summaryCard('Gold Surface', `Snippets ${fmtPctCount(summary.gold_in_snippets)}`, `Page: ${fmtPctCount(summary.gold_in_extracted_page)} · Both: ${fmtPctCount(summary.gold_answer_in_both)}`)}
+          ${summaryCard('Surface Split', `Snippet-only ${fmtPctCount(summary.gold_answer_only_in_snippets)}`, `Page-only: ${fmtPctCount(summary.gold_answer_only_in_extracted_page)}`)}
           ${summaryCard('Supports Model', fmtPctCount(summary.supports_model), `Contradicts gold: ${fmtPctCount(summary.contradicts_gold)}`)}
           ${summaryCard('Garbage Docs', fmtPctCount(summary.effective_garbage), `Precheck: ${fmtPctCount(summary.precheck_garbage)} · Judge: ${fmtPctCount(summary.judge_garbage)}`)}
           ${summaryCard('Errors', `${fmtNum((summary.execution_error?.count || 0) + (summary.parse_error?.count || 0))}`, `Execution: ${fmtPctCount(summary.execution_error)} · Parse: ${fmtPctCount(summary.parse_error)}`)}
@@ -1507,6 +1566,8 @@ INDEX_HTML = r"""<!doctype html>
           <p>${esc(query.question || 'No question captured in prompt.')}</p>
           <div class="metrics">
             ${pill('supports gold docs', `${summary.supports_gold?.count || 0}/${summary.records || 0}`)}
+            ${pill('gold in snippets', `${summary.gold_in_snippets?.count || 0}/${summary.records || 0}`)}
+            ${pill('gold in page', `${summary.gold_in_extracted_page?.count || 0}/${summary.records || 0}`)}
             ${pill('supports model docs', `${summary.supports_model?.count || 0}/${summary.records || 0}`)}
             ${pill('garbage docs', `${summary.effective_garbage?.count || 0}/${summary.records || 0}`)}
             ${pill('contradicts gold docs', `${summary.contradicts_gold?.count || 0}/${summary.records || 0}`)}
@@ -1522,6 +1583,8 @@ INDEX_HTML = r"""<!doctype html>
           <h3>Query Judge Aggregate</h3>
           <div class="summary-grid">
             ${summaryCard('Supports Gold', fmtPctCount(summary.supports_gold), `Contains gold: ${fmtPctCount(summary.contains_gold)}`)}
+            ${summaryCard('Gold Surface', `Snippets ${fmtPctCount(summary.gold_in_snippets)}`, `Page: ${fmtPctCount(summary.gold_in_extracted_page)} · Both: ${fmtPctCount(summary.gold_answer_in_both)}`)}
+            ${summaryCard('Surface Split', `Snippet-only ${fmtPctCount(summary.gold_answer_only_in_snippets)}`, `Page-only: ${fmtPctCount(summary.gold_answer_only_in_extracted_page)}`)}
             ${summaryCard('Supports Model', fmtPctCount(summary.supports_model), `Contradicts gold: ${fmtPctCount(summary.contradicts_gold)}`)}
             ${summaryCard('Garbage', fmtPctCount(summary.effective_garbage), `Precheck: ${fmtPctCount(summary.precheck_garbage)} · Judge: ${fmtPctCount(summary.judge_garbage)}`)}
             ${summaryCard('Avg Confidence', fmtFixed(summary.avg_confidence, 3), `Errors: ${fmtNum((summary.execution_error?.count || 0) + (summary.parse_error?.count || 0))}`)}
@@ -1622,7 +1685,11 @@ INDEX_HTML = r"""<!doctype html>
             <div class="tiny">${esc(record.domain || '')} · line ${esc(record._jsonl_line_num || '')}</div>
             <div class="metrics">
               ${pill('quality', quality)}
+              ${pill('fetch source', record.page_fetch_source || 'none')}
+              ${pill('model fetched', record.model_fetched_document)}
               ${pill('supports gold', judgment.supports_gold_answer)}
+              ${pill('gold in snippets', judgment.gold_answer_in_snippets)}
+              ${pill('gold in page', judgment.gold_answer_in_extracted_page)}
               ${pill('supports model', judgment.supports_model_answer)}
               ${pill('contains gold', judgment.contains_gold_answer)}
               ${pill('contradicts gold', judgment.contradicts_gold_answer)}
@@ -1630,6 +1697,8 @@ INDEX_HTML = r"""<!doctype html>
             </div>
             <p><strong>Reason:</strong> ${esc(judgment.reason || record.execution_error || record.judgment_parse_error || '—')}</p>
             ${judgment.answer_span ? `<p><strong>Answer span:</strong> ${esc(judgment.answer_span)}</p>` : ''}
+            ${judgment.gold_snippet_span ? `<p><strong>Gold snippet span:</strong> ${esc(judgment.gold_snippet_span)}</p>` : ''}
+            ${judgment.gold_extracted_page_span ? `<p><strong>Gold page span:</strong> ${esc(judgment.gold_extracted_page_span)}</p>` : ''}
             ${judgment.garbage_reason ? `<p><strong>Garbage reason:</strong> ${esc(judgment.garbage_reason)}</p>` : ''}
             <details class="raw-response">
               <summary>Page fetch and garbage precheck</summary>

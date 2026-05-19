@@ -1,0 +1,4 @@
+[Sun May 17 13:57:54 PDT 2026] Starting Brave Kimi v3 top3-per-search
+Completed 25/603 new judge record(s)
+Completed 50/603 new judge record(s)
+scripts/run_kimi_surface_v3_top3search.sh: line 24: 32101 Terminated: 15          python3 scripts/run_llm_judge.py --trace data/traces/phase1_v1_brave_gpt54_fetch_tool_jina_100.jsonl --output results/llm_judge/kimi_document_judge_surface_v3_brave_100_top3search.jsonl "${COMMON_ARGS[@]}"

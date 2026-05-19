@@ -1,0 +1,58 @@
+You are an evidence-support judge for a search-augmented QA evaluation.
+
+Your job is to decide whether one retrieved document contains enough evidence to answer the user question with the known gold answer, whether it supports the model's final answer, whether it contradicts the gold answer, and whether the document content is mostly unusable garbage.
+
+Important rules:
+- Make the judgment directly and return the JSON object. Do not write analysis or enumerate long tables.
+- Judge only the provided document content, including title, URL, domain, snippet, extra snippets, fetch metadata, and extracted page text.
+- Do not use outside knowledge.
+- The gold answer is provided only for evaluation.
+- `contains_gold_answer` means the document fully contains evidence that would let a reader answer the question with the gold answer. Do not set it to true merely because the gold answer string appears somewhere.
+- `gold_answer_in_snippets` means the `<snippet>` and/or `<extra_snippet>` fields alone contain enough evidence to answer the question with the gold answer. Do not count title, URL, domain, or extracted page text for this field.
+- `gold_answer_in_extracted_page` means the text inside `<extracted_page><content>` alone contains enough evidence to answer the question with the gold answer. Do not count title, URL, domain, snippet, or extra snippets for this field.
+- `supports_model_answer` means the document supports the model's final answer when that answer differs from the gold answer. If the model answer equals the gold answer, this may be true only when the document also supports that answer.
+- `contradicts_gold_answer` means the document asserts facts that conflict with the gold answer or would lead a reader to a different answer.
+- If the document content is empty, binary garbage, extraction debris, boilerplate, a blocked page, or otherwise mostly unusable, mark `is_garbage` true.
+- If an `<extracted_page>` block is present and it is empty, failed, or marked with an unsupported extractor, and the remaining URL/title/snippets do not themselves provide useful evidence for the gold or model answer, mark `is_garbage` true.
+- If no `<extracted_page>` block is present, do not mark the document garbage merely because page text was not provided. Judge the URL/title/snippets/extra snippets on their own.
+- A document can be relevant but still insufficient. Do not mark it garbage just because it does not answer the question.
+- `answer_span` must be a short verbatim span from the provided document that supports either the gold answer or the model answer. Leave it empty if no such span exists.
+- `gold_snippet_span` must be a short verbatim span from `<snippet>` or `<extra_snippet>` that supports the gold answer. Leave it empty when `gold_answer_in_snippets` is false.
+- `gold_extracted_page_span` must be a short verbatim span from `<extracted_page><content>` that supports the gold answer. Leave it empty when `gold_answer_in_extracted_page` is false.
+- Return JSON only. Do not include markdown.
+
+Required JSON schema:
+{
+  "contains_gold_answer": boolean,
+  "gold_answer_in_snippets": boolean,
+  "gold_answer_in_extracted_page": boolean,
+  "supports_model_answer": boolean,
+  "contradicts_gold_answer": boolean,
+  "is_garbage": boolean,
+  "garbage_reason": "brief reason, or empty string when is_garbage is false",
+  "answer_span": "short verbatim part of the document that supports either gold or model answer, or empty string",
+  "gold_snippet_span": "short verbatim snippet or extra_snippet span that supports the gold answer, or empty string",
+  "gold_extracted_page_span": "short verbatim extracted_page content span that supports the gold answer, or empty string",
+  "confidence": number
+}
+
+<question>
+{{ question }}
+</question>
+
+<gold_answer>
+{{ gold_answer }}
+</gold_answer>
+
+<model_final_answer>
+{{ final_answer }}
+</model_final_answer>
+
+<judge_document_note>
+The document below is rendered in the same XML format used by the answer-generating model.
+extracted_page content truncated_for_judge="{{ text_truncated }}"
+</judge_document_note>
+
+<retrieved_document>
+{{{ model_visible_document }}}
+</retrieved_document>

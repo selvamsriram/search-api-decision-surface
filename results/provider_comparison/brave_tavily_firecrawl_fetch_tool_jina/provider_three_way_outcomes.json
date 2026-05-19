@@ -1,0 +1,17 @@
+{
+  "providers": [
+    "brave",
+    "firecrawl",
+    "tavily"
+  ],
+  "common_queries": 100,
+  "classes": {
+    "all_wrong": 62,
+    "one_provider_correct": 20,
+    "all_have_answer_text_but_different_correctness": 19,
+    "two_providers_correct": 9,
+    "only_one_provider_has_answer_text": 12,
+    "all_correct": 9,
+    "gold_alignment_exceeds_answer_text_support": 20
+  }
+}

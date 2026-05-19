@@ -1,0 +1,8 @@
+provider_id: tavily
+base_url: https://api.tavily.com/search
+search_depth: basic
+topic: general
+include_raw_content: false
+include_favicon: false
+max_results: 10
+cost_per_query_usd: 0.0

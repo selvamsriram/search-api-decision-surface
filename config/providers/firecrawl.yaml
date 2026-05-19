@@ -1,0 +1,9 @@
+provider_id: firecrawl
+base_url: https://api.firecrawl.dev/v2/search
+country: US
+location: ""
+include_markdown: false
+ignore_invalid_urls: false
+timeout_ms: 60000
+max_results: 10
+cost_per_query_usd: 0.0

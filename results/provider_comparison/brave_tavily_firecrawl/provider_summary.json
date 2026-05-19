@@ -1,0 +1,484 @@
+{
+  "schema_version": "provider_comparison_v1",
+  "providers": {
+    "brave": {
+      "provider_id": "brave",
+      "trace_rows": 101,
+      "latest_queries": 100,
+      "historical_failed_rows": 1,
+      "latest_failed_queries": 0,
+      "transient_failures_recovered": 1,
+      "answered": 95,
+      "abstained": 5,
+      "exact_match": 21,
+      "avg_f1": 0.27372294372294376,
+      "gold_url_exact_hit": 43,
+      "gold_url_prefix_hit": 47,
+      "gold_domain_hit": 73,
+      "gold_source_family_hit": 45,
+      "answer_in_snippet": 37,
+      "answer_in_extra_snippets": 49,
+      "answer_in_page": 77,
+      "answer_in_any_retrieved_text": 77,
+      "gold_hit_but_no_answer_text": 5,
+      "answer_text_without_gold_prefix": 35,
+      "wrong_with_answer_text_available": 56,
+      "wrong_without_answer_text_available": 23,
+      "total_search_calls": 221,
+      "avg_search_calls": 2.21,
+      "avg_source_diversity": 3.56,
+      "avg_result_count_per_search": 2.773755656108597,
+      "avg_reformulation_rate": 0.7862745098039216,
+      "avg_redundant_search_rate": 0.0196078431372549,
+      "answer_after_first_search": 49,
+      "multi_search_turn_rate_avg": 0.30333333333333334,
+      "total_tokens": 4922853,
+      "avg_tokens": 49228.53,
+      "median_tokens": 34025.5,
+      "max_tokens": 602701,
+      "queries_over_100k_tokens": 10,
+      "queries_over_500k_tokens": 1,
+      "total_wall_time_seconds": 1665.962,
+      "avg_wall_time_seconds": 16.65962,
+      "median_snippet_chars": 244,
+      "median_extracted_chars": 4670,
+      "p90_extracted_chars": 42750,
+      "max_extracted_chars": 1928403,
+      "large_extract_counts": {
+        "over_50000": 55,
+        "over_100000": 24,
+        "over_500000": 1
+      },
+      "fetch_status_counts": {
+        "empty": 34,
+        "success": 502,
+        "failed": 77
+      },
+      "extractor_counts": {
+        "pdf_unsupported_v1": 25,
+        "trafilatura": 467,
+        "stdlib_html_parser": 42,
+        "none": 77,
+        "plain_text": 2
+      },
+      "top_domains": [
+        [
+          "en.wikipedia.org",
+          154
+        ],
+        [
+          "blog.google",
+          15
+        ],
+        [
+          "goodreads.com",
+          10
+        ],
+        [
+          "penguin.co.uk",
+          9
+        ],
+        [
+          "reddit.com",
+          8
+        ],
+        [
+          "dauhomemade.vn",
+          7
+        ],
+        [
+          "facebook.com",
+          7
+        ],
+        [
+          "si.com",
+          7
+        ],
+        [
+          "youtube.com",
+          7
+        ],
+        [
+          "mcdonalds.vn",
+          7
+        ],
+        [
+          "privateequityinternational.com",
+          7
+        ],
+        [
+          "wikiwand.com",
+          6
+        ],
+        [
+          "itu.int",
+          5
+        ],
+        [
+          "data.un.org",
+          5
+        ],
+        [
+          "fao.org",
+          5
+        ],
+        [
+          "sahitya-akademi.gov.in",
+          5
+        ],
+        [
+          "olympics.com",
+          5
+        ],
+        [
+          "bts.gov",
+          5
+        ],
+        [
+          "about.google",
+          5
+        ],
+        [
+          "instagram.com",
+          5
+        ]
+      ]
+    },
+    "tavily": {
+      "provider_id": "tavily",
+      "trace_rows": 100,
+      "latest_queries": 100,
+      "historical_failed_rows": 0,
+      "latest_failed_queries": 0,
+      "transient_failures_recovered": 0,
+      "answered": 98,
+      "abstained": 2,
+      "exact_match": 22,
+      "avg_f1": 0.27626190476190476,
+      "gold_url_exact_hit": 34,
+      "gold_url_prefix_hit": 34,
+      "gold_domain_hit": 53,
+      "gold_source_family_hit": 35,
+      "answer_in_snippet": 47,
+      "answer_in_extra_snippets": 0,
+      "answer_in_page": 71,
+      "answer_in_any_retrieved_text": 73,
+      "gold_hit_but_no_answer_text": 3,
+      "answer_text_without_gold_prefix": 42,
+      "wrong_with_answer_text_available": 52,
+      "wrong_without_answer_text_available": 26,
+      "total_search_calls": 255,
+      "avg_search_calls": 2.55,
+      "avg_source_diversity": 4.6,
+      "avg_result_count_per_search": 2.83921568627451,
+      "avg_reformulation_rate": 0.7713188220230474,
+      "avg_redundant_search_rate": 0.01056338028169014,
+      "answer_after_first_search": 29,
+      "multi_search_turn_rate_avg": 0.22833333333333333,
+      "total_tokens": 8475254,
+      "avg_tokens": 84752.54,
+      "median_tokens": 24104.5,
+      "max_tokens": 1768647,
+      "queries_over_100k_tokens": 10,
+      "queries_over_500k_tokens": 3,
+      "total_wall_time_seconds": 1643.779,
+      "avg_wall_time_seconds": 16.43779,
+      "median_snippet_chars": 799.0,
+      "median_extracted_chars": 2376.0,
+      "p90_extracted_chars": 30487,
+      "max_extracted_chars": 1990374,
+      "large_extract_counts": {
+        "over_50000": 39,
+        "over_100000": 18,
+        "over_500000": 4
+      },
+      "fetch_status_counts": {
+        "success": 567,
+        "empty": 28,
+        "failed": 129
+      },
+      "extractor_counts": {
+        "trafilatura": 464,
+        "pdf_unsupported_v1": 23,
+        "none": 129,
+        "stdlib_html_parser": 99,
+        "plain_text": 9
+      },
+      "top_domains": [
+        [
+          "en.wikipedia.org",
+          111
+        ],
+        [
+          "facebook.com",
+          47
+        ],
+        [
+          "instagram.com",
+          40
+        ],
+        [
+          "blog.google",
+          23
+        ],
+        [
+          "reuters.com",
+          20
+        ],
+        [
+          "youtube.com",
+          18
+        ],
+        [
+          "reddit.com",
+          18
+        ],
+        [
+          "nobelprize.org",
+          11
+        ],
+        [
+          "britannica.com",
+          9
+        ],
+        [
+          "goodreads.com",
+          9
+        ],
+        [
+          "bts.gov",
+          9
+        ],
+        [
+          "itu.int",
+          8
+        ],
+        [
+          "grokipedia.com",
+          8
+        ],
+        [
+          "scribd.com",
+          8
+        ],
+        [
+          "boxofficemojo.com",
+          8
+        ],
+        [
+          "epa.gov",
+          8
+        ],
+        [
+          "dauhomemade.vn",
+          7
+        ],
+        [
+          "privateequityinternational.com",
+          7
+        ],
+        [
+          "guinnessworldrecords.com",
+          6
+        ],
+        [
+          "olympedia.org",
+          5
+        ]
+      ]
+    },
+    "firecrawl": {
+      "provider_id": "firecrawl",
+      "trace_rows": 102,
+      "latest_queries": 100,
+      "historical_failed_rows": 2,
+      "latest_failed_queries": 0,
+      "transient_failures_recovered": 2,
+      "answered": 96,
+      "abstained": 4,
+      "exact_match": 22,
+      "avg_f1": 0.27685714285714286,
+      "gold_url_exact_hit": 49,
+      "gold_url_prefix_hit": 51,
+      "gold_domain_hit": 69,
+      "gold_source_family_hit": 50,
+      "answer_in_snippet": 31,
+      "answer_in_extra_snippets": 0,
+      "answer_in_page": 74,
+      "answer_in_any_retrieved_text": 76,
+      "gold_hit_but_no_answer_text": 5,
+      "answer_text_without_gold_prefix": 30,
+      "wrong_with_answer_text_available": 54,
+      "wrong_without_answer_text_available": 24,
+      "total_search_calls": 231,
+      "avg_search_calls": 2.31,
+      "avg_source_diversity": 4.0,
+      "avg_result_count_per_search": 2.7532467532467533,
+      "avg_reformulation_rate": 0.7717592592592593,
+      "avg_redundant_search_rate": 0.013888888888888888,
+      "answer_after_first_search": 40,
+      "multi_search_turn_rate_avg": 0.24583333333333332,
+      "total_tokens": 4443102,
+      "avg_tokens": 44431.02,
+      "median_tokens": 24289.5,
+      "max_tokens": 397227,
+      "queries_over_100k_tokens": 10,
+      "queries_over_500k_tokens": 0,
+      "total_wall_time_seconds": 1383.769,
+      "avg_wall_time_seconds": 13.83769,
+      "median_snippet_chars": 148.0,
+      "median_extracted_chars": 2593.0,
+      "p90_extracted_chars": 41960,
+      "max_extracted_chars": 966038,
+      "large_extract_counts": {
+        "over_50000": 52,
+        "over_100000": 26,
+        "over_500000": 3
+      },
+      "fetch_status_counts": {
+        "empty": 30,
+        "success": 481,
+        "failed": 125
+      },
+      "extractor_counts": {
+        "office_unsupported_v1": 1,
+        "trafilatura": 408,
+        "pdf_unsupported_v1": 21,
+        "stdlib_html_parser": 78,
+        "none": 125,
+        "plain_text": 3
+      },
+      "top_domains": [
+        [
+          "en.wikipedia.org",
+          126
+        ],
+        [
+          "facebook.com",
+          48
+        ],
+        [
+          "nobelprize.org",
+          21
+        ],
+        [
+          "instagram.com",
+          19
+        ],
+        [
+          "reddit.com",
+          17
+        ],
+        [
+          "blog.google",
+          14
+        ],
+        [
+          "olympics.com",
+          13
+        ],
+        [
+          "youtube.com",
+          13
+        ],
+        [
+          "forbes.com",
+          12
+        ],
+        [
+          "reuters.com",
+          11
+        ],
+        [
+          "jamieoliver.com",
+          7
+        ],
+        [
+          "privateequityinternational.com",
+          7
+        ],
+        [
+          "olympedia.org",
+          6
+        ],
+        [
+          "boxofficemojo.com",
+          6
+        ],
+        [
+          "epa.gov",
+          6
+        ],
+        [
+          "data.worldbank.org",
+          5
+        ],
+        [
+          "data.un.org",
+          5
+        ],
+        [
+          "britannica.com",
+          5
+        ],
+        [
+          "editorial.rottentomatoes.com",
+          5
+        ],
+        [
+          "itu.int",
+          4
+        ]
+      ]
+    }
+  },
+  "pairwise": {
+    "brave_vs_firecrawl": {
+      "common_queries": 100,
+      "classes": {
+        "both_wrong": 61,
+        "both_wrong_one_has_answer_text": 9,
+        "firecrawl_correct_only": 9,
+        "both_correct": 13,
+        "brave_correct_only": 8
+      }
+    },
+    "brave_vs_tavily": {
+      "common_queries": 100,
+      "classes": {
+        "both_wrong": 58,
+        "both_wrong_one_has_answer_text": 13,
+        "tavily_correct_only": 8,
+        "brave_correct_only": 7,
+        "both_correct": 14
+      }
+    },
+    "firecrawl_vs_tavily": {
+      "common_queries": 100,
+      "classes": {
+        "both_wrong": 59,
+        "both_wrong_one_has_answer_text": 11,
+        "tavily_correct_only": 8,
+        "both_correct": 14,
+        "firecrawl_correct_only": 8
+      }
+    }
+  },
+  "three_way": {
+    "providers": [
+      "brave",
+      "firecrawl",
+      "tavily"
+    ],
+    "common_queries": 100,
+    "classes": {
+      "one_provider_correct": 16,
+      "all_wrong": 65,
+      "only_one_provider_has_answer_text": 12,
+      "all_have_answer_text_but_different_correctness": 17,
+      "gold_alignment_exceeds_answer_text_support": 9,
+      "all_correct": 11,
+      "two_providers_correct": 8
+    }
+  }
+}

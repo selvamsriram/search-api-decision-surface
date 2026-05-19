@@ -5,3 +5,6 @@ __pycache__/
 .pytest_cache/
 ~$*.docx
 data/page_cache/
+.claude/
+*.egg-info/
+results/llm_judge/*.lock
