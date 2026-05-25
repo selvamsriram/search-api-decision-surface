@@ -55,7 +55,7 @@ The first non-comment line of `main.tex` controls visibility:
 ## Numbers in the paper trace back to
 
 - `data/traces/phase1_v1_{brave,tavily,firecrawl}_gpt54_fetch_tool_jina_100.jsonl` (the 100-query agentic runs)
-- `results/llm_judge/kimi_document_judge_surface_v3_{brave,tavily,firecrawl}_100_all_visible.jsonl` (LLM-judge oracle, 6,909 raw rows, 6,479 valid)
+- `results/llm_judge/kimi_document_judge_surface_v3_{brave,tavily,firecrawl}_100_all_visible.jsonl` (LLM-judge oracle, 6,909 raw rows, 6,869 valid)
 - `results/provider_comparison/brave_tavily_firecrawl_fetch_tool_jina/` (deterministic per-query metrics used in headline table)
 - `results/provider_comparison/brave_tavily_firecrawl/` (auto-fetch top-3 baseline used in Appendix C)
 

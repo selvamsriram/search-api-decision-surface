@@ -37,7 +37,20 @@ PER_QUERY = REPO / "results/provider_comparison/brave_tavily_firecrawl_fetch_too
 
 PROVIDERS = ["Brave", "Tavily", "Firecrawl"]
 PROVIDER_KEYS = {"Brave": "brave", "Tavily": "tavily", "Firecrawl": "firecrawl"}
-COLORS = {"Brave": "#FB7C2D", "Tavily": "#2E86C1", "Firecrawl": "#27AE60"}
+COLORS = {"Brave": "#E76F51", "Tavily": "#2A80B9", "Firecrawl": "#2AA876"}
+
+plt.rcParams.update(
+    {
+        "font.family": "DejaVu Sans",
+        "axes.edgecolor": "#202A33",
+        "axes.labelcolor": "#202A33",
+        "axes.titlecolor": "#202A33",
+        "xtick.color": "#202A33",
+        "ytick.color": "#202A33",
+        "pdf.fonttype": 42,
+        "ps.fonttype": 42,
+    }
+)
 
 
 def load_judge(path: Path) -> list[dict]:
@@ -194,17 +207,17 @@ def main():
             print(f"    {k:6s} n={n:3d} EM={em:3d} ({pct:.1f}%)")
 
     # ---------- FIGURE 1: smart/missed/blind/no-op stacked bars ----------
-    fig, ax = plt.subplots(figsize=(7.0, 3.8))
+    fig, ax = plt.subplots(figsize=(7.0, 3.55))
     bucket_order = ["smart", "missed", "blind", "noop"]
-    bucket_colors = ["#2E86C1", "#F4D03F", "#E67E22", "#95A5A6"]
+    bucket_colors = ["#238B45", "#F2C94C", "#D95F02", "#A8B3B5"]
     bucket_labels = ["SMART", "MISSED", "BLIND", "NO-OP"]
     x = np.arange(len(PROVIDERS))
-    width = 0.7
+    width = 0.62
     bottoms = np.zeros(len(PROVIDERS))
     for bk, color, label in zip(bucket_order, bucket_colors, bucket_labels):
         heights = np.array([len(buckets[p][bk]) for p in PROVIDERS])
         bars = ax.bar(x, heights, width, bottom=bottoms, color=color,
-                      edgecolor="white", linewidth=0.8, label=label)
+                      edgecolor="white", linewidth=1.0, label=label)
         for i, (h, b) in enumerate(zip(heights, bottoms)):
             if h < 1:
                 continue
@@ -214,23 +227,30 @@ def main():
             # All labels go inside the bar; SMART (thinnest) uses a single line.
             if h >= 12:
                 txt = f"n={n}\nEM {pct:.0f}%"
-                fs = 9
+                fs = 8.6
             else:
                 txt = f"n={n}, EM {pct:.0f}%"
-                fs = 8.5
+                fs = 8.1
             ax.text(x[i], b + h / 2, txt,
                     ha="center", va="center", fontsize=fs,
-                    color="black" if color in ("#F4D03F", "#95A5A6") else "white",
+                    color="#202A33" if color in ("#F2C94C", "#A8B3B5") else "white",
                     fontweight="bold")
         bottoms += heights
+    for i, p in enumerate(PROVIDERS):
+        total_em = sum(sum(em for _, em in buckets[p][bk]) for bk in bucket_order)
+        ax.text(x[i], 103.3, f"overall EM {total_em}%",
+                ha="center", va="bottom", fontsize=8.2,
+                color="#596B7A", fontweight="bold")
     ax.set_xticks(x)
-    ax.set_xticklabels(PROVIDERS, fontsize=11)
-    ax.set_xlim(-0.6, 2.95)
-    ax.set_ylim(0, 105)
+    ax.set_xticklabels(PROVIDERS, fontsize=10.5)
+    ax.set_xlim(-0.58, 2.58)
+    ax.set_ylim(0, 110)
     ax.set_ylabel("Queries (out of 100)", fontsize=10)
-    ax.set_title("Smart / Missed / Blind / No-op partition with EM%",
-                 fontsize=11, pad=8)
-    ax.legend(loc="upper right", bbox_to_anchor=(1.0, -0.10),
+    ax.set_title("Agent decisions by provider, with bucket EM",
+                 fontsize=11, pad=9, fontweight="bold")
+    ax.yaxis.grid(True, color="#E2E8F0", linewidth=0.7)
+    ax.set_axisbelow(True)
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.12),
               ncol=4, fontsize=9, frameon=False)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
@@ -241,33 +261,43 @@ def main():
     print(f"Wrote {OUT/'fig1_buckets.pdf'}")
 
     # ---------- FIGURE 2: rank distribution of gold-supporting URLs ----------
-    fig, ax = plt.subplots(figsize=(6.5, 3.0))
+    fig, ax = plt.subplots(figsize=(6.55, 3.05))
     ranks = list(range(1, 11))
-    width = 0.27
-    x = np.arange(len(ranks))
-    for i, p in enumerate(PROVIDERS):
+    x = np.array(ranks)
+    for p in PROVIDERS:
         counts = [rank_dist[p].get(r, 0) for r in ranks]
         total = sum(counts)
         pct = [100 * c / total if total else 0 for c in counts]
-        ax.bar(x + (i - 1) * width, pct, width,
-               color=COLORS[p], label=f"{p} (n={total})")
+        ax.plot(
+            x,
+            pct,
+            color=COLORS[p],
+            marker="o",
+            markersize=4.8,
+            linewidth=2.0,
+            label=f"{p} (n={total})",
+        )
+        ax.fill_between(x, pct, [0] * len(pct), color=COLORS[p], alpha=0.055)
     ax.set_xticks(x)
     ax.set_xticklabels([str(r) for r in ranks], fontsize=10)
     ax.set_xlabel("Search-result rank", fontsize=10)
     ax.set_ylabel("% of gold-supporting URLs", fontsize=10)
-    ax.set_title("Rank distribution of gold-supporting URLs (snippet-judged)",
-                 fontsize=11, pad=8)
+    ax.set_title("Where gold-supporting URLs appear in the ranked surface",
+                 fontsize=11, pad=8, fontweight="bold")
     ax.legend(fontsize=9, frameon=False, loc="upper right")
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.set_ylim(0, 55)
+    ax.set_xlim(0.8, 10.2)
+    ax.yaxis.grid(True, color="#E2E8F0", linewidth=0.7)
+    ax.set_axisbelow(True)
     # Annotate Tavily rank-1
     tavily_r1 = rank_dist["Tavily"].get(1, 0) / sum(rank_dist["Tavily"].values()) * 100
     ax.annotate(f"{tavily_r1:.0f}% at rank 1",
-                xy=(0 + 0 * width, tavily_r1),
-                xytext=(2.5, 48), fontsize=9,
-                arrowprops=dict(arrowstyle="->", color="#2E86C1", lw=1.2),
-                color="#2E86C1")
+                xy=(1, tavily_r1),
+                xytext=(2.05, 48), fontsize=9,
+                arrowprops=dict(arrowstyle="->", color=COLORS["Tavily"], lw=1.2),
+                color=COLORS["Tavily"], fontweight="bold")
     plt.tight_layout()
     fig.savefig(OUT / "fig2_rank_distribution.pdf", bbox_inches="tight")
     fig.savefig(OUT / "fig2_rank_distribution.png", bbox_inches="tight", dpi=180)
@@ -275,25 +305,34 @@ def main():
     print(f"Wrote {OUT/'fig2_rank_distribution.pdf'}")
 
     # ---------- FIGURE 3: contradict:gold ratio ----------
-    fig, ax = plt.subplots(figsize=(5.0, 2.7))
+    fig, ax = plt.subplots(figsize=(5.0, 2.85))
     ratios = [contradict[p][2] for p in PROVIDERS]
+    y = np.arange(len(PROVIDERS))
     bar_colors = [COLORS[p] for p in PROVIDERS]
-    bars = ax.bar(PROVIDERS, ratios, color=bar_colors, width=0.6,
-                  edgecolor="white", linewidth=0.8)
-    ax.axhline(1.0, color="gray", linestyle="--", linewidth=0.8, alpha=0.6)
-    ax.text(2.5, 1.05, "balanced (1.0)", color="gray", fontsize=8, va="bottom", ha="right")
+    bars = ax.barh(y, ratios, color=bar_colors, height=0.52,
+                   edgecolor="white", linewidth=0.9)
+    ax.axvline(1.0, color="#7A8A8B", linestyle="--", linewidth=0.9, alpha=0.85)
+    ax.text(1.03, 0.94, "balanced 1.0",
+            transform=ax.get_xaxis_transform(),
+            color="#7A8A8B", fontsize=8, va="top", ha="left")
     for bar, p, r in zip(bars, PROVIDERS, ratios):
         ng, nc, _ = contradict[p]
-        ax.text(bar.get_x() + bar.get_width() / 2,
-                bar.get_height() + 0.06,
-                f"{r:.2f}\n({nc}/{ng})", ha="center", va="bottom",
-                fontsize=9, fontweight="bold")
-    ax.set_ylabel("Contradicting URLs per gold URL", fontsize=10)
-    ax.set_ylim(0, max(ratios) * 1.3)
-    ax.set_title("Per-URL contradict-to-gold ratio (answer-independent)",
-                 fontsize=10.5, pad=8)
+        ax.text(bar.get_width() + 0.08,
+                bar.get_y() + bar.get_height() / 2,
+                f"{r:.2f}  ({nc}/{ng})", ha="left", va="center",
+                fontsize=9, fontweight="bold", color="#202A33")
+    ax.set_yticks(y)
+    ax.set_yticklabels(PROVIDERS, fontsize=10)
+    ax.invert_yaxis()
+    ax.set_xlabel("Contradicting URLs per gold-supporting URL", fontsize=9.5)
+    ax.set_xlim(0, max(ratios) * 1.28)
+    ax.set_title("Answer-independent surface contamination",
+                 fontsize=10.5, pad=8, fontweight="bold")
+    ax.xaxis.grid(True, color="#E2E8F0", linewidth=0.7)
+    ax.set_axisbelow(True)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
+    ax.spines["left"].set_visible(False)
     plt.tight_layout()
     fig.savefig(OUT / "fig3_contradict_ratio.pdf", bbox_inches="tight")
     fig.savefig(OUT / "fig3_contradict_ratio.png", bbox_inches="tight", dpi=180)
