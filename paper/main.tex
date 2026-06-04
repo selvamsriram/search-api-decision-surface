@@ -1,7 +1,4 @@
 \documentclass[11pt]{article}
-
-% "review" hides authors and adds line numbers for ACL Rolling Review submission.
-% Switch to "preprint" for arXiv, or "final" for camera-ready.
 \usepackage[review]{acl}
 
 \usepackage{times}
@@ -12,138 +9,113 @@
 \usepackage{inconsolata}
 \usepackage{graphicx}
 \usepackage{booktabs}
-\usepackage{multirow}
 \usepackage{array}
 \usepackage{xcolor}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,shapes.geometric}
 \usepackage{url}
+
+\input{figures/numbers.tex}
 
 \newcommand{\smart}{\textsc{smart}}
 \newcommand{\missed}{\textsc{missed}}
 \newcommand{\blind}{\textsc{blind}}
-\newcommand{\nofetch}{\textsc{no-op}}
+\newcommand{\noop}{\textsc{no-op}}
+\newcommand{\containsGold}{\texttt{contains\_gold\_answer}}
+\newcommand{\contraGold}{\texttt{contradicts\_gold\_answer}}
+\newcommand{\goldSnip}{\texttt{gold\_answer\_in\_snippets}}
+\newcommand{\goldPage}{\texttt{gold\_answer\_in\_extracted\_page}}
 
-\title{Search, Fetch, or Answer: Commercial Search APIs Reshape the\\
-Retrieval Budget of LLM Agents Without Changing Their Accuracy}
+\title{Search APIs Are Decision Surfaces: A Controlled Study of Tool-Using QA Agents}
 
-\author{Sriram Selvam \\
-  Microsoft \\
-  \texttt{srselvam@microsoft.com} \\\And
-  Anneswa Ghosh \\
-  Microsoft \\
-  \texttt{annghosh@microsoft.com} \\}
+\author{Anonymous ACL submission}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
-Commercial search APIs are the de facto retrieval layer for tool-using LLM agents, yet they are typically evaluated as static ranked-list components. We argue that a search API is better understood as a \emph{decision surface}: its snippets, rankings, and URL pool jointly shape whether an agent searches again, opens a page, answers from snippets, or abstains. We test this view on the 100-query \textsc{SealQA-Hard} subset by running the same GPT-5.4 agent with a two-tool interface (\texttt{search\_web}, \texttt{fetch\_page}) over three production providers: Brave, Tavily, and Firecrawl. An LLM judge labels every visible URL across 6{,}909 surface judgments (2{,}202 / 2{,}481 / 2{,}226 per provider) as gold-supporting, contradicting, supporting-the-model-answer, or garbage, enabling a per-query oracle of which URLs the agent \emph{should} have opened. The three providers produce nearly identical exact-match accuracy (21, 21, 23 / 100) but achieve it through fundamentally different retrieval pipelines: Brave's surface lifts the URL-pool ceiling to 33\% via rich \texttt{extra\_snippet} blocks; Tavily concentrates 48\% of gold-supporting URLs at rank one, raising the fetch-recall of supporting URLs to 31\%; Firecrawl exposes the sparsest surface but compensates with broad, mostly-blind fetching that wins 20\% of no-gold-visible queries. Fetch policy ROI varies from $+26$ percentage points (Tavily) to $-13$pp (Firecrawl) on the same model. We use the contradict-to-gold URL ratio (Brave $0.92$, Tavily $1.87$, Firecrawl $2.59$) as an answer-independent surface-quality measurement and argue that retrieval-budget evaluation, not top-$k$ relevance, is the right axis for assessing search providers for agentic systems.
+Search-augmented language-model agents are often built as if commercial search APIs were interchangeable retrieval backends. We test that assumption by freezing the agent, prompt, tools, and page-fetch backend, then swapping only the search provider. On \NQueries{} hard web-search questions, Brave, Tavily, and Firecrawl produce nearly indistinguishable exact-match accuracy (\BraveEM{}, \TavilyEM{}, and \FirecrawlEM{} out of 100). That headline hides large differences in the agent's internal retrieval economy. We introduce a per-URL oracle that labels every URL visible to the agent---not only URLs it fetched---and analyze search APIs as \emph{decision surfaces}: the ranked snippets and URLs that determine whether an agent answers, searches again, or spends fetch tokens. The same agent sees visible gold-supporting evidence on 33, 24, and 19 queries across the three providers; its four-way decision partition shifts from rich-snippet reading (Brave), to rank-one exploitation (Tavily), to broad blind exploration (Firecrawl). A surface-only contamination metric, the contradict-to-gold URL ratio, varies from 0.92 to 2.59 without looking at the model's answer. Provider choice is therefore not only a recall choice; it is a retrieval-budget allocation choice.
 \end{abstract}
 
 \section{Introduction}
-\label{sec:intro}
 
-Search-augmented LLM agents now ship in consumer products, deep-research assistants, and enterprise workflows. They all share the same architecture: a model calls a search API, reads results, optionally opens pages, and answers. The search API is treated as a fungible commodity: swap Brave for Tavily and you supposedly get the same agent. This paper argues that view is wrong, but \emph{not in the way prior work has measured}. Final answer accuracy varies surprisingly little across providers (Section~\ref{sec:results}). What varies dramatically is how the agent allocates its retrieval budget: which URLs it opens, which it ignores, when it searches again, and how often it answers correctly from snippets alone. These behavioral differences are larger and more practically important than the accuracy delta.
+A tool-using question-answering agent does not consume a search index directly. It consumes a \emph{surface}: titles, URLs, snippets, optional provider metadata, and ranks. Before the agent opens a page, those fields are the only evidence it has for deciding whether to answer, reformulate the query, or spend fetch tokens. This paper asks whether commercial search APIs can be treated as interchangeable surfaces for such agents.
 
-We frame search APIs as \emph{decision surfaces}. The provider's snippets, extra-snippet blocks, URL pool, and ranking order are the only signals an agent sees before committing fetch tokens. Two providers with similar top-$k$ URL relevance can induce completely different fetch policies: one rewards reading the top result, another rewards reading lower-ranked results, a third rewards skipping fetches entirely. Final accuracy can mask this because the underlying model adapts -- but the cost, latency, and failure-mode distribution do not.
+The intuitive evaluation would compare final answer accuracy. We find that this view is misleading. In our controlled experiment, three production providers reach almost the same exact-match (EM) score: \BraveEM{}/100 for Brave, \TavilyEM{}/100 for Tavily, and \FirecrawlEM{}/100 for Firecrawl. But the trajectories that produce those scores are structurally different. One provider exposes more supporting evidence directly in snippets. Another concentrates support at rank one, making the agent's top-result fetches unusually productive. A third offers a sparse snippet surface but induces broad exploration and wins many queries outside the judged visible-support ceiling.
 
-Our contribution is fourfold:
+We call this phenomenon a \textbf{decision surface} effect. A search API is not merely a candidate generator for the answer model; it is the pre-fetch interface on which the model's policy is executed. Two providers can produce similar downstream EM while changing the conditional value of a fetch, the probability that a visible gold-bearing URL is opened, and the probability that contradicting snippets contaminate the run.
 
-\begin{enumerate}
-    \item \textbf{Agentic retrieval evaluation with a per-URL oracle.} We instrument an agent with separate \texttt{search\_web} and \texttt{fetch\_page} tools, then run an LLM-judge oracle over every visible URL, whether the model opened it or not (\S\ref{sec:methodology}). This yields a per-query confusion matrix of \smart, \missed, \blind, and \nofetch{} decisions for each of three commercial providers.
-    \item \textbf{Empirical mechanism analysis across Brave, Tavily, and Firecrawl} on the 100-query \textsc{SealQA-Hard} subset, totaling 6{,}909 surface judgments (6{,}519 snippet-only rows plus 350 page-visible rows) and 300 query-provider trajectories (\S\ref{sec:results}).
-    \item \textbf{Three findings that survive scrutiny}: providers achieve indistinguishable accuracy through different pipelines (\S\ref{sec:finding-pipelines}); fetch-policy return-on-investment is provider-dependent (\S\ref{sec:finding-roi}); and per-URL contradict-to-gold ratio is a clean, answer-independent surface-quality metric that varies 2.8$\times$ across providers (\S\ref{sec:finding-ratio}).
-    \item \textbf{Actionable design guidance}: a fixed agent fetch policy is suboptimal across providers, and the right policy can be predicted from surface-level signals before any model run (\S\ref{sec:discussion}).
-\end{enumerate}
+\paragraph{Contributions.} We make four contributions.
+First, we define an agentic evaluation protocol that freezes the LLM agent and page fetcher while varying only the commercial search provider. Second, we introduce a per-URL oracle: an LLM judge labels every URL visible to the agent with support, contradiction, model-answer support, and garbage fields. Third, we define a four-cell decision partition---\smart{}, \missed{}, \blind{}, and \noop{}---that converts per-URL labels into provider-specific fetch-policy diagnostics. Fourth, we report an answer-independent surface-quality metric, the contradict-to-gold ratio, and show that it varies by 2.8$\times$ across providers even when EM does not.
 
-We deliberately avoid framing this as a provider leaderboard. The leaderboard view (``provider $A$ beats provider $B$ on EM'') would conclude there is little to choose between Brave, Tavily, and Firecrawl on hard QA. The decision-surface view, by contrast, gives a structural reason \emph{why} accuracy converges and identifies the policy and cost levers that providers actually move.
+\begin{figure*}[t]
+\centering
+\resizebox{0.98\textwidth}{!}{\input{figures/fig_architecture.tikz.tex}}
+\caption{Controlled experiment. The query set, agent, tools, prompt, iteration budget, and Jina Reader page-fetch backend are fixed. Only the search provider changes. The judge sees the same XML document surface seen by the agent before a fetch, plus fetched-page text when the agent opened that URL. Joining judge labels with trace actions yields decision-surface metrics. The diagram is generated from Graphviz DOT and rendered as TikZ for deterministic vector output.}
+\label{fig:architecture}
+\end{figure*}
+
 
 \section{Related Work}
-\label{sec:relatedwork}
+\label{sec:related}
 
-\paragraph{Search-augmented and agentic QA.} Retrieval-augmented generation \citep{lewis-etal-2020-retrieval, izacard-grave-2021-leveraging} and search-augmented agents \citep{shuster2022blenderbot, schick-etal-2023-toolformer, yao2023react} have largely measured end-to-end answer quality. BrowseComp \citep{browsecomp2025} stresses agent capability on hard browsing tasks. Our work shares the hard-QA setting but inverts the focus: the controlled variable is the search provider, not the agent.
+\paragraph{Retrieval-augmented and tool-using QA.}
+Retrieval-augmented generation evaluates how retrieved evidence improves knowledge-intensive generation \citep{lewis-etal-2020-retrieval,izacard-grave-2021-leveraging}. Tool-using agents extend this setting by letting the model choose when to call external tools \citep{yao2023react,schick-etal-2023-toolformer}. Our focus is not a new agent architecture; it is the effect of swapping the commercial search surface underneath a fixed agent.
 
-\paragraph{Retrieval evaluation and judge oracles.} Top-$k$ relevance metrics \citep{thakur-etal-2021-beir} dominate retriever evaluation but capture only the static URL ranking, not the agent's decisions. LLM-as-judge methodology \citep{zheng2023judging} has been used to grade answers; we extend it to grade every visible URL, producing an oracle of which results an ideal agent would have opened. To our knowledge, the smart/foolish/missed-skip matrix this enables has not previously been instantiated across commercial providers with a fully judged URL pool.
+\paragraph{Retrieval evaluation.}
+Standard information-retrieval benchmarks emphasize static ranked-list metrics such as recall or nDCG over top-$k$ candidates \citep{thakur-etal-2021-beir}. Those metrics remain important, but they omit a key feature of agentic search: the model must decide from snippets whether to fetch, answer, or search again. Our per-URL oracle converts a ranked list into a decision surface by labeling the evidence state that was visible at each action point.
 
-\paragraph{Hard QA benchmarks.} \textsc{SealQA-Hard} \citep{sealqa2025} contains 254 web-search questions designed to be unsolvable from parametric memory and to expose conflicting or unhelpful retrieved evidence. We use its publicly released subset, sampled to 100 queries via deterministic stratified sampling on \texttt{freshness}, \texttt{search\_results}, and \texttt{topic} (see Appendix~\ref{app:dataset}).
+\paragraph{LLM judges and web-search benchmarks.}
+LLM-as-judge methods are widely used to evaluate model outputs \citep{zheng2023judging}. We use a judge differently: it labels each retrieved document rather than only the final answer. The question set comes from \textsc{SealQA-Hard} \citep{sealqa2025}; the provider adapters use Brave, Tavily, Firecrawl, and Jina Reader APIs \citep{bravesearch-docs,tavily-docs,firecrawl-docs,jina-reader}.
 
-\paragraph{Commercial search APIs as research artifacts.} Brave Search \citep{bravesearch-docs}, Tavily \citep{tavily-docs}, and Firecrawl \citep{firecrawl-docs} are widely used in agent stacks but have not, to our knowledge, been compared as decision surfaces under a controlled agentic protocol. Existing comparisons report top-$k$ URL relevance or downstream EM only.
+\section{Task and Agent Setup}
+\label{sec:setup}
 
-\section{Methodology}
-\label{sec:methodology}
+\paragraph{Dataset.} We evaluate on a deterministic proportional stratified sample of \NQueries{} queries from the 254-row \textsc{SealQA-Hard} subset. The strata are \texttt{freshness} $\times$ \texttt{search\_results} $\times$ \texttt{topic}, using seed 20260509. The sample preserves the source distribution closely; Appendix~\ref{app:dataset} gives the allocation summary.
 
-\begin{figure*}[t]
-\centering
-\includegraphics[width=0.95\textwidth]{figures/fig0_architecture.pdf}
-\caption{Experiment architecture and the per-URL oracle. The same 100 \textsc{SealQA-Hard} queries are sent through three provider conditions (Brave, Tavily, Firecrawl), holding the GPT-5.4 agent, prompt, tool schema, iteration budget, and fetch backend constant. Each agent run produces a JSONL trace recording every \texttt{search\_web} call, every \texttt{fetch\_page} call, and the final answer. The Kimi-K2.6 LLM judge then emits a per-URL judgment at the snippet-only surface (for every visible URL) and at the page-visible surface (for every URL the agent actually fetched), totaling 6{,}909 judgments across the three provider conditions. Joining the judge verdict with the agent's per-URL action yields the 2$\times$2 oracle confusion matrix shown at the bottom; the per-query buckets in Table~\ref{tab:buckets} aggregate these per-URL cells.}
-\label{fig:arch}
-\end{figure*}
+\paragraph{Agent.} The agent is a frozen GPT-5.4 tool user with a maximum of 10 iterations. Its two tools are \texttt{search\_web(query)}, which returns up to 10 ranked provider results, and \texttt{fetch\_page(document\_id)}, which opens a previously seen result. The prompt instructs the model to ground every final answer in retrieved evidence, to fetch when snippets are insufficient or conflicting, and to output only a short \texttt{FINAL ANSWER}. The prompt and tool schema are identical across provider conditions.
 
-Figure~\ref{fig:arch} summarizes the experiment architecture.
+\paragraph{Providers.} We run the same 100 questions against Brave Web Search, Tavily Search, and Firecrawl Search. The provider adapters normalize each result into rank, title, URL, snippet, domain, and provider metadata. The Brave adapter stores provider-native \texttt{extra\_snippets}; Tavily and Firecrawl are configured with provider-side raw content or markdown disabled, so page text reaches the agent only through the shared \texttt{fetch\_page} tool.
 
-\subsection{Agent Architecture}
+\paragraph{Page fetcher.} All fetched pages are retrieved through Jina Reader and returned as markdown with fetch metadata. This isolates provider differences to the search surface: URL pool, ranking, snippet content, and metadata.
 
-The agent exposes two tools.
+\section{Per-URL Oracle}
+\label{sec:oracle}
 
-\paragraph{\texttt{search\_web(query)}} returns up to ten ranked results per provider. Each result carries title, URL, domain, snippet, and any provider-native \texttt{extra\_snippet} blocks. Crucially, no page content is included; the agent sees only what the provider's API natively returns.
+For each provider-query trajectory, we judge every URL the agent saw. The judge is Kimi-K2.6 at temperature 0. It receives the question, gold answer, the model's final answer, and exactly one retrieved document rendered in the same XML-like format used by the answer model. For unfetched URLs, the document contains title, URL, domain, snippet, and provider metadata such as Brave \texttt{extra\_snippets}. For fetched URLs, the document additionally contains the extracted markdown page text.
 
-\paragraph{\texttt{fetch\_page(document\_id)}} fetches and extracts the full text of a previously-surfaced URL via Jina Reader \citep{jina-reader}. The model receives extracted markdown, fetch status, extractor name, and character count. The fetch backend is identical across providers, so any differences in fetched content are attributable to the URL pool, not the extractor.
+The judge emits booleans for gold support, snippet-level support, page-level support, contradiction, model-answer support, and garbage, plus short evidence spans and confidence; Appendix~\ref{app:judge-schema} gives the exact JSON schema. We analyze \NJudgeValid{} valid judgments out of \NJudgeTotal{} total rows; \NJudgeInvalid{} invalid rows were timeouts or JSON/schema failures and are excluded. The valid rows split into \NJudgeSnippetValid{} snippet-only judgments and \NJudgePageValid{} page-visible judgments.
 
-At each turn the model may search again, fetch any previously-seen URL, answer with \texttt{FINAL ANSWER: $\langle x\rangle$}, or abstain. The maximum iteration budget is 10, the maximum results per search is 10, and the model is GPT-5.4 (temperature 0, max output tokens 4096). The system prompt, user-query wrapper, and tool schema are identical across providers; only the search backend changes.
+\paragraph{Observable ceilings.} We use two cautionary terms. A \emph{snippet-visible} support event means at least one judged snippet field contains enough evidence for the gold answer. A \emph{surface-visible support} event means at least one visible URL supports the gold answer either from snippets or from page text the agent actually fetched. The second is a lower bound on the true provider pool: for unfetched URLs, we do not know what the page would have contained.
 
-\subsection{Providers and Dataset}
+\section{Metrics}
+\label{sec:metrics}
 
-We use the v2 endpoints of three production providers: Brave Web Search, Tavily Search, and Firecrawl Search (configuration in Appendix~\ref{app:provider-config}). Every provider is configured with \texttt{country=US}, English language settings, and no provider-side page scraping; we want to evaluate the search surface, not the provider's optional fetch layer. The exact HTTP request payloads we sent are reproduced in Appendix~\ref{app:provider-payloads}.
+Let a provider-query pair have a set of judged URLs $U$. For each URL $u$, the judge supplies support and contradiction labels, and the trace supplies whether the agent fetched $u$. We aggregate in three ways.
 
-The dataset is 100 queries from \textsc{SealQA-Hard} \cite{sealqa2025}, selected by deterministic proportional stratified sampling over \texttt{freshness} $\times$ \texttt{search\_results} (SealQA's ``conflicting / unhelpful'' label) $\times$ \texttt{topic} (seed 20260509). The sample is 57\% \texttt{conflicting} and 43\% \texttt{unhelpful}; covers all six SealQA topics (Science \& Tech 27, Sports 22, Entertainment 22, Other 12, Politics 9, History \& Geography 8); 43\% \texttt{slow-changing}, 32\% \texttt{never-changing}, 25\% \texttt{fast-changing}; and 61\% from before-2024, 16\% 2024, 23\% 2025. The worst stratum drift versus the 254-row source distribution is $+3.3$pp. Full per-cell allocations and the multi-label question-type breakdown are in Appendix~\ref{app:dataset}.
+\paragraph{Headline answer quality.} We report exact match and token F1 against the SealQA gold answer. Because $n=100$ per provider, small EM differences are not treated as provider wins.
 
-\subsection{Per-URL Oracle Judging}
-\label{sec:judging}
-
-For every URL the agent saw, whether or not it opened it, we run an LLM judge (Kimi-K2.6, temperature 0). The judge inspects exactly the same XML fragment the agent saw at decision time (title, URL, domain, snippet, \texttt{extra\_snippet}s if any), plus the gold answer, the question, and the model's final answer. The schema is
-
-\begin{small}
-\begin{verbatim}
-{
-  "contains_gold_answer": bool,
-  "supports_model_answer": bool,
-  "contradicts_gold_answer": bool,
-  "is_garbage": bool,
-  "answer_span": str,
-  "confidence": float
-}
-\end{verbatim}
-\end{small}
-
-URLs the agent fetched are judged twice: once on the \emph{snippet-only} surface (matching what the agent saw before deciding to fetch) and once on the \emph{page-visible} surface (matching what the agent saw after fetching). This yields two ceilings: the snippet-surface ceiling (what was answerable before fetching) and the URL-pool ceiling (what was answerable after fetching from any URL in the pool). Total judgments: 6{,}909 across providers (2{,}202 / 2{,}481 / 2{,}226), with 6{,}869 producing a valid structured judgment; the 40 invalid rows are timeouts or schema-parse failures excluded from analysis (Section~\ref{sec:limitations}).
-
-A measurement caveat must be stated up front: Brave's snippet-only surface includes \emph{multiple} \texttt{extra\_snippet} blocks per result (median $\approx$ 3 blocks of 200--400 chars each), while Tavily and Firecrawl expose a single snippet only. This is a provider-design choice, not an artifact of our pipeline, and the agent and the judge see exactly the same text. But it means any judgment on the snippet surface for Brave is made on $\approx$5$\times$ more text per URL than for Tavily or Firecrawl. We report the per-URL contradict-to-gold ratio (Section~\ref{sec:finding-ratio}) as the answer-independent surface metric not subject to this confound (both fields use the same per-URL surface).
-
-\subsection{The Smart / Missed / Blind Matrix}
-
-We partition the 100 queries per provider into four mutually exclusive, exhaustive buckets:
-
+\paragraph{Decision partition.} Every provider-query pair belongs to exactly one bucket:
 \begin{itemize}
-    \item \smart: $\geq$1 gold-supporting URL was visible \emph{and} the model fetched at least one gold-supporting URL.
-    \item \missed: $\geq$1 gold-supporting URL was visible \emph{and} the model fetched none of them (possibly fetched something else, possibly fetched nothing).
-    \item \blind: no gold-supporting URL was visible \emph{and} the model fetched $\geq$1 URL.
-    \item \nofetch: no gold-supporting URL was visible \emph{and} the model fetched none.
+    \item \smart{}: at least one visible URL supports the gold answer, and the agent fetched at least one such URL.
+    \item \missed{}: at least one visible URL supports the gold answer, but the agent fetched none of the supporting URLs.
+    \item \blind{}: no visible URL supports the gold answer, but the agent fetched at least one URL.
+    \item \noop{}: no visible URL supports the gold answer, and the agent fetched nothing.
 \end{itemize}
+This partition is deliberately policy-aware: it separates provider surfaces that reveal evidence from agent policies that exploit or ignore that evidence.
 
-Throughout, ``gold-supporting URL visible'' means the LLM judge labeled at least one URL in the surface (snippet or fetched page) as \texttt{contains\_gold\_answer}. \smart{} and \missed{} share the same denominator (queries with gold visible); their EM gap is the cleanest empirical estimate of the value of fetching when gold is on the surface.
-
-\begin{figure*}[t]
-\centering
-\includegraphics[width=0.92\textwidth]{figures/fig1_buckets.pdf}
-\caption{Smart / Missed / Blind / No-op partition of the 100 queries per provider, with EM\% inside each bucket. The three providers reach $\approx$21--23 EM through structurally different bucket distributions: Brave has the largest evidence-visible share (SMART + MISSED = 33), Tavily concentrates correct answers in a small high-payoff SMART bucket (64\% EM, the highest cell in the dataset), and Firecrawl spends most queries in BLIND with the dataset's only above-average blind-fetch EM (24\% vs.\ Brave 18\%, Tavily 16\%). NO-OP queries (no gold-supporting URL ever judged visible, no fetches) are unsolvable for every provider on this dataset.}
-\label{fig:buckets}
-\end{figure*}
+\paragraph{Contradict-to-gold ratio.} On the snippet-only surface, define
+\[
+ r_{c:g}=\frac{\left|\{u \in U : \contraGold(u)\}\right|}{\left|\{u \in U : \containsGold(u)\}\right|}.
+\]
+The ratio does not use the model's final answer or fetched page text. It therefore measures surface contamination without circularly counting the model's mistakes.
 
 \section{Results}
 \label{sec:results}
 
-\subsection{Headline accuracy is indistinguishable}
+\subsection{Final EM hides provider-specific policies}
 
 \begin{table}[t]
 \centering
@@ -152,522 +124,194 @@ Throughout, ``gold-supporting URL visible'' means the LLM judge labeled at least
 \toprule
 \textbf{Metric} & \textbf{Brave} & \textbf{Tavily} & \textbf{Firecrawl} \\
 \midrule
-Exact Match            & 21 & 21 & 23 \\
-Token F1 (avg)         & 0.270 & 0.261 & 0.282 \\
-Answered               & 98 & 97 & 96 \\
-Abstained              & 2 & 3 & 4 \\
+Exact match / 100 & \BraveEM{} & \TavilyEM{} & \FirecrawlEM{} \\
+Wilson 95\% CI & 14--30 & 14--30 & 16--32 \\
+Token F1 & \BraveFone{} & \TavilyFone{} & \FirecrawlFone{} \\
+Answered & 98 & 97 & 96 \\
 \midrule
-Avg search calls       & 2.29 & 2.74 & 2.51 \\
-Avg fetch calls        & 1.02 & 1.30 & 1.28 \\
-\% queries fetched     & 65 & 76 & 81 \\
-Total tokens (M)       & 5.96 & 5.42 & 5.80 \\
-Avg tokens/query       & 59{,}627 & 54{,}156 & 57{,}979 \\
+Avg. search calls & \BraveSearchAvg{} & \TavilySearchAvg{} & \FirecrawlSearchAvg{} \\
+Avg. fetch calls & \BraveFetchAvg{} & \TavilyFetchAvg{} & \FirecrawlFetchAvg{} \\
+Queries with $\geq$1 fetch & \BraveFetchedPct{} & \TavilyFetchedPct{} & \FirecrawlFetchedPct{} \\
+Total agent tokens & \BraveTokensM{}M & \TavilyTokensM{}M & \FirecrawlTokensM{}M \\
 \bottomrule
 \end{tabular}
-\caption{Headline metrics over 100 \textsc{SealQA-Hard} queries with the agentic two-tool architecture. EM differences are within Wilson 95\% CIs and not significant.}
+\caption{Headline trajectory metrics. End-to-end answer accuracy is nearly unchanged across providers, while search and fetch behavior differs.}
 \label{tab:headline}
 \end{table}
 
-Table~\ref{tab:headline} shows the surface-level summary. Exact-match accuracy is statistically indistinguishable across providers (Wilson 95\% CIs overlap heavily at $n{=}100$). Tavily issues 20\% more searches per query than Brave; Firecrawl fetches pages on 25\% more queries than Brave. If a paper stopped here, it would conclude that provider choice does not matter much.
+Table~\ref{tab:headline} is the result a standard end-to-end evaluation would emphasize: EM is 21--23 out of 100, with heavily overlapping Wilson intervals. A practitioner looking only at this table could conclude that provider choice is not important for answer accuracy. The remaining results show why that conclusion is incomplete.
 
-\subsection{Finding 1: Three pipelines, one accuracy}
-\label{sec:finding-pipelines}
+\begin{figure*}[t]
+\centering
+\resizebox{0.98\textwidth}{!}{\input{figures/fig_provider_profiles.tikz.tex}}
+\caption{Provider profiles under the same agent. Brave exposes the broadest visible-support set and the lowest contradict-to-gold ratio; Tavily concentrates support at rank one and makes fetching gold-supporting URLs high-payoff; Firecrawl reaches the highest EM despite the smallest visible-support set by inducing the largest blind-exploration bucket. Generated from Graphviz DOT.}
+\label{fig:provider-profiles}
+\end{figure*}
 
-\begin{table*}[t]
+\subsection{The same EM comes from three different surfaces}
+
+\begin{table}[t]
 \centering
 \small
 \begin{tabular}{lrrr}
 \toprule
-\textbf{Surface-quality and oracle metric} & \textbf{Brave} & \textbf{Tavily} & \textbf{Firecrawl} \\
+\textbf{Surface / oracle statistic} & \textbf{Brave} & \textbf{Tavily} & \textbf{Firecrawl} \\
 \midrule
-Snippet-only URLs judged                                   & 2{,}095 & 2{,}339 & 2{,}085 \\
-\quad URLs containing gold answer ($\%$)                   & 4.6\%   & 1.3\%   & 1.3\%   \\
-\quad URLs contradicting gold ($\%$)                       & 4.2\%   & 2.5\%   & 3.4\%   \\
-\quad Garbage URLs                                         & 22      & 34      & 9       \\
-\midrule
-Queries with $\geq$1 gold URL visible (URL-pool ceiling)   & \textbf{33}      & 24      & 19      \\
-Queries with $\geq$1 contradicting URL visible             & 33      & 27      & 35      \\
-Queries with only-contradicting evidence                   & 20      & 18      & \textbf{27}      \\
-Queries with no judged evidence either way                 & 47      & \textbf{58}      & 54      \\
-\midrule
-\% of gold-supporting URLs placed at rank 1                & 12\%    & \textbf{48\%}    & 11\%    \\
-\midrule
-Unique supporting URLs in pool                             & 87      & 39      & 33      \\
-Useful fetches (model $\cap$ oracle)                       & 9       & 12      & 7       \\
-Oracle fetch precision                                     & 8.9\%   & 9.6\%   & 5.6\%   \\
-Oracle fetch recall                                        & 10.3\%  & \textbf{30.8\%}  & 21.2\%  \\
-\midrule
-EM $\mid$ gold visible (conditional capture)               & 36\%    & \textbf{50\%}    & 37\%    \\
-EM $\mid$ no gold visible (beyond-ceiling EM)              & 13\%    & 12\%    & \textbf{20\%}    \\
-EM from beyond-ceiling queries (absolute count)            & 9       & 9       & \textbf{16}      \\
+Valid snippet-only URL rows & \BraveSnippetRows{} & \TavilySnippetRows{} & \FirecrawlSnippetRows{} \\
+Valid page-visible URL rows & \BravePageRows{} & \TavilyPageRows{} & \FirecrawlPageRows{} \\
+Queries with visible support & \BraveSupportVisibleQ{} & \TavilySupportVisibleQ{} & \FirecrawlSupportVisibleQ{} \\
+Queries without visible support & \BraveNoSupportQ{} & \TavilyNoSupportQ{} & \FirecrawlNoSupportQ{} \\
+Gold-supporting snippet URLs & \BraveGoldURLs{} & \TavilyGoldURLs{} & \FirecrawlGoldURLs{} \\
+Contradicting snippet URLs & \BraveContraURLs{} & \TavilyContraURLs{} & \FirecrawlContraURLs{} \\
+Gold URLs at rank 1 & \BraveRankOnePct{} & \textbf{\TavilyRankOnePct{}} & \FirecrawlRankOnePct{} \\
 \bottomrule
 \end{tabular}
-\caption{Surface-quality landscape and oracle outcomes per provider. ``URL-pool ceiling'' is the count of queries where the LLM judge labeled at least one URL in the surface (snippet \emph{or} fetched page) as containing the gold answer. The last block shows that the three providers reach $\approx$21--23 EM via different routes: Brave and Tavily mostly capture queries on the ceiling, Firecrawl's wins come overwhelmingly from queries the judge marked unsupported.}
-\label{tab:pipelines}
-\end{table*}
+\caption{Oracle-visible support and contamination. ``Visible support'' is a lower bound over judged snippets plus fetched pages; unfetched pages are not page-judged.}
+\label{tab:surface}
+\end{table}
 
-Table~\ref{tab:pipelines} shows three orthogonal pipelines.
+The provider surfaces differ before the agent answers. Brave has the largest support-visible ceiling (33 queries) and the largest count of snippet-level gold-supporting URLs. Tavily has fewer gold-supporting snippet URLs, but \TavilyRankOneGold{} of them are at rank one, so the agent's default tendency to open high-ranked results is unusually well aligned with Tavily's surface. Firecrawl has the smallest visible-support ceiling but the largest unsupported region; its final EM depends more on exploration than on the judge-visible support surface.
 
-\paragraph{Brave: rich snippet surface, broad URL pool, low fetch recall.} Brave's URL-pool ceiling is 33 queries -- nearly double the others. Of those 33, the agent answers 12 correctly (36\%), and an additional 9 correct answers come from queries the judge marked unsupported, for 21 EM in total. Brave returns 87 unique supporting URLs across the 33 ceiling-supported queries ($\approx$2.6 supporting URLs per query on average) but the agent fetches only 9 of them (10.3\% recall). Brave's gold-supporting URLs are roughly uniformly distributed across all 10 ranks (12 at rank 1, 17 at rank 3, 9 at rank 9; see Figure~\ref{fig:rank}).
-
-\paragraph{Tavily: top-rank concentration, high fetch recall, high conditional capture.} Tavily places \textbf{48\% of its gold-supporting URLs at rank 1} (15/31), versus 12\% for Brave and 11\% for Firecrawl. The agent's natural ``open the top result'' tendency therefore converts into 30.8\% fetch recall, three times Brave's. Among the 24 ceiling-supported queries, Tavily's agent captures 12 (50\%), the highest conditional capture rate of any provider. The remaining 9 correct answers come from beyond-ceiling queries, giving 21 EM total.
-
-\paragraph{Firecrawl: sparse surface, broad fetching, beyond-ceiling wins.} Firecrawl's URL-pool ceiling is only 19 queries; the agent captures 7 of them (37\%). Yet Firecrawl reaches 23 EM total -- the highest of the three -- because 16 of those 23 correct answers come from queries the judge marked unsupported. This ``beyond-ceiling EM'' (20\% on the 81 no-gold-visible queries) is double the rate of Brave and Tavily (each 12--13\%). Firecrawl's agent fetches on 81\% of queries and 54\% of those fetches go to rank 1, but most rank-1 URLs do not contain gold by snippet. Wins on the beyond-ceiling queries come from broadly fetching URLs whose snippets were sparse but whose page content held the answer.
-
-The three providers thus converge on $\sim$21--23 EM through (i) reading rich snippets, (ii) reading rank 1, and (iii) reading broadly: three retrieval styles with very different cost and failure-mode profiles. Figure~\ref{fig:buckets} visualizes the resulting smart/missed/blind/no-op partition.
+\subsection{The fetch policy changes sign across providers}
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\columnwidth]{figures/fig2_rank_distribution.pdf}
-\caption{Rank distribution of gold-supporting URLs per provider, normalized within each provider. Tavily concentrates 48\% of its gold-supporting URLs at rank 1, versus 12\% (Brave) and 11\% (Firecrawl). This is the structural reason Tavily's ``open the top result'' agent behavior converts at 3$\times$ Brave's fetch recall.}
-\label{fig:rank}
+\resizebox{\columnwidth}{!}{\input{figures/fig_partition.tikz.tex}}
+\caption{The four-cell decision partition. A provider changes both the probability that support is visible and the probability that the agent fetches a supporting URL when one is visible. Generated from Graphviz DOT.}
+\label{fig:partition}
 \end{figure}
-
-\subsection{Finding 2: Fetch-policy ROI is provider-dependent}
-\label{sec:finding-roi}
 
 \begin{table}[t]
 \centering
 \small
 \begin{tabular}{lccc}
 \toprule
-\textbf{Bucket} ($n$ / EM\%) & \textbf{Brave} & \textbf{Tavily} & \textbf{Firecrawl} \\
+\textbf{Bucket} & \textbf{Brave} & \textbf{Tavily} & \textbf{Firecrawl} \\
 \midrule
-\smart{}    & 8 / \textbf{38\%}  & 11 / \textbf{64\%} & 7 / 29\%  \\
-\missed{}   & 25 / 36\% & 13 / 38\% & 12 / \textbf{42\%} \\
-\blind{}    & 51 / 18\% & 55 / 16\% & 67 / 24\% \\
-\nofetch{}  & 16 / 0\%  & 21 / 0\%  & 14 / 0\%  \\
+\smart{} & \BraveSmartN{} / 38\% & \TavilySmartN{} / \textbf{64\%} & \FirecrawlSmartN{} / 29\% \\
+\missed{} & \BraveMissedN{} / 36\% & \TavilyMissedN{} / 38\% & \FirecrawlMissedN{} / \textbf{42\%} \\
+\blind{} & \BraveBlindN{} / 18\% & \TavilyBlindN{} / 16\% & \FirecrawlBlindN{} / \textbf{24\%} \\
+\noop{} & \BraveNoopN{} / 0\% & \TavilyNoopN{} / 0\% & \FirecrawlNoopN{} / 0\% \\
 \midrule
-Total ($n$ sums to 100)            & 100 & 100 & 100 \\
-\smart{} -- \missed{} ($\Delta$pp) & $+2$ & $\mathbf{+26}$ & $\mathbf{-13}$ \\
+\smart{}--\missed{} gap & +2 pp & \textbf{+26 pp} & -13 pp \\
 \bottomrule
 \end{tabular}
-\caption{EM by smart/missed/blind/no-op bucket. \nofetch{} here is the strict partition complement: no gold visible \emph{and} the model fetched nothing. Such queries are essentially unsolvable on this dataset (0/51 EM across all providers). The \smart{}--\missed{} gap is the value of opening a gold-supporting page when one is visible.}
+\caption{Bucket size and EM rate. The same fetch interface has positive, near-zero, and negative observed return depending on the provider surface. The Firecrawl gap has small $n$ and should be read as exploratory.}
 \label{tab:buckets}
 \end{table}
 
-Table~\ref{tab:buckets} shows the \smart{}/\missed{}/\blind{}/\nofetch{} matrix. The \smart{}--\missed{} gap measures the lift from opening a gold page when one is on the surface:
+Table~\ref{tab:buckets} shows that fetch decisions are not provider-neutral. On Tavily, opening a gold-supporting URL is associated with a large EM lift: \smart{} queries are correct 64\% of the time, compared with 38\% for \missed{} queries. On Brave, the difference is negligible because many answers are already readable from snippets or extra snippets. On Firecrawl, the \smart{} cell is small and lower-EM than \missed{}; Firecrawl's correct answers concentrate in the \blind{} bucket, suggesting that the agent benefits from broad exploration of a sparse surface.
 
-\begin{itemize}
-    \item \textbf{Tavily: $+26$pp.} Opening Tavily's top result, when it is gold-supporting, is highly valuable.
-    \item \textbf{Brave: $+2$pp.} Brave's rich snippet surface already conveys the answer; the page adds little.
-    \item \textbf{Firecrawl: $-13$pp.} On Firecrawl, fetching the gold page actually correlates with \emph{lower} EM than skipping it. The sample is small ($n{=}7$ \smart{}) but the direction is consistent with Firecrawl's beyond-ceiling EM in \blind{}: the model does best on Firecrawl by fetching broadly into the URL pool, not by trusting the snippet-judged signal.
-\end{itemize}
+The key point is not that one static policy wins. It is that the same policy has a different return curve on each provider. Treating providers as interchangeable therefore hides a budget-allocation decision.
 
-The same generic agent policy of ``search, optionally fetch a result, answer'' has positive, near-zero, and negative ROI across the three providers. This is a structural fact about how each provider's surface aligns with the model's natural decision heuristics.
-
-\subsection{Finding 3: A clean, answer-independent surface-quality metric}
-\label{sec:finding-ratio}
-
-The headline contains a circularity hazard: a URL labeled \texttt{supports\_model\_answer $\wedge\,\neg$gold} can only exist when the model's answer differed from gold, making any ``misleading content'' count partly tautological with EM. We therefore use the answer-independent \texttt{contradicts\_gold\_answer} field as the surface-quality metric of record. Per URL $u$, with $\mathrm{contradicts}(u)$ and $\mathrm{containsGold}(u)$ the judge's two binary labels, we define the contradict-to-gold ratio
-
-\[
-  r_{\text{c:g}} \;=\;
-  \frac{|\{u : \mathrm{contradicts}(u)\}|}
-       {|\{u : \mathrm{containsGold}(u)\}|}
-\]
-
-aggregated across all snippet-judged URLs visible to a provider's agent. $r_{\text{c:g}}$ measures how often the surface delivers contradicting content relative to supporting content, independent of whether the model used either.
+\subsection{Surface contamination is measurable without model answers}
 
 \begin{table}[t]
 \centering
 \small
-\begin{tabular}{lr}
+\begin{tabular}{lrrr}
 \toprule
-\textbf{Provider} & \textbf{Contradict:gold ratio} \\
+\textbf{Provider} & \textbf{Contradict} & \textbf{Gold} & $\boldsymbol{r_{c:g}}$ \\
 \midrule
-Brave     & $\mathbf{0.92}$ (89 / 97)  \\
-Tavily    & $1.87$ (58 / 31)  \\
-Firecrawl & $\mathbf{2.59}$ (70 / 27)  \\
+Brave & \BraveContraURLs{} & \BraveGoldURLs{} & \textbf{\BraveContraRatio{}} \\
+Tavily & \TavilyContraURLs{} & \TavilyGoldURLs{} & \TavilyContraRatio{} \\
+Firecrawl & \FirecrawlContraURLs{} & \FirecrawlGoldURLs{} & \textbf{\FirecrawlContraRatio{}} \\
 \bottomrule
 \end{tabular}
-\caption{Per-URL contradict-to-gold ratio (snippet-only surface). Brave's surface is roughly balanced; Firecrawl returns 2.6 contradicting URLs for every supporting one. See Figure~\ref{fig:contradict} for a visualization.}
-\label{tab:contradict-ratio}
+\caption{Contradict-to-gold ratio on snippet-only URL rows. The metric is answer-independent: it does not condition on whether the agent was correct.}
+\label{tab:contamination}
 \end{table}
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=\columnwidth]{figures/fig3_contradict_ratio.pdf}
-\caption{Per-URL contradict-to-gold ratio per provider (Table~\ref{tab:contradict-ratio}). This ratio is answer-independent: it does not depend on what the agent answered, only on how the surface aligns with gold. The 2.8$\times$ spread is the largest answer-independent provider effect in our data.}
-\label{fig:contradict}
-\end{figure}
+The contradict-to-gold ratio ranges from 0.92 for Brave to 2.59 for Firecrawl. This is the largest provider spread we observe on a surface-only metric. It also avoids a common circularity: counting documents that support the model's wrong answer can make contamination appear high simply because the model made a mistake. The \contraGold{} label depends only on the question, gold answer, and document surface.
 
-The 2.8$\times$ spread (Table~\ref{tab:contradict-ratio}) is the largest answer-independent provider effect in our data. It is also predictive: in the cross-tab of gold-visible $\times$ contradicting-visible (Table~\ref{tab:gold-contradict-cross}), adding contradicting URLs to a gold-visible surface drops EM by 9pp on Brave (40\%$\to$31\%) and 45pp on Tavily (67\%$\to$22\%), but shifts $+2$pp on Firecrawl (36\%$\to$38\%, $n{=}8$, not statistically meaningful). Tavily's surface is the most lethal under contamination, since its model relied on the top result and polluting nearby ranks proves costly.
+\subsection{Answer text availability is not enough}
 
-\begin{table}[t]
-\centering
-\small
-\begin{tabular}{lccc}
-\toprule
-\textbf{Surface state} ($n$ / EM\%) & \textbf{Brave} & \textbf{Tavily} & \textbf{Firecrawl} \\
-\midrule
-Gold, no contradictions     & 20 / 40\% & 15 / \textbf{67\%} & 11 / 36\% \\
-Gold + contradictions       & 13 / 31\% & 9 / 22\%  & 8 / 38\%  \\
-Only contradictions         & 20 / 5\%  & 18 / \textbf{0\%}  & 27 / 15\% \\
-Neither (no judged evidence) & 47 / 17\% & 58 / 16\% & 54 / 22\% \\
-\bottomrule
-\end{tabular}
-\caption{EM under all four answer-independent surface states. Tavily collapses (67\%$\to$0\%) when contradictions appear; Firecrawl is uniquely resilient on no-evidence queries (22\%).}
-\label{tab:gold-contradict-cross}
-\end{table}
-
-\section{Case Studies}
-\label{sec:cases}
-
-Two queries exemplify the pipelines (a third is in Appendix~\ref{app:case-c}).
-
-\paragraph{Case A: Tavily's smart fetch wins (\textsc{sealhard\_6f8f541710fe}).}\textit{According to 2021 world population data, how many continents account for less than 10\% of the world's population? Gold = 5.} Brave surfaced Statista, Wikipedia World Population, and Worldometer; the agent fetched Worldometer's population-by-region page and answered \emph{4} (wrong). Tavily surfaced StatisticsTimes (rank 1), Facebook (rank 2), and Wikipedia ``List of continents and continental subregions by population'' (rank 3). The agent fetched the Wikipedia list page and answered \emph{5} (correct). Firecrawl placed the same Wikipedia page at rank 1 but the agent did not fetch, answering \emph{4} from snippets (wrong). The canonical page existed in all three result sets; Tavily's rank ordering induced the right fetch.
-
-\paragraph{Case B: Brave answers without fetching (\textsc{sealhard\_5668b93dd088}).}\textit{Who was the second non-Asian men's soccer player to pass 100 international goals\dots? Gold = Lionel Messi.} Brave's two searches surfaced multiple Wikipedia pages with \texttt{extra\_snippet} blocks naming Messi as a recent 100-goal passer. Zero fetches; answered \emph{Lionel Messi} (correct). Tavily's single search returned a Tehran Times article whose snippet read ``Ronaldo becomes second player to reach 100 international goals''; with no \texttt{extra\_snippet} disambiguation, the agent answered \emph{Cristiano Ronaldo} (wrong). Firecrawl ran four searches and one fetch to reach the correct answer at higher cost. Brave's snippet richness substituted for fetching.
+The deterministic trace metrics also show why retrieval evaluation cannot stop at answer-string availability. The gold answer string appears somewhere in retrieved snippets, extra snippets, or fetched pages on 78 Brave queries, 75 Tavily queries, and 76 Firecrawl queries, yet EM remains near 21--23. Thus the dominant failure mode is not simply failure to retrieve an answer string. It includes deciding which surface to trust, whether to fetch, how to resolve contradictions, and how to convert page evidence into the exact requested granularity.
 
 \section{Discussion}
 \label{sec:discussion}
 
-\subsection{The right fetch policy is provider-dependent}
+\paragraph{Provider choice is policy choice.} A provider surface changes the prior over which action is profitable. Brave rewards reading a richer snippet surface; Tavily rewards fetching high-ranked results; Firecrawl rewards wider exploration. A deployed agent should not necessarily use the same fetch threshold or rank cutoff for all providers.
 
-A widely-used heuristic in agent stacks is ``fetch the top-3 results.'' Our results show this is provider-dependent in three ways. On Tavily, fetching rank 1 is high-ROI (+26pp on gold-visible queries) but fetching ranks 2--3 may add contradicting context (the 67\%$\to$22\% collapse in Table~\ref{tab:gold-contradict-cross}). On Brave, fetching is largely wasted token cost; the snippet surface already conveys what the model needs in $\geq$36\% of gold-visible cases without any fetch. On Firecrawl, fetching is structurally cheap insurance: the snippet surface under-reports the URL pool's actual support, and broad fetching recovers queries the agent would otherwise lose.
+\paragraph{Top-$k$ relevance misses the mechanism.} A top-$k$ URL metric can tell us whether relevant pages are somewhere in the pool. It cannot tell us whether the snippet is sufficient, whether the page needs opening, whether contradicting snippets surround the answer, or whether the agent's fetch heuristic will select the useful URL. Decision-surface metrics complement top-$k$ relevance by making these pre-fetch choices observable.
 
-This suggests an \emph{adaptive} policy: condition fetch budget on provider identity (cheap heuristic) or on prompt-visible surface signals (more general). The contradict-to-gold ratio at the per-provider level is a strong correlate of optimal fetch breadth.
+\paragraph{Design implication.} Search APIs for agents should optimize not only traditional relevance but also actionability: calibrated snippets, fewer unsupported contradictions, stable document identifiers, useful rank concentration, and metadata that tells the agent when opening the page is likely to pay off.
 
-\subsection{Why does accuracy converge?}
-
-Two compensating mechanisms explain why EM is similar across very different surfaces. \textbf{Snippet richness substitutes for fetching}: Brave's \texttt{extra\_snippet} blocks let the model answer from the surface alone on a large fraction of gold-visible queries (Case B). \textbf{Broad fetching substitutes for snippet richness}: Firecrawl's sparse snippets force broad fetching (81\% of queries), recovering queries the snippet judge cannot evaluate. The same agent ``compensates its way'' to similar EM in multiple regimes; if you remove richness, the model fetches more, and if you remove fetch budget, the rich-surface providers cope but the sparse-surface ones collapse.
-
-\subsection{Implications for evaluation}
-
-Provider evaluation should report at minimum: (i) per-URL contradict-to-gold ratio; (ii) rank distribution of supporting URLs; (iii) the smart/missed/blind matrix on a fixed agent; (iv) cost per supported answer. Top-$k$ relevance, the dominant retrieval metric today, is insufficient because it ignores how an agent will actually use the surface.
-
-\section{Limitations}
+\section{Threats to Validity}
 \label{sec:limitations}
 
-\paragraph{The URL-pool ceiling is a lower bound on true URL-pool support.} Of the 6{,}869 valid judgments, only 350 \texttt{page\_visible} rows (101 / 125 / 124 for Brave / Tavily / Firecrawl) received a page-text judgment; the remaining 6{,}519 snippet-only rows were judged on title + URL + snippet (+ \texttt{extra\_snippet}s for Brave) alone. A URL whose snippet was sparse but whose underlying page contained gold can only be discovered as gold-supporting if the model happened to fetch it. A full page-level oracle over all 5{,}565 unique visible URLs (1{,}700 / 2{,}035 / 1{,}830 per provider) is left to future work; Firecrawl's beyond-ceiling EM (Section~\ref{sec:finding-pipelines}) is direct evidence that the current ceiling understates true URL-pool support.
+\paragraph{Single agent and single judge.} The decision partition is induced by one GPT-5.4 agent and one Kimi-K2.6 judge. Different agents may fetch more aggressively, and a second judge could shift boundary cases.
 
-\paragraph{Single judge model.} All 6{,}869 valid judgments come from Kimi-K2.6 at temperature 0. We did not run a second-judge calibration. The contradict-to-gold ratio and the \smart{}/\missed{}/\blind{} matrix are robust to judge bias in the sense that the same judge is applied uniformly to all providers, but absolute ceiling rates may be conservative or liberal.
+\paragraph{Observable-pool lower bound.} We page-judge only URLs the agent fetched. An unfetched URL may contain gold on the page even when its snippet does not. Therefore visible support is a lower bound on true provider pool support, not a full recall estimate.
 
-\paragraph{Single agent model.} All trajectories are GPT-5.4. Provider-specific findings (e.g., Tavily's rank-1 ROI) may shift with a different model. We selected GPT-5.4 because it is a current-generation production model widely used in tool-use deployments.
+\paragraph{Snippet asymmetry is real but confounded.} Brave exposes \texttt{extra\_snippets}; Tavily and Firecrawl do not under our configuration. This is a provider feature visible to the agent, so it belongs in the surface, but it complicates any claim that compares snippet text length rather than policy outcome.
 
-\paragraph{Observational, not causal.} Surface state and query difficulty co-vary; we cannot claim that the surface \emph{caused} the trajectory differences without a replay experiment in which the same agent state is fed a different provider's results. We leave such counterfactual replays to future work.
+\paragraph{Observational policy analysis.} We observe the agent's actions under each provider. We do not replay the same agent hidden state with swapped result lists, nor do we intervene on ranks or snippets. The current study identifies decision-surface effects; a causal replay study is the natural next step.
 
-\paragraph{Sample size.} 100 queries per provider yields Wilson 95\% CIs of $\pm$8pp for proportions near 0.5. Several cell-level differences in Table~\ref{tab:buckets} do not reach significance at $n{=}100$. The qualitative pattern (Tavily$+26$, Brave$+2$, Firecrawl$-13$) is robust; the precise magnitudes are not.
-
-\paragraph{40 invalid judgments} (6 Brave, 17 Tavily, 17 Firecrawl), comprising timeouts or JSON schema-parse failures, were excluded from analysis. These are roughly uniformly distributed across queries and unlikely to bias provider comparisons.
-
-\paragraph{Cost is the binding constraint on scale.} The full study consumed roughly 17.0M agent tokens across 300 trajectories, plus 6{,}909 LLM-judge calls, plus three commercial search-API plans and a Jina Reader subscription. End-to-end this was the limiting factor for scaling to more queries, more providers, or more agent models; 100 queries is the largest pool we could fully judge under our budget. Releasing the trace and judgment dataset (Section~\ref{sec:resources}) reduces this marginal cost for follow-up work.
-
-\paragraph{Three commercial providers only.} Google Custom Search, Bing, Exa, and Serper are not evaluated. The proposed methodology (snippet+page oracle, contradict:gold ratio) generalizes; we expect similar across-pipeline divergence with other providers.
-
-\section{Released Resources}
-\label{sec:resources}
-
-To support replication we release two artifacts (URLs anonymized for review, public at camera-ready):
-\begin{itemize}\setlength\itemsep{0.05em}
-\item \textbf{Dataset} (HuggingFace): 300 agent trajectories, 6{,}909 LLM-judge rows with the v2 schema, deterministic per-query metrics, and the smart/missed/blind partition. Schema, license, and a usage notebook are included.
-\item \textbf{Code} (GitHub): the agent loop, two-tool implementation, trace schema, judge prompt, provider adapters, the Jina Reader page-fetch layer, and the scripts that reproduce every number in this paper.
-\end{itemize}
-Given API keys, \texttt{run\_phase1.py} reproduces the 100-query runs end-to-end; all deterministic offline metrics regenerate from the released JSONL files without any model calls.
+\paragraph{Scale.} With 100 queries, EM intervals are wide. We therefore emphasize structural diagnostics and report cell sizes, not provider leaderboards.
 
 \section{Conclusion}
 
-Commercial search APIs are usually treated as interchangeable input components for retrieval-augmented agents. We instead treat them as decision surfaces that reshape how the agent allocates its retrieval budget. On 100 hard \textsc{SealQA-Hard} queries, three production providers converge on near-identical EM (21--23 / 100) through three structurally different pipelines (rich snippets, top-rank concentration, broad fetching), fetch-policy ROI varies from $+26$ to $-13$ pp, and per-URL contradict-to-gold ratios vary 2.8$\times$. Retrieval-budget evaluation, not top-$k$ relevance or end-to-end accuracy alone, is the right axis for choosing and routing search providers for agentic systems.
+Commercial search APIs are not interchangeable black boxes for tool-using agents. In our controlled study, final answer accuracy barely moves, but the internal retrieval economy changes sharply. Search APIs should be evaluated as decision surfaces: ranked evidence interfaces that shape when an agent answers, fetches, explores blindly, or becomes contaminated by contradictions. The practical question is not only ``which provider retrieves relevant URLs?'' but ``which provider induces the right retrieval-budget policy for this agent?''
+
+\section*{Limitations}
+The main limitations are the single-agent/single-judge design, the lower-bound nature of page-visible support, the provider-specific snippet asymmetry, the observational rather than causal policy analysis, and the 100-query scale. These limitations constrain effect-size claims but do not remove the central observation that similar EM can arise from different decision policies.
+
+\section*{Ethics Statement}
+This work evaluates commercial search APIs and LLM agents on public web-search QA data. We do not rank providers as generally better or worse; we report provider-specific behavior under a fixed research protocol. The study may help practitioners reduce unnecessary page fetches and better detect contradictory evidence, but the same measurements could be used to overfit agents to a benchmark. We therefore release metric definitions and emphasize replication on additional datasets and agents before deployment decisions.
+
+\section*{Reproducibility Statement}
+All numbers are deterministic functions of the committed query sample, trace JSONL files, judge JSONL files, and provider-comparison summaries. The raw trace and judge JSONLs are stored through Git LFS; run \texttt{git lfs pull} before executing \texttt{paper/figures/make\_figures.py}. The script regenerates the Graphviz-derived TikZ figures, the number macros, and an audit file without making model or provider API calls.
 
 \bibliography{refs}
 \bibliographystyle{acl_natbib}
 
 \appendix
 
-\section{Dataset Stratification}
+\section{Dataset Sample}
 \label{app:dataset}
+The sample file records \texttt{dataset=vtllms/sealqa}, \texttt{subset=seal\_hard}, sample size 100, source size 254, seed 20260509, and strata fields \texttt{freshness}, \texttt{search\_results}, and \texttt{topic}. The sampling diagnostics are retained with per-cell source and sample counts.
 
-We sample 100 queries from the 254-row \textsc{SealQA-Hard} subset by deterministic proportional stratified sampling on \texttt{freshness} $\times$ \texttt{search\_results} $\times$ \texttt{topic} with seed 20260509. Table~\ref{tab:dataset-dist} reports the full per-stratum distribution and the percentage-point drift versus the source.
+\section{Provider Requests}
+\label{app:provider-requests}
+Brave uses \texttt{GET https://api.search.brave.com/res/v1/web/search} with \texttt{count=10}, \texttt{country=US}, English language settings, \texttt{safesearch=moderate}, \texttt{spellcheck=true}, \texttt{text\_decorations=false}, and \texttt{result\_filter=web}. Tavily uses \texttt{POST https://api.tavily.com/search} with \texttt{search\_depth=basic}, \texttt{topic=general}, \texttt{max\_results=10}, and provider-side answer/image/raw-content options disabled. Firecrawl uses \texttt{POST https://api.firecrawl.dev/v2/search} with \texttt{limit=10}, \texttt{sources=[web]}, \texttt{country=US}, \texttt{timeout=60000}, and no markdown scraping.
 
-\begin{table}[h]
-\centering
-\small
-\begin{tabular}{lr@{\hspace{0.5em}}lr@{\hspace{0.5em}}l}
-\toprule
-\textbf{Stratum} & \multicolumn{2}{c}{\textbf{Sample}} & \multicolumn{2}{c}{\textbf{$\Delta$ vs.\ src}} \\
-\midrule
-\multicolumn{5}{l}{\emph{Freshness}} \\
-\quad fast-changing       & 25 & (25\%) &  $-0.2$ & pp \\
-\quad slow-changing       & 43 & (43\%) &  $-0.7$ & pp \\
-\quad never-changing      & 32 & (32\%) &  $+0.9$ & pp \\
-\multicolumn{5}{l}{\emph{Search-result quality}} \\
-\quad conflicting         & 57 & (57\%) &  $+0.3$ & pp \\
-\quad unhelpful           & 43 & (43\%) &  $-0.3$ & pp \\
-\multicolumn{5}{l}{\emph{Topic}} \\
-\quad Science \& Tech     & 27 & (27\%) &  $+0.2$ & pp \\
-\quad Sports              & 22 & (22\%) &  $0.0$  & pp \\
-\quad Entertainment       & 22 & (22\%) &  $+0.4$ & pp \\
-\quad Others              & 12 & (12\%) &  $-0.2$ & pp \\
-\quad Politics            &  9 & ( 9\%) &  $-0.1$ & pp \\
-\quad History \& Geog.    &  8 & ( 8\%) &  $-0.3$ & pp \\
-\multicolumn{5}{l}{\emph{Effective year}} \\
-\quad before 2024         & 61 & (61\%) &  $+2.3$ & pp \\
-\quad 2024                & 16 & (16\%) &  $-3.3$ & pp \\
-\quad 2025                & 23 & (23\%) &  $+1.0$ & pp \\
-\multicolumn{5}{l}{\emph{Question type} (multi-label)} \\
-\quad advanced reasoning  & 72 & (72\%) &  $-0.4$ & pp \\
-\quad entity/event disamb.& 61 & (61\%) &  $+2.7$ & pp \\
-\quad temporal tracking   & 13 & (13\%) &  $-0.8$ & pp \\
-\quad cross-lingual       &  5 & ( 5\%) &  $-0.5$ & pp \\
-\quad false-premise       &  2 & ( 2\%) &  $-2.3$ & pp \\
-\bottomrule
-\end{tabular}
-\caption{Distribution of the 100-query \textsc{SealQA-Hard} sample. ``$\Delta$ vs.\ src'' is the percentage-point difference between the 100-query sample fraction and the 254-row source distribution; worst drift is $+3.3$pp. Question types are multi-label, so column sums exceed 100.}
-\label{tab:dataset-dist}
-\end{table}
-
-\section{Provider API Configurations}
-\label{app:provider-config}
-
-Summary: all providers configured with \texttt{country=US}, English language, no provider-side page scraping. Brave: \texttt{count=10}, \texttt{safesearch=moderate}, \texttt{result\_filter=web}. Tavily: \texttt{search\_depth=basic}, \texttt{topic=general}, \texttt{include\_raw\_content=false}. Firecrawl: \texttt{limit=10}, \texttt{sources=[web]}, \texttt{scrapeOptions} omitted. Identical Jina Reader fetch backend (\texttt{r.jina.ai}) for all three.
-
-\section{Programmatic Request Payloads}
-\label{app:provider-payloads}
-
-For full reproducibility we reproduce the exact HTTP request the agent sends per provider on each \texttt{search\_web} call.
-
-\paragraph{Brave Web Search.}
-\begin{small}
-\begin{verbatim}
-GET https://api.search.brave.com/res/v1/web/search
-  ?q=<model-generated query>
-  &count=10
-  &offset=0
-  &country=US
-  &search_lang=en
-  &ui_lang=en-US
-  &safesearch=moderate
-  &spellcheck=true
-  &text_decorations=false
-  &result_filter=web
-Headers:
-  X-Subscription-Token: <BRAVE_KEY>
-  Accept: application/json
-  Accept-Encoding: gzip
-\end{verbatim}
-\end{small}
-
-\paragraph{Tavily Search.}
-\begin{small}
-\begin{verbatim}
-POST https://api.tavily.com/search
-Headers:
-  Authorization: Bearer <TAVILY_KEY>
-  Content-Type: application/json
-Body:
-{
-  "query": "<model-generated query>",
-  "search_depth": "basic",
-  "topic": "general",
-  "max_results": 10,
-  "include_answer": false,
-  "include_images": false,
-  "include_image_descriptions": false,
-  "include_favicon": false,
-  "include_raw_content": false
-}
-\end{verbatim}
-\end{small}
-
-\paragraph{Firecrawl Search (v2).}
-\begin{small}
-\begin{verbatim}
-POST https://api.firecrawl.dev/v2/search
-Headers:
-  Authorization: Bearer <FIRECRAWL_KEY>
-  Content-Type: application/json
-Body:
-{
-  "query": "<model-generated query>",
-  "limit": 10,
-  "sources": ["web"],
-  "country": "US",
-  "timeout": 60000,
-  "ignoreInvalidURLs": false
-}
-\end{verbatim}
-\end{small}
-
-\paragraph{Page fetch (Jina Reader, all providers).}
-\begin{small}
-\begin{verbatim}
-GET https://r.jina.ai/<encoded URL>
-Headers:
-  Authorization: Bearer <JINA_KEY>
-  Accept: text/markdown
-\end{verbatim}
-\end{small}
-The agent never receives raw HTML; the page surface is always markdown extracted by Jina Reader. This isolates the variable of interest (provider URL pool + rank + snippet) from any page-extraction variance.
-
-\section{Auto-Fetch Architecture Comparison}
-\label{app:autofetch}
-
-For context we ran the same 100 queries under an \emph{auto-fetch top-$k$} architecture where the agent's \texttt{search\_web} call returns snippet + extracted page text for every visible URL (no separate \texttt{fetch\_page} tool). Table~\ref{tab:autovsagent} compares the two architectures.
-
-\begin{table}[h]
-\centering
-\small
-\begin{tabular}{lrrr}
-\toprule
-\textbf{Architecture / Provider} & \textbf{EM} & \textbf{Avg Tok} & \textbf{Max Tok} \\
-\midrule
-\multicolumn{4}{l}{\emph{Auto-fetch top-3 (baseline)}} \\
-\quad Brave     & 21 & 49{,}229 & 602{,}701 \\
-\quad Tavily    & 22 & 84{,}753 & 1{,}768{,}647 \\
-\quad Firecrawl & 22 & 44{,}431 & 397{,}227 \\
-\midrule
-\multicolumn{4}{l}{\emph{Agentic-fetch (main)}} \\
-\quad Brave     & 21 & 59{,}627 & 303{,}462 \\
-\quad Tavily    & 21 & 54{,}156 & 305{,}474 \\
-\quad Firecrawl & 23 & 57{,}979 & 380{,}646 \\
-\bottomrule
-\end{tabular}
-\caption{Auto-fetch top-3 vs agentic-fetch architectures. Agentic fetch reduces Tavily token tails by 5.8$\times$ at the max with no EM loss.}
-\label{tab:autovsagent}
-\end{table}
-
-Agentic-fetch caps the maximum token tail (Tavily: 1.77M $\to$ 305K, $-83\%$) with essentially no change in EM. The mean token usage moves in opposite directions for the providers, reflecting how each surface induces a different fetch budget. Detailed numbers ship in \texttt{results/provider\_comparison/}.
-
-\section{Smart / Missed / Blind Confidence Intervals}
-\label{app:cis}
-
+\section{Wilson Intervals for Decision Buckets}
+\label{app:wilson}
 \begin{table}[h]
 \centering
 \small
 \begin{tabular}{lccc}
 \toprule
-\textbf{Bucket} ($k/n$) & \textbf{Brave} & \textbf{Tavily} & \textbf{Firecrawl} \\
+\textbf{Bucket} & \textbf{Brave} & \textbf{Tavily} & \textbf{Firecrawl} \\
 \midrule
-\smart{}   & 3/8: 38\%~[14--69]  & 7/11: 64\%~[35--85]  & 2/7: 29\%~[8--64]   \\
-\missed{}  & 9/25: 36\%~[20--55] & 5/13: 38\%~[18--64]  & 5/12: 42\%~[19--68] \\
-\blind{}   & 9/51: 18\%~[10--30] & 9/55: 16\%~[9--28]   & 16/67: 24\%~[15--35] \\
-\nofetch{} & 0/16: 0\%~[0--19]   & 0/21: 0\%~[0--15]    & 0/14: 0\%~[0--22]   \\
+\smart{} & 3/8: 38\% [14--69] & 7/11: 64\% [35--85] & 2/7: 29\% [8--64] \\
+\missed{} & 9/25: 36\% [20--55] & 5/13: 38\% [18--64] & 5/12: 42\% [19--68] \\
+\blind{} & 9/51: 18\% [10--30] & 9/55: 16\% [9--28] & 16/67: 24\% [15--35] \\
+\noop{} & 0/16: 0\% [0--19] & 0/21: 0\% [0--15] & 0/14: 0\% [0--22] \\
 \bottomrule
 \end{tabular}
-\caption{Wilson 95\% CIs for the bucket EM rates in Table~\ref{tab:buckets}. Tavily's \smart{}--\missed{} gap is the only cell-level effect that approaches separation; others should be read as exploratory.}
-\label{tab:wilson}
+\caption{Wilson 95\% intervals for EM rates in the decision partition.}
 \end{table}
 
-\section{Agent System Prompt}
-\label{app:agent-prompt}
-
-The full agent system prompt is reproduced verbatim from the released code.
+\section{Judge Schema}
+\label{app:judge-schema}
 \begin{small}
 \begin{verbatim}
-You are an assistant that answers
-factual questions using web search.
-
-You have access to:
-- search_web: query string. Returns
-  results with document_id, title,
-  URL, snippet.
-- fetch_page: a document_id from a
-  prior search_web result. Returns
-  extracted page text + fetch metadata.
-
-<constraints>
-- Every final answer must be grounded
-  in retrieved evidence. Never answer
-  from parametric knowledge alone.
-- If sources conflict, prefer the most
-  recent, most authoritative (official
-  > news > blogs).
-- For time-sensitive questions, note
-  the date of the evidence.
-</constraints>
-
-<workflow>
-1. Understand the query.
-2. Formulate concise keyword queries.
-3. Evaluate snippets.
-4. fetch_page when snippets are
-   insufficient/ambiguous/stale.
-5. Iterate as needed.
-6. Produce the final answer.
-</workflow>
-
-<output_format>
-- Prefix with "FINAL ANSWER: ".
-- Return only the factual answer.
-- If unanswerable, respond exactly:
-  "FINAL ANSWER: I cannot determine
-   the answer from available sources."
-</output_format>
+{
+  "contains_gold_answer": boolean,
+  "gold_answer_in_snippets": boolean,
+  "gold_answer_in_extracted_page": boolean,
+  "supports_model_answer": boolean,
+  "contradicts_gold_answer": boolean,
+  "is_garbage": boolean,
+  "garbage_reason": string,
+  "answer_span": string,
+  "gold_snippet_span": string,
+  "gold_extracted_page_span": string,
+  "confidence": number
+}
 \end{verbatim}
 \end{small}
-A neutral worked example follows in the released code and is omitted here for space.
-
-\section{LLM Judge Prompt}
-\label{app:judge-prompt}
-
-The judge prompt is also reproduced verbatim:
-\begin{small}
-\begin{verbatim}
-You are an evidence-support judge for
-a search-augmented QA evaluation.
-
-Judge whether ONE retrieved document
-contains enough evidence to answer the
-user question with the known gold
-answer, whether it supports the model's
-final answer, whether it contradicts
-the gold answer, and whether the
-content is mostly unusable garbage.
-
-Rules:
-- Judge ONLY the provided document
-  (title, URL, domain, snippet, extra
-  snippets, extracted page text).
-- Do not use outside knowledge.
-- The gold answer is for evaluation.
-- contains_gold_answer = the document
-  fully contains evidence to answer
-  with the gold answer (NOT mere
-  string match).
-- gold_answer_in_snippets = snippet
-  fields alone suffice.
-- gold_answer_in_extracted_page =
-  extracted_page text alone suffices.
-- supports_model_answer = document
-  supports the model's answer when
-  different from gold.
-- contradicts_gold_answer = the
-  document asserts facts that conflict
-  with the gold answer.
-- is_garbage = empty/binary/extraction
-  debris/blocked/boilerplate; if
-  extracted_page is empty/failed and
-  snippets carry no evidence, mark
-  garbage.
-- answer_span / gold_snippet_span /
-  gold_extracted_page_span = short
-  verbatim spans.
-- Return JSON only.
-\end{verbatim}
-\end{small}
-
-\section{Representative Judge Samples}
-\label{app:judge-samples}
-
-We show one real judge sample per outcome class. URLs are truncated for space; full samples are in the released dataset.
-
-\paragraph{Gold-supporting (smart-fetch evidence).}\textit{Q: Which is the oldest university in continuous operation in Italy that began as a faculty-led institution\,? Gold = University of Padua.} URL: \texttt{aleteia.org/2018/01/10/the-5-oldest-univer-\\sities-in-continuous-operation-and-their} (rank 10). The judge returned \texttt{contains\_gold\_answer=true} with \texttt{answer\_span}: \emph{``The University of Padua was founded as a school of law in 1222 in Padua, Italy, and remains a prestigious institution today with over 40,000 students. Famous ancient alumni: \dots Nicolaus Copernicus, \dots''}
-
-\paragraph{Contradicts gold (misleading-content evidence).}\textit{Q: What is the supercomputer with the fastest speed outside the US\,? Gold = HPC6; model answered JUPITER.} URL: \texttt{nvidianews.nvidia.com/news/nvidia-powers-\\europes-fastest-supercomputer} (rank 3). \texttt{contradicts\_gold\_answer=true} with \texttt{answer\_span}: \emph{``JUPITER is on track to be Europe's first exascale supercomputer.''} (Confidence 1.0.) The page is well-formed; it simply asserts a different answer than gold.
-
-\paragraph{Garbage page (failed extraction).}\textit{Q: Which country has won the most bronze medals in the World Pastry Cup\,? Gold = Italy; model answered Italy.} URL: \texttt{pastryteamusa.com/the-sweet-pursuit-of-perfection-\\a-history-of-the-coupe-du-monde} (rank 8). \texttt{is\_garbage=true} with \texttt{garbage\_reason}: \emph{``Extracted page is a 404 error and remaining snippets do not provide useful evidence for the gold or model answer.''}
-
-\paragraph{Supports model's wrong answer (the EM-circularity bucket from \S4.4).}\textit{Q: According to ITU, which country had the highest number of mobile cellular subscribers per 100 people worldwide\,? Gold = Sweden; model answered Finland.} URL: \texttt{www.itu.int/ITU-D/ict/publications/wtdr\_99/material/wtdr99s.pdf} (rank 9). \texttt{supports\_model\_answer=true}, \texttt{contains\_gold\_answer=false} with \texttt{answer\_span}: \emph{``Finland is in some ways a curious place to be the world leader in mobilephone penetration.''} (Confidence 0.8.) This is exactly the answer-dependent label whose circularity we avoid by using \texttt{contradicts\_gold\_answer} instead in Section~\ref{sec:finding-ratio}.
-
-\section{Case C: Same page, different counts}
-\label{app:case-c}
-
-\textit{Q: How many times in history has the PDC World Darts Championship final featured two English players? Gold = 14.} (\textsc{sealhard\_370de35828d1}.) All three providers placed the Wikipedia ``PDC World Darts Championship'' page at rank 1, and the agent fetched exactly that URL in every provider's run. Yet the final answers were \emph{15} (Brave), \emph{15} (Tavily), and \emph{14} (Firecrawl, correct). The fetched evidence was identical; the surrounding rank-2/3 results and snippets differed (Brave: \texttt{dartsnews.com}; Tavily: \texttt{dartskins.co.uk}; Firecrawl: \texttt{darts501.com}). This case demonstrates that the surface continues to influence reasoning \emph{after} fetching: the rest of the prompt context changes how the model counts entries in the same Wikipedia table.
-
-\section{Trace Viewer}
-\label{app:viewer}
-
-The released code ships an interactive trace dashboard (\texttt{scripts/trace\_dashboard.py}, served at \texttt{http://127.0.0.1:8765}) that loads any of the JSONL trace files and any judge JSONL, then renders per-query timelines (every search call, every retrieved result with snippet, every fetch call with the extracted page text, the model's tool calls, and the final answer) together with the per-URL judge verdicts. A static one-shot renderer (\texttt{scripts/render\_trace.py}) emits the same view as a standalone HTML page for archival, which is useful for case studies (Section~\ref{sec:cases}) and for reviewing failure modes. Screenshots of the live viewer are bundled in the camera-ready supplementary material.
 
 \end{document}

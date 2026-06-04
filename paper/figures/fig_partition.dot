@@ -1,0 +1,20 @@
+digraph G {
+  graph [rankdir=TB, bgcolor="transparent", splines=ortho, nodesep=0.55, ranksep=0.55, margin=0.02];
+  node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=10, margin="0.08,0.05", color="#334155", penwidth=1.1, fillcolor="#F8FAFC"];
+  edge [fontname="Helvetica", fontsize=8, color="#64748B", arrowsize=0.55, penwidth=1.0];
+  start [label="For each provider-query pair\njoin judge labels with agent actions", fillcolor="#F8FAFC", color="#334155"];
+  gold [label="Any visible URL\ncontains gold?", shape=diamond, fillcolor="#FEF3C7", color="#D97706"];
+  fetched_gold [label="Agent fetched\na gold URL?", shape=diamond, fillcolor="#DCFCE7", color="#16A34A"];
+  fetched_any [label="Agent fetched\nany URL?", shape=diamond, fillcolor="#E0F2FE", color="#0284C7"];
+  smart [label="SMART\nvisible support + fetched it\nBrave 8, Tavily 11, Firecrawl 7", fillcolor="#DCFCE7", color="#16A34A"];
+  missed [label="MISSED\nvisible support + did not fetch it\nBrave 25, Tavily 13, Firecrawl 12", fillcolor="#FEF9C3", color="#CA8A04"];
+  blind [label="BLIND\nno visible support + fetched\nBrave 51, Tavily 55, Firecrawl 67", fillcolor="#FFEDD5", color="#EA580C"];
+  noop [label="NO-OP\nno visible support + no fetch\nBrave 16, Tavily 21, Firecrawl 14", fillcolor="#E2E8F0", color="#475569"];
+  start -> gold;
+  gold -> fetched_gold [label="yes"];
+  gold -> fetched_any [label="no"];
+  fetched_gold -> smart [label="yes"];
+  fetched_gold -> missed [label="no"];
+  fetched_any -> blind [label="yes"];
+  fetched_any -> noop [label="no"];
+}

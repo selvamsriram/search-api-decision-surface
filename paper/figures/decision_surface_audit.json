@@ -1,0 +1,130 @@
+{
+  "meta": {
+    "all_correct": 9,
+    "all_wrong": 62,
+    "judge_invalid": 40,
+    "judge_page_valid": 350,
+    "judge_snippet_valid": 6519,
+    "judge_total": 6909,
+    "judge_valid": 6869,
+    "one_correct": 20,
+    "providers": 3,
+    "queries": 100,
+    "traces": 300,
+    "two_correct": 9
+  },
+  "providers": {
+    "brave": {
+      "answer_available": 78,
+      "answered": 98,
+      "avg_fetch": 1.02,
+      "avg_search": 2.29,
+      "bucket": {
+        "blind": [
+          51,
+          9
+        ],
+        "missed": [
+          25,
+          9
+        ],
+        "noop": [
+          16,
+          0
+        ],
+        "smart": [
+          8,
+          3
+        ]
+      },
+      "contra_ratio": 0.92,
+      "contra_urls": 89,
+      "em": 21,
+      "f1": 0.27,
+      "fetched_pct": 65,
+      "gold_urls": 97,
+      "no_support_q": 67,
+      "page_rows": 101,
+      "rank1_count": 12,
+      "rank1_pct": 12,
+      "snippet_rows": 2095,
+      "support_visible_q": 33,
+      "tokens_m": 5.96
+    },
+    "firecrawl": {
+      "answer_available": 76,
+      "answered": 96,
+      "avg_fetch": 1.28,
+      "avg_search": 2.51,
+      "bucket": {
+        "blind": [
+          67,
+          16
+        ],
+        "missed": [
+          12,
+          5
+        ],
+        "noop": [
+          14,
+          0
+        ],
+        "smart": [
+          7,
+          2
+        ]
+      },
+      "contra_ratio": 2.59,
+      "contra_urls": 70,
+      "em": 23,
+      "f1": 0.282,
+      "fetched_pct": 81,
+      "gold_urls": 27,
+      "no_support_q": 81,
+      "page_rows": 124,
+      "rank1_count": 3,
+      "rank1_pct": 11,
+      "snippet_rows": 2085,
+      "support_visible_q": 19,
+      "tokens_m": 5.8
+    },
+    "tavily": {
+      "answer_available": 75,
+      "answered": 97,
+      "avg_fetch": 1.3,
+      "avg_search": 2.74,
+      "bucket": {
+        "blind": [
+          55,
+          9
+        ],
+        "missed": [
+          13,
+          5
+        ],
+        "noop": [
+          21,
+          0
+        ],
+        "smart": [
+          11,
+          7
+        ]
+      },
+      "contra_ratio": 1.87,
+      "contra_urls": 58,
+      "em": 21,
+      "f1": 0.261,
+      "fetched_pct": 76,
+      "gold_urls": 31,
+      "no_support_q": 76,
+      "page_rows": 125,
+      "rank1_count": 15,
+      "rank1_pct": 48,
+      "snippet_rows": 2339,
+      "support_visible_q": 24,
+      "tokens_m": 5.42
+    }
+  },
+  "source": "last_validated_constants"
+}
