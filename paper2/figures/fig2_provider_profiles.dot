@@ -1,0 +1,40 @@
+digraph G {
+      graph [rankdir=TB, bgcolor="transparent", margin=0.02];
+      node [shape=plain, fontname="Helvetica"];
+      profile [label=<
+        <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="12" CELLPADDING="0">
+          <TR><TD COLSPAN="3"><FONT POINT-SIZE="30"><B>Same final accuracy, different decision surfaces</B></FONT><BR/><FONT POINT-SIZE="17">Counts are queries unless URL rows are shown; bucket cells show n / exact-match count.</FONT></TD></TR>
+          <TR><TD VALIGN="TOP">
+          <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="8" COLOR="#E76F51">
+          <TR><TD BGCOLOR="#E76F51"><FONT COLOR="white" POINT-SIZE="26"><B>Brave</B></FONT></TD></TR>
+          <TR><TD><FONT POINT-SIZE="19">EM <B>21/100</B> &nbsp; F1 0.270</FONT></TD></TR>
+          <TR><TD><FONT POINT-SIZE="19">visible support <B>33</B> queries</FONT></TD></TR>
+          <TR><TD><FONT POINT-SIZE="19">rank-1 gold <B>12%</B> (12/97)</FONT></TD></TR>
+          <TR><TD><FONT POINT-SIZE="19">contradict:gold <B>0.92</B> (89/97)</FONT></TD></TR>
+          <TR><TD><FONT POINT-SIZE="17">SMART 8/3 EM &nbsp; MISSED 25/9</FONT></TD></TR>
+          <TR><TD><FONT POINT-SIZE="17">BLIND 51/9 EM &nbsp; NO-OP 16/0</FONT></TD></TR>
+          </TABLE>
+        </TD><TD VALIGN="TOP">
+          <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="8" COLOR="#2A80B9">
+          <TR><TD BGCOLOR="#2A80B9"><FONT COLOR="white" POINT-SIZE="26"><B>Tavily</B></FONT></TD></TR>
+          <TR><TD><FONT POINT-SIZE="19">EM <B>21/100</B> &nbsp; F1 0.261</FONT></TD></TR>
+          <TR><TD><FONT POINT-SIZE="19">visible support <B>24</B> queries</FONT></TD></TR>
+          <TR><TD><FONT POINT-SIZE="19">rank-1 gold <B>48%</B> (15/31)</FONT></TD></TR>
+          <TR><TD><FONT POINT-SIZE="19">contradict:gold <B>1.87</B> (58/31)</FONT></TD></TR>
+          <TR><TD><FONT POINT-SIZE="17">SMART 11/7 EM &nbsp; MISSED 13/5</FONT></TD></TR>
+          <TR><TD><FONT POINT-SIZE="17">BLIND 55/9 EM &nbsp; NO-OP 21/0</FONT></TD></TR>
+          </TABLE>
+        </TD><TD VALIGN="TOP">
+          <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="8" COLOR="#2AA876">
+          <TR><TD BGCOLOR="#2AA876"><FONT COLOR="white" POINT-SIZE="26"><B>Firecrawl</B></FONT></TD></TR>
+          <TR><TD><FONT POINT-SIZE="19">EM <B>23/100</B> &nbsp; F1 0.282</FONT></TD></TR>
+          <TR><TD><FONT POINT-SIZE="19">visible support <B>19</B> queries</FONT></TD></TR>
+          <TR><TD><FONT POINT-SIZE="19">rank-1 gold <B>11%</B> (3/27)</FONT></TD></TR>
+          <TR><TD><FONT POINT-SIZE="19">contradict:gold <B>2.59</B> (70/27)</FONT></TD></TR>
+          <TR><TD><FONT POINT-SIZE="17">SMART 7/2 EM &nbsp; MISSED 12/5</FONT></TD></TR>
+          <TR><TD><FONT POINT-SIZE="17">BLIND 67/16 EM &nbsp; NO-OP 14/0</FONT></TD></TR>
+          </TABLE>
+        </TD></TR>
+        </TABLE>>];
+    }
+    

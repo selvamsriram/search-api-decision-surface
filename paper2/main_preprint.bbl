@@ -1,0 +1,138 @@
+\begin{thebibliography}{27}
+\providecommand{\natexlab}[1]{#1}
+\bibitem[Lewis et~al.(2020)]{lewis-etal-2020-retrieval}
+Lewis, Patrick and Perez, Ethan and Piktus, Aleksandra and Petroni, Fabio and Karpukhin, Vladimir and Goyal, Naman and Kuttler, Heinrich and Lewis, Mike and Yih, Wen-tau and Rocktaschel, Tim and Riedel, Sebastian and Kiela, Douwe. 2020.
+\newblock Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks.
+\newblock \emph{Advances in Neural Information Processing Systems}.
+
+\bibitem[Guu et~al.(2020)]{guu2020realm}
+Guu, Kelvin and Lee, Kenton and Tung, Zora and Pasupat, Panupong and Chang, Ming-Wei. 2020.
+\newblock REALM: Retrieval-Augmented Language Model Pre-Training.
+\newblock \emph{Proceedings of the 37th International Conference on Machine Learning}.
+
+\bibitem[Karpukhin et~al.(2020)]{karpukhin2020dense}
+Karpukhin, Vladimir and Oguz, Barlas and Min, Sewon and Lewis, Patrick and Wu, Ledell and Edunov, Sergey and Chen, Danqi and Yih, Wen-tau. 2020.
+\newblock Dense Passage Retrieval for Open-Domain Question Answering.
+\newblock \emph{Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing}.
+
+\bibitem[Izacard et~al.(2021)]{izacard-grave-2021-leveraging}
+Izacard, Gautier and Grave, Edouard. 2021.
+\newblock Leveraging Passage Retrieval with Generative Models for Open Domain Question Answering.
+\newblock \emph{Proceedings of the 16th Conference of the European Chapter of the Association for Computational Linguistics}.
+
+\bibitem[Izacard et~al.(2023)]{izacard2023atlas}
+Izacard, Gautier and Caron, Mathilde and Hosseini, Lucas and Riedel, Sebastian and Bojanowski, Piotr and Joulin, Armand and Grave, Edouard. 2023.
+\newblock ATLAS: Few-shot Learning with Retrieval Augmented Language Models.
+\newblock \emph{Journal of Machine Learning Research}.
+
+\bibitem[Thakur et~al.(2021)]{thakur-etal-2021-beir}
+Thakur, Nandan and Reimers, Nils and Ruckle, Andreas and Srivastava, Abhishek and Gurevych, Iryna. 2021.
+\newblock BEIR: A Heterogeneous Benchmark for Zero-shot Evaluation of Information Retrieval Models.
+\newblock \emph{Proceedings of the Neural Information Processing Systems Track on Datasets and Benchmarks}.
+
+\bibitem[Nakano et~al.(2021)]{nakano2021webgpt}
+Nakano, Reiichiro and Hilton, Jacob and Balaji, Suchir and Wu, Jeff and Ouyang, Long and Kim, Christina and Hesse, Christopher and Jain, Shantanu and Kosaraju, Vineet and Saunders, William and Jiang, Xu and Cobbe, Karl and Eloundou, Tyna and Krueger, Gretchen and Button, Kevin and Knight, Matthew and Chess, Benjamin and Schulman, John. 2021.
+\newblock WebGPT: Browser-assisted Question-answering with Human Feedback.
+\newblock \emph{arXiv preprint arXiv:2112.09332}.
+
+\bibitem[Press et~al.(2022)]{press2022selfask}
+Press, Ofir and Zhang, Muru and Min, Sewon and Schmidt, Ludwig and Smith, Noah A. and Lewis, Mike. 2022.
+\newblock Measuring and Narrowing the Compositionality Gap in Language Models.
+\newblock \emph{arXiv preprint arXiv:2210.03350}.
+
+\bibitem[Yao et~al.(2023)]{yao2023react}
+Yao, Shunyu and Zhao, Jeffrey and Yu, Dian and Du, Nan and Shafran, Izhak and Narasimhan, Karthik and Cao, Yuan. 2023.
+\newblock ReAct: Synergizing Reasoning and Acting in Language Models.
+\newblock \emph{International Conference on Learning Representations}.
+
+\bibitem[Trivedi et~al.(2022)]{trivedi2022ircot}
+Trivedi, Harsh and Balasubramanian, Niranjan and Khot, Tushar and Sabharwal, Ashish. 2022.
+\newblock Interleaving Retrieval with Chain-of-Thought Reasoning for Knowledge-Intensive Multi-Step Questions.
+\newblock \emph{arXiv preprint arXiv:2212.10509}.
+
+\bibitem[Schick et~al.(2023)]{schick-etal-2023-toolformer}
+Schick, Timo and Dwivedi-Yu, Jane and Dessi, Roberto and Raileanu, Roberta and Lomeli, Maria and Hambro, Eric and Zettlemoyer, Luke and Cancedda, Nicola and Scialom, Thomas. 2023.
+\newblock Toolformer: Language Models Can Teach Themselves to Use Tools.
+\newblock \emph{Advances in Neural Information Processing Systems}.
+
+\bibitem[Asai et~al.(2024)]{asai2023selfrag}
+Asai, Akari and Wu, Zeqiu and Wang, Yizhong and Sil, Avirup and Hajishirzi, Hannaneh. 2024.
+\newblock Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection.
+\newblock \emph{International Conference on Learning Representations}.
+
+\bibitem[Vu et~al.(2023)]{vu2023freshllms}
+Vu, Tu and Iyyer, Mohit and Wang, Xuezhi and Constant, Noah and Wei, Jerry and Wei, Jason and Tar, Chris and Sung, Yun-Hsuan and Zhou, Denny and Le, Quoc and Luong, Thang. 2023.
+\newblock FreshLLMs: Refreshing Large Language Models with Search Engine Augmentation.
+\newblock \emph{arXiv preprint arXiv:2310.03214}.
+
+\bibitem[Xie et~al.(2026)]{xie2026oversearching}
+Xie, Roy and Gopinath, Deepak and Qiu, David and Lin, Dong and Sun, Haitian and Potdar, Saloni and Dhingra, Bhuwan. 2026.
+\newblock Over-Searching in Search-Augmented Large Language Models.
+\newblock \emph{arXiv preprint arXiv:2601.05503}.
+
+\bibitem[Mialon et~al.(2024)]{mialon2023gaia}
+Mialon, Gregoire and Fourrier, Clementine and Swift, Craig and Wolf, Thomas and LeCun, Yann and Scialom, Thomas. 2024.
+\newblock GAIA: A Benchmark for General AI Assistants.
+\newblock \emph{International Conference on Learning Representations}.
+
+\bibitem[Zhou et~al.(2024)]{zhou2023webarena}
+Zhou, Shuyan and Xu, Frank F. and Zhu, Hao and Zhou, Xuhui and Lo, Robert and Sridhar, Abishek and Cheng, Xianyi and Ou, Tianyue and Bisk, Yonatan and Fried, Daniel and Alon, Uri and Neubig, Graham. 2024.
+\newblock WebArena: A Realistic Web Environment for Building Autonomous Agents.
+\newblock \emph{International Conference on Learning Representations}.
+
+\bibitem[Wei et~al.(2025)]{wei2025browsecomp}
+Wei, Jason and Sun, Zhiqing and Papay, Spencer and McKinney, Scott and Han, Jeffrey and Fulford, Isa and Chung, Hyung Won and Passos, Alex Tachard and Fedus, William and Glaese, Amelia. 2025.
+\newblock BrowseComp: A Simple Yet Challenging Benchmark for Browsing Agents.
+\newblock \emph{arXiv preprint arXiv:2504.12516}.
+
+\bibitem[Pham et~al.(2025)]{pham2025sealqa}
+Pham, Thinh and Nguyen, Nguyen and Zunjare, Pratibha and Chen, Weiyuan and Tseng, Yu-Min and Vu, Tu. 2025.
+\newblock SealQA: Raising the Bar for Reasoning in Search-Augmented Language Models.
+\newblock \emph{arXiv preprint arXiv:2506.01062}.
+
+\bibitem[Liu et~al.(2023)]{liu2023verifiability}
+Liu, Nelson F. and Zhang, Tianyi and Liang, Percy. 2023.
+\newblock Evaluating Verifiability in Generative Search Engines.
+\newblock \emph{arXiv preprint arXiv:2304.09848}.
+
+\bibitem[Yue et~al.(2023)]{yue2023automatic}
+Yue, Xiang and Wang, Boshi and Chen, Ziru and Zhang, Kai and Su, Yu and Sun, Huan. 2023.
+\newblock Automatic Evaluation of Attribution by Large Language Models.
+\newblock \emph{arXiv preprint arXiv:2305.06311}.
+
+\bibitem[Liu et~al.(2024)]{liu2024lost}
+Liu, Nelson F. and Lin, Kevin and Hewitt, John and Paranjape, Ashwin and Bevilacqua, Michele and Petroni, Fabio and Liang, Percy. 2024.
+\newblock Lost in the Middle: How Language Models Use Long Contexts.
+\newblock \emph{Transactions of the Association for Computational Linguistics}.
+
+\bibitem[Zheng et~al.(2023)]{zheng2023judging}
+Zheng, Lianmin and Chiang, Wei-Lin and Sheng, Ying and Zhuang, Siyuan and Wu, Zhanghao and Zhuang, Yonghao and Lin, Zi and Li, Zhuohan and Xing, Dacheng and Gonzalez, Joseph E. and Stoica, Ion and Zhang, Hao. 2023.
+\newblock Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena.
+\newblock \emph{arXiv preprint arXiv:2306.05685}.
+
+\bibitem[Liu et~al.(2023)]{liu2023geval}
+Liu, Yang and Iter, Dan and Xu, Yichong and Wang, Shuohang and Xu, Ruochen and Zhu, Chenguang. 2023.
+\newblock G-Eval: NLG Evaluation using GPT-4 with Better Human Alignment.
+\newblock \emph{arXiv preprint arXiv:2303.16634}.
+
+\bibitem[Brave Software(2026)]{bravesearch-docs}
+Brave Software. 2026.
+\newblock Brave Search API Reference.
+\newblock \emph{\url{https://api-dashboard.search.brave.com/api-reference/}}.
+
+\bibitem[Tavily(2026)]{tavily-docs}
+Tavily. 2026.
+\newblock Tavily Search API Documentation.
+\newblock \emph{\url{https://docs.tavily.com/}}.
+
+\bibitem[Firecrawl(2026)]{firecrawl-docs}
+Firecrawl. 2026.
+\newblock Firecrawl Search API Documentation.
+\newblock \emph{\url{https://docs.firecrawl.dev/api-reference/endpoint/search}}.
+
+\bibitem[Jina AI(2026)]{jina-reader}
+Jina AI. 2026.
+\newblock Jina Reader: URL to LLM-Friendly Input.
+\newblock \emph{\url{https://r.jina.ai/}}.
+
+\end{thebibliography}

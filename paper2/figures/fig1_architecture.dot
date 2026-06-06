@@ -1,0 +1,30 @@
+digraph G {
+  graph [rankdir=TB, bgcolor="transparent", margin=0.03];
+  node [shape=plain, fontname="Helvetica"];
+  arch [label=<
+  <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="10">
+    <TR><TD COLSPAN="7" BGCOLOR="#F6F8FB"><FONT POINT-SIZE="30"><B>Per-URL oracle for agentic search</B></FONT><BR/><FONT POINT-SIZE="17">fixed query set, model, prompt, tools, iteration budget, judge, and Jina Reader fetcher; only the commercial search surface varies</FONT></TD></TR>
+    <TR>
+      <TD BGCOLOR="#FFF2D9"><FONT POINT-SIZE="21"><B>100 SealQA-Hard questions</B></FONT><BR/><FONT POINT-SIZE="16">stratified sample</FONT></TD>
+      <TD><FONT POINT-SIZE="26">&#8594;</FONT></TD>
+      <TD><FONT POINT-SIZE="18"><B><FONT COLOR="#E76F51">Brave</FONT><BR/><FONT COLOR="#2A80B9">Tavily</FONT><BR/><FONT COLOR="#2AA876">Firecrawl</FONT></B></FONT><BR/><FONT POINT-SIZE="15">provider condition</FONT></TD>
+      <TD><FONT POINT-SIZE="26">&#8594;</FONT></TD>
+      <TD BGCOLOR="#D9ECFA"><FONT POINT-SIZE="21"><B>Search surface</B></FONT><BR/><FONT POINT-SIZE="16">rank, title, URL,<BR/>snippet, metadata</FONT></TD>
+      <TD><FONT POINT-SIZE="26">&#8594;</FONT></TD>
+      <TD BGCOLOR="#F6F8FB"><FONT POINT-SIZE="21"><B>GPT-5.4 agent</B></FONT><BR/><FONT POINT-SIZE="16">search_web + fetch_page<BR/>max 10 iterations</FONT></TD>
+    </TR>
+    <TR>
+      <TD COLSPAN="2"><FONT POINT-SIZE="16">Shared page backend</FONT></TD>
+      <TD COLSPAN="3" BGCOLOR="#EFE2F5"><FONT POINT-SIZE="20"><B>Jina Reader fetcher</B></FONT><BR/><FONT POINT-SIZE="15">only for URLs the agent opens</FONT></TD>
+      <TD><FONT POINT-SIZE="26">&#8596;</FONT></TD>
+      <TD BGCOLOR="#ECEFF3"><FONT POINT-SIZE="20"><B>Trajectory JSONL</B></FONT><BR/><FONT POINT-SIZE="15">searches, visible URLs,<BR/>fetches, final answer</FONT></TD>
+    </TR>
+    <TR>
+      <TD COLSPAN="3"><FONT POINT-SIZE="16">Every visible URL is judged after the run</FONT></TD>
+      <TD><FONT POINT-SIZE="26">&#8594;</FONT></TD>
+      <TD BGCOLOR="#EFE2F5"><FONT POINT-SIZE="20"><B>Kimi-K2.6 judge</B></FONT><BR/><FONT POINT-SIZE="15">snippet-only; page-visible when fetched</FONT></TD>
+      <TD><FONT POINT-SIZE="26">&#8594;</FONT></TD>
+      <TD BGCOLOR="#E4F6EA"><FONT POINT-SIZE="20"><B>Decision metrics</B></FONT><BR/><FONT POINT-SIZE="15">visible support, SMART/MISSED/<BR/>BLIND/NO-OP, contamination</FONT></TD>
+    </TR>
+  </TABLE>>];
+}

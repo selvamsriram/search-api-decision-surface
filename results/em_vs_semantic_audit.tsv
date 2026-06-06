@@ -1,0 +1,301 @@
+query_id	provider	question	gold_answer	model_answer	em	semantic_match	judgement	judgement_note
+sealhard_0117c1361b85	brave	According to the International Telecommunication Union (ITU), which country had the highest number of mobile cellular subscribers (per 100 people) worldwide in 1990?	Sweden	Finland	0	0	no_match	
+sealhard_0611df120e9b	brave	What is the supercomputer that has the fastest speed outside the US and can help transform scientific research by accelerating breakthroughs across various fields?	HPC6	JUPITER	0	0	no_match	
+sealhard_06488d667987	brave	How many mountain peaks over 7,200 metres (23,622 feet) are there in Pakistan?	42	42	1	1	match	
+sealhard_06b1ff93f9e7	brave	How many active players have won one or more ATP Finals singles titles? Please note that Andy Murray is no longer active.	six	6	1	1	match	
+sealhard_0d25d5916602	brave	How many nations have won multiple gold medals in the Open section of the Chess Olympiad, excluding virtual and unofficial events?	7	7	1	1	match	
+sealhard_0fc3e12e6df9	brave	Among the female competitive swimmers who won the most Olympic gold medals in a single games from 1989 to 2019, who achieved this feat at a younger age?	Missy Franklin	Debbie Meyer	0	0	no_match	
+sealhard_13f3dda94ad1	brave	Which country has won the most bronze medals in the history of the World Pastry Cup?	Italy	Italy	1	1	match	
+sealhard_154703c26212	brave	Elon Musk's online persona is synonymous with witty comebacks and sarcastic remarks, often aimed at individuals or institutions. What title did he humorously declare himself as in his Twitter bio just days after closing the acquisition deal to take over the platform?	Twitter Complaint Hotline Operator	Chief Twit	0	0	no_match	
+sealhard_17561ba00ed9	brave	Which is the oldest university in continuous operation in Italy that began as a faculty-led institution? It played a central role in the sciences during the medieval period and the Italian Renaissance, educating Nicholas Copernicus and numerous other Renaissance mathematicians.	University of Padua	University of Bologna	0	0	no_match	
+sealhard_1768d0c92783	brave	What is the smallest positive integer that can be written as the sum of two perfect squares, with both of these perfect squares being prime numbers?	No square number is a prime number.	8	0	0	no_match	
+sealhard_1b9de8dee6b2	brave	Among the 50 most-liked Instagram posts, how many were made by Cristiano Ronaldo’s account and received over 27 million likes?	8	5	0	0	no_match	
+sealhard_21420e375cbb	brave	How many individuals from the Liberal Democratic Party have served as Prime Minister of Japan since the assassination of Shinzo Abe?	three	3	1	1	match	
+sealhard_26f0dfb5b0e5	brave	What is the most widely used ride booking application in India that offers a wide variety of vehicle choices and prices?	Uber	Ola	0	0	no_match	
+sealhard_2a710db3a65d	brave	According to the documented shipbuilding records from 1966 to 1982, how many Grisha I class corvettes were produced for the Soviet Navy?	37	37	1	1	match	
+sealhard_2ccdb7c85090	brave	Which two countries share the longest continuous international border in the world by total length?	Kazakhstan and Russia	Canada and the United States	0	0	no_match	
+sealhard_370de35828d1	brave	How many times in history has the PDC World Darts Championship final featured two English players?	14	15	0	0	no_match	
+sealhard_3bdf0b4d6146	brave	According to the menu on the website of the Dau Homemade restaurant in Vietnam, what is the listed price in VND for the Special Homemade Bun Dau?	249,000 VND	I cannot determine the answer from available sources.	0	0	no_match	
+sealhard_3c3bc246c0d6	brave	How many smoke grenade models listed in the Polish Land Forces equipment originate exclusively from the Soviet Union?	0	1	0	0	no_match	
+sealhard_3fdf524a2ea9	brave	Who was the purchaser in the largest confirmed merger or acquisition that ultimately failed to complete?	Astra Zeneca	AstraZeneca	0	1	match	"EM-MISS (EM=0 but correct): Spacing only: ""Astra Zeneca"" == ""AstraZeneca"""
+sealhard_41eb61aaf82d	brave	Which three North American countries will host the 2026 FIFA's Women World Cup, the first to be co-hosted by three nations and the first North American World Cup since 1994?	There won't be a FIFA's Women World Cup in 2026.	Canada, Mexico, and the United States	0	0	no_match	
+sealhard_457b38855fa4	brave	On what date did the world record 100 million covid cases, a milestone that signifies the sheer amount of transmission that has occurred around this virus?	January 26, 2021	January 27, 2021	0	0	no_match	
+sealhard_468bd5efbfe8	brave	Which organization is the world's largest card payment processing organization, providing credit cards, debit cards, and electronic payment systems?	UnionPay	China UnionPay	0	1	match	"EM-MISS (EM=0 but correct): Same entity: ""China UnionPay"" is the full name of ""UnionPay"""
+sealhard_470fed8377ce	brave	Among artists with multiple wins for Album of the Year at the Grammys, who has received the most nominations for this award, with each nomination occurring in a different year?	George Harrison	Frank Sinatra	0	0	no_match	
+sealhard_4981ad02a6fc	brave	"What was the sale price of Italian artist Maurizio Cattelan's ""Comedian"", a conceptual artwork comprising a banana stuck to a wall with duct tape, at its initial sale?"	US$120,000	$120,000	0	1	match	"EM-MISS (EM=0 but correct): Same amount: ""$120,000"" == ""US$120,000"""
+sealhard_4a3db339e0a0	brave	Who was the most recent Sheriff of Los Angeles County killed in the line of duty?	William C. Getman	Joshua Kelley-Eklund, Victor Lemus, and William Osborn	0	0	no_match	
+sealhard_4adca023da1a	brave	Who is the most recent recipient of a Nobel Prize in one of the sciences who held Asian citizenship at the time of the award?	Akira Yoshino	Aleksey Yekimov	0	0	no_match	
+sealhard_4f128462c995	brave	Elon Musk's online persona is synonymous with witty comebacks and sarcastic remarks, often aimed at individuals or institutions. What title did he humorously declare himself as in his X (formerly Twitter) bio just before closing his deal to acquire the platform, which once again stirred the online world?	Chief Twit	Chief Twit	1	1	match	
+sealhard_4f507e42c1be	brave	According to the Food and Agriculture Organization of the United Nations, which year marked the lowest tea leaf exports from India since 1961?	1996	2021	0	0	no_match	
+sealhard_4f8215a4eaab	brave	Which Vietnamese celebrity was accused of delaying the disbursement of nearly 10 billion VND in charitable donations they had collected for flood victims in 2020?	Tran Thanh	Hoài Linh	0	0	no_match	
+sealhard_509fa8d560e8	brave	What was the acceptance rate for the most recent Conference on Empirical Methods in Natural Language Processing (EMNLP), including both the main conference and Findings?	37.67%	Main conference: 20.8%; Findings: 16.86% (about 16.9%)	0	0	no_match	
+sealhard_52c34c9decc3	brave	How many movies have surpassed 9 million viewers but not reached 10 million in the South Korean box office?	7	5	0	0	no_match	
+sealhard_5668b93dd088	brave	Who was the second non-Asian men's soccer player to pass 100 international goals, and has long since passed the previous record international goalscorer, Iran's Ali Daei (109)?	Lionel Messi	Lionel Messi	1	1	match	
+sealhard_5685bd22ca4d	brave	How many Studio Ghibli feature films have received a Rotten Tomatoes Tomatometer score below 90%?	6	7	0	0	no_match	
+sealhard_57a597e92ac4	brave	In which year did a team achieve the highest score in a World Baseball Classic (WBC) championship game, leading them to victory in their first-ever WBC final?	2006	2017	0	0	no_match	
+sealhard_5a4a585bfbac	brave	How many successfully predicted asteroid impacts have resulted in the recovery of meteorites in the last five years?	two	2	1	1	match	
+sealhard_5e17b3c38fb1	brave	What is the total number of documentary films produced by Sahitya Akademi?	175	175	1	1	match	
+sealhard_61f85b369b4c	brave	As of now, which country or countries have won a single medal in the history of the Summer Olympic Games—and it was a gold?	Dominica	Dominica	1	1	match	
+sealhard_644ca5e960ff	brave	How many of the top 30 most-liked YouTube videos belong to MrBeast?	6	9	0	0	no_match	
+sealhard_6747b5584761	brave	How many countries did Donald Trump visit during his first presidency that Joe Biden did not visit during his presidency?	7	10	0	0	no_match	
+sealhard_6c0f077e50c1	brave	Which country was affected by Black Monday and experienced a prolonged recession, continuing its decline for an extended period after other global markets had recovered?	New Zealand	New Zealand	1	1	match	
+sealhard_6c8b9a75ad1b	brave	Of the top ten colleges in America's Top Colleges 2024, how many also ranked among the top ten global universities in the QS World University Rankings 2025?	3	7	0	0	no_match	
+sealhard_6d8469c83a5a	brave	In which year did California experience its second instance of wildfires burning more than 2 million acres, destroying scores of homes and other buildings?	2021	2020	0	0	no_match	
+sealhard_6f8f541710fe	brave	According to 2021 world population data, how many continents account for less than 10% of the world’s population?	5	4	0	0	no_match	
+sealhard_77156a372cf9	brave	How many films released before 2020 are currently among the top 30 highest-grossing films worldwide?	22	22	1	1	match	
+sealhard_79977a575736	brave	What was Coco Gauff's WTA ranking points total immediately after last year's US Open – Women's Singles?	4,983	4,983	1	1	match	
+sealhard_7a73644c826b	brave	How many Studio Ghibli feature films have been released with a runtime of 119 minutes or longer?	9	8	0	0	no_match	
+sealhard_7b44552616b7	brave	Who was the first person to win the Best Romance category at the Goodreads Choice Awards for three consecutive years?	Colleen Hoover	Colleen Hoover	1	1	match	
+sealhard_7e06b26c28c5	brave	Which North Atlantic tropical storm, whose peak intensity remained at tropical storm level, caused the highest number of deaths last year?	Tropical Storm Nadine	Tropical Storm Sara	0	0	no_match	
+sealhard_7e9246c1c2fc	brave	Which U.S. airline had the highest percentage of delayed flights over the full calendar year of 2024, according to the U.S. Department of Transportation's Air Travel Consumer Report?	Frontier Airlines	JetBlue Airways	0	0	no_match	
+sealhard_7fdc626d3d31	brave	How many albums have received more than 90 million streams in a single day on Spotify?	16	18	0	0	no_match	
+sealhard_83027d490eb7	brave	What is the sum of all three-letter Roman numerals that read the same forwards and backwards?	5442	2509	0	0	no_match	
+sealhard_84253b2d7450	brave	Who was the last French player to finish in the top three for the FIFA Ballon d'Or?	Franck Ribéry	Franck Ribéry	1	1	match	
+sealhard_848d0e19b216	brave	During how many presidential terms in the 21st century has the office of Peru's first vice president been vacant?	4	2	0	0	no_match	
+sealhard_85fcb317a706	brave	What is the total number of railroad tracks currently used for passenger service in Arlington County, Virginia, according to the Bureau of Transportation?	2	3	0	0	no_match	
+sealhard_862314ca8353	brave	How many active players are currently in the top 10 of all-time men’s international goal scorers in soccer?	7	6	0	0	no_match	
+sealhard_877552ec67c0	brave	How many videos on YouTube have received more than 28 million likes?	25	29	0	0	no_match	
+sealhard_88907b1ee49b	brave	How many total offices has Google opened across the Asia–Pacific, Africa, and Middle East regions since January 1, 2022?	11	1	0	0	no_match	
+sealhard_8979d1d1c501	brave	How many Formula One drivers appear on both the top 10 youngest and top 10 oldest World Drivers' Championship winners lists?	2	2	1	1	match	
+sealhard_8999039cdd56	brave	What is the most recent film to join the top 10 highest-grossing films of all time?	Ne Zha 2	Zootopia 2	0	0	no_match	
+sealhard_8b97a64daaf1	brave	How many African nations made their debut in the men's FIFA World Cup during the 21st century?	5	5	1	1	match	
+sealhard_904abf430fa7	brave	What was the highest-grossing animated film produced by Universal Studios last year?	Despicable Me 4	The Bad Guys 2	0	0	no_match	
+sealhard_92742491b67e	brave	How many Super Bowl games had an attendance of more than 70,000?	47	43	0	0	no_match	
+sealhard_93641f5fc924	brave	Which Vietnamese professor explained the mysterious case of two monks said to have been meditating for over 400 years, as shown in a YouTube video posted on April 4, 2023?	Nguyen Lan Cuong	Nguyen Lan Cuong	1	1	match	
+sealhard_98cbbbef96fd	brave	Who was the latest woman to pull off a stunning win at the CMA Awards when she was crowned Entertainer of the Year for the second time?	Taylor Swift	Lainey Wilson	0	0	no_match	
+sealhard_9c2333ca67b4	brave	Google is significantly expanding its presence in the Asia-Pacific region, with Singapore as their current Asia Pacific headquarters. How many office locations does the company currently operate across Asian countries?	22	13	0	0	no_match	
+sealhard_9d5b346b1ad2	brave	How many volcanic eruptions in the 21st century have produced a plume height of at least 18 miles?	2	15	0	0	no_match	
+sealhard_a2c20fcc3ff1	brave	How many times did Blake Shelton win as a coach on The Voice (U.S.) between 2015 and his departure in 2023?	5	9	0	0	no_match	
+sealhard_ac9846d309e4	brave	How many current and former Real Madrid players are ranked in the top 10 of the latest Forbes list of the world's highest-paid athletes?	3 players	2	0	0	no_match	
+sealhard_b01f894cc6d2	brave	Which language, within the Indo-Aryan branch of the Indo-European family, has the third largest number of native speakers?	Western Punjabi	Punjabi	0	0	no_match	"Debatable: ""Punjabi"" vs gold ""Western Punjabi"" (Lahnda) - left as no-match"
+sealhard_b5744e399b13	brave	What was the percentage increase in the number of people seeking cocaine treatment in the Republic of Ireland, according to the latest HRB report?	228%	7%	0	0	no_match	
+sealhard_b6c30f169f85	brave	What is the dine-in price in VND at Tan Son Nhat International Airport for a large cup of corn kernels from McDonald's?	40,000 VND	40,000 VND	1	1	match	
+sealhard_b95d990d560f	brave	According to the WHO, in which year were the highest number of measles cases recorded worldwide?	1980	2019	0	0	no_match	
+sealhard_b9d6a3303845	brave	Who broke the short course world record in women's 400m freestyle at the youngest age from 2010 to now?	Wang Jianjiahe	Summer McIntosh	0	0	no_match	
+sealhard_c02ac99c3053	brave	Which food allergens require mandatory labeling in the UK but not in the US, Canada, and Australia?	celery	celery, mustard	0	0	no_match	"Over-inclusive: gold ""celery""; model adds ""mustard"" - no-match"
+sealhard_c42af40fb77f	brave	Which has the highest number of viewers among the films that surpassed 9 million but did not reach 10 million viewers in the South Korean box office?	Bohemian Rhapsody	A Violent Prosecutor	0	0	no_match	
+sealhard_c71d4bbb72a2	brave	According to United Nations data from 2015, what percentage of national parliamentary seats in Northern America were held by women?	21.8	22%	0	0	no_match	"Rounded: model ""22%"" vs gold ""21.8"" - no-match"
+sealhard_c8cb1e820500	brave	Who was the oldest Miss Universe titleholder at the time of her crowning, cheered as a triumph over ageism in a youth-obsessed world?	R'Bonney Gabriel	Alejandra Marisa Rodríguez	0	0	no_match	
+sealhard_caa717c1ae32	brave	How many U.S. states and territories experienced a negative percentage change in population between 2010 and 2020?	8	4	0	0	no_match	
+sealhard_cbc32eddafe8	brave	Which was the third Asian country to report a case of clade Ib mpox during the most recent outbreak?	Pakistan	India	0	0	no_match	
+sealhard_ce095a0ff9b3	brave	How many films released this year have grossed over $150 million worldwide?	11	12	0	0	no_match	
+sealhard_d0e475bbc1fa	brave	What is the name of the hotel that features over 7,000 rooms and one of the biggest casino gaming floors on the Las Vegas strip?	The Venetian Resort	MGM Grand Las Vegas	0	0	no_match	
+sealhard_d246c498c8d0	brave	What was the most recent award did Yann LeCun, Geoffrey Hinton, and Yoshua Bengio win together for their work on deep neural networks?	the 2025 Queen Elizabeth Prize for Engineering	2025 Queen Elizabeth Prize for Engineering	1	1	match	
+sealhard_d3cfe61ba140	brave	For exactly how many days did the Instagram post by Kendall Jenner's account that once held the record for most-liked post on the platform remain at the top?	313	313 days	0	1	match	"EM-MISS (EM=0 but correct): Same value: ""313 days"" == ""313"""
+sealhard_d6f7180757d7	brave	Which country has hosted the most Olympic Games—both Summer and Winter—in the past 20 years?	China	Italy	0	0	no_match	
+sealhard_d84ed7de52a6	brave	Among active male soccer players with over 50 international goals, who has the highest goals-per-match ratio?	Ali Mabkhout	Erling Haaland	0	0	no_match	
+sealhard_d86116d626f4	brave	How many non-brand TikTok accounts have reached more than 45 million followers?	34	40	0	0	no_match	
+sealhard_da3317f9956a	brave	How many books has Jamie Oliver published since 2020?	six	8	0	0	no_match	
+sealhard_dfbfbf0c656e	brave	Who was previously appointed prime minister of the United Kingdom, becoming the first one to win a general election since Tony Blair in 2005?	David Cameron	Keir Starmer	0	0	no_match	
+sealhard_e0bad036abba	brave	How many badminton athletes have won Olympic Gold and more than 2 Olympic medals in total?	8	9	0	0	no_match	
+sealhard_e5ddddb8907e	brave	According to 2023 data from the U.S. Environmental Protection Agency, which sector produced the lowest CO₂ emissions in the state of Indiana?	Pulp and Paper	Residential Buildings	0	0	no_match	
+sealhard_eaa4ac25b7c8	brave	What is the current age of the youngest grandmaster of chess?	16 years	17 years old	0	0	no_match	
+sealhard_efdabbe9b72d	brave	How many versions of the .NET platform have been release that have a support lifetime of more than 12 months?	10	13	0	0	no_match	
+sealhard_efefd0c39dc3	brave	In what year did the deadliest Philippine typhoon of the first decade of the 21st century occur?	2004	2009	0	0	no_match	
+sealhard_f10df60e2683	brave	According to Private Equity International's 2024 ranking, among all non-U.S.-based private equity firms with at least $30 billion raised over the past five years, which firm has the latest founding date?	Brookfield Asset Management	Hg	0	0	no_match	
+sealhard_f39b83a91b3d	brave	Who is the most recent living NBA player to score 60 or more points in a regular-season game and be inducted into the Naismith Memorial Basketball Hall of Fame?	Carmelo Anthony	Amar’e Stoudemire	0	0	no_match	
+sealhard_f3d0240d194b	brave	How many of the top 20 most-liked Instagram posts by non-football-related accounts—excluding footballers like Lionel Messi and Cristiano Ronaldo and football organizations—also appear in the overall top 20 most-liked posts? Note that Selena Gomez does not have any posts in the overall top 20 most-liked posts.	6	9	0	0	no_match	
+sealhard_f55654234b08	brave	How many females are there in the top 50 of the Forbes World’s Billionaires List?	6	2	0	0	no_match	
+sealhard_fae643a27cce	brave	Which nation most recently joined the trillion-dollar economy club, with a nominal GDP exceeding $1 trillion per year?	Turkey	Poland and Switzerland	0	0	no_match	
+sealhard_fb76b1d418d2	brave	How many hotels in the United States have more than 3,500 rooms?	13	12	0	0	no_match	
+sealhard_fb9cb8c1d039	brave	What is the total number of branches of the Akhil Bharatiya Marathi Sahitya Mahamandal?	350	I cannot determine the answer from available sources.	0	0	no_match	
+sealhard_0117c1361b85	tavily	According to the International Telecommunication Union (ITU), which country had the highest number of mobile cellular subscribers (per 100 people) worldwide in 1990?	Sweden	Finland	0	0	no_match	
+sealhard_0611df120e9b	tavily	What is the supercomputer that has the fastest speed outside the US and can help transform scientific research by accelerating breakthroughs across various fields?	HPC6	JUPITER Booster	0	0	no_match	
+sealhard_06488d667987	tavily	How many mountain peaks over 7,200 metres (23,622 feet) are there in Pakistan?	42	44	0	0	no_match	
+sealhard_06b1ff93f9e7	tavily	How many active players have won one or more ATP Finals singles titles? Please note that Andy Murray is no longer active.	six	6	1	1	match	
+sealhard_0d25d5916602	tavily	How many nations have won multiple gold medals in the Open section of the Chess Olympiad, excluding virtual and unofficial events?	7	7	1	1	match	
+sealhard_0fc3e12e6df9	tavily	Among the female competitive swimmers who won the most Olympic gold medals in a single games from 1989 to 2019, who achieved this feat at a younger age?	Missy Franklin	Debbie Meyer	0	0	no_match	
+sealhard_13f3dda94ad1	tavily	Which country has won the most bronze medals in the history of the World Pastry Cup?	Italy	Italy	1	1	match	
+sealhard_154703c26212	tavily	Elon Musk's online persona is synonymous with witty comebacks and sarcastic remarks, often aimed at individuals or institutions. What title did he humorously declare himself as in his Twitter bio just days after closing the acquisition deal to take over the platform?	Twitter Complaint Hotline Operator	Chief Twit	0	0	no_match	
+sealhard_17561ba00ed9	tavily	Which is the oldest university in continuous operation in Italy that began as a faculty-led institution? It played a central role in the sciences during the medieval period and the Italian Renaissance, educating Nicholas Copernicus and numerous other Renaissance mathematicians.	University of Padua	University of Bologna	0	0	no_match	
+sealhard_1768d0c92783	tavily	What is the smallest positive integer that can be written as the sum of two perfect squares, with both of these perfect squares being prime numbers?	No square number is a prime number.	8	0	0	no_match	
+sealhard_1b9de8dee6b2	tavily	Among the 50 most-liked Instagram posts, how many were made by Cristiano Ronaldo’s account and received over 27 million likes?	8	5	0	0	no_match	
+sealhard_21420e375cbb	tavily	How many individuals from the Liberal Democratic Party have served as Prime Minister of Japan since the assassination of Shinzo Abe?	three	3	1	1	match	
+sealhard_26f0dfb5b0e5	tavily	What is the most widely used ride booking application in India that offers a wide variety of vehicle choices and prices?	Uber	Ola	0	0	no_match	
+sealhard_2a710db3a65d	tavily	According to the documented shipbuilding records from 1966 to 1982, how many Grisha I class corvettes were produced for the Soviet Navy?	37	12	0	0	no_match	
+sealhard_2ccdb7c85090	tavily	Which two countries share the longest continuous international border in the world by total length?	Kazakhstan and Russia	Canada and the United States	0	0	no_match	
+sealhard_370de35828d1	tavily	How many times in history has the PDC World Darts Championship final featured two English players?	14	15	0	0	no_match	
+sealhard_3bdf0b4d6146	tavily	According to the menu on the website of the Dau Homemade restaurant in Vietnam, what is the listed price in VND for the Special Homemade Bun Dau?	249,000 VND	289.000 ₫	0	0	no_match	
+sealhard_3c3bc246c0d6	tavily	How many smoke grenade models listed in the Polish Land Forces equipment originate exclusively from the Soviet Union?	0	0	1	1	match	
+sealhard_3fdf524a2ea9	tavily	Who was the purchaser in the largest confirmed merger or acquisition that ultimately failed to complete?	Astra Zeneca	AstraZeneca	0	1	match	"EM-MISS (EM=0 but correct): Spacing only: ""Astra Zeneca"" == ""AstraZeneca"""
+sealhard_41eb61aaf82d	tavily	Which three North American countries will host the 2026 FIFA's Women World Cup, the first to be co-hosted by three nations and the first North American World Cup since 1994?	There won't be a FIFA's Women World Cup in 2026.	Canada, Mexico, and the United States	0	0	no_match	
+sealhard_457b38855fa4	tavily	On what date did the world record 100 million covid cases, a milestone that signifies the sheer amount of transmission that has occurred around this virus?	January 26, 2021	January 26, 2021	1	1	match	
+sealhard_468bd5efbfe8	tavily	Which organization is the world's largest card payment processing organization, providing credit cards, debit cards, and electronic payment systems?	UnionPay	Visa Inc.	0	0	no_match	
+sealhard_470fed8377ce	tavily	Among artists with multiple wins for Album of the Year at the Grammys, who has received the most nominations for this award, with each nomination occurring in a different year?	George Harrison	Taylor Swift	0	0	no_match	
+sealhard_4981ad02a6fc	tavily	"What was the sale price of Italian artist Maurizio Cattelan's ""Comedian"", a conceptual artwork comprising a banana stuck to a wall with duct tape, at its initial sale?"	US$120,000	$120,000	0	1	match	"EM-MISS (EM=0 but correct): Same amount: ""$120,000"" == ""US$120,000"""
+sealhard_4a3db339e0a0	tavily	Who was the most recent Sheriff of Los Angeles County killed in the line of duty?	William C. Getman	Deputy Andrew Myers	0	0	no_match	
+sealhard_4adca023da1a	tavily	Who is the most recent recipient of a Nobel Prize in one of the sciences who held Asian citizenship at the time of the award?	Akira Yoshino	Shimon Sakaguchi	0	0	no_match	
+sealhard_4f128462c995	tavily	Elon Musk's online persona is synonymous with witty comebacks and sarcastic remarks, often aimed at individuals or institutions. What title did he humorously declare himself as in his X (formerly Twitter) bio just before closing his deal to acquire the platform, which once again stirred the online world?	Chief Twit	Chief Twit	1	1	match	
+sealhard_4f507e42c1be	tavily	According to the Food and Agriculture Organization of the United Nations, which year marked the lowest tea leaf exports from India since 1961?	1996	I cannot determine the answer from available sources.	0	0	no_match	
+sealhard_4f8215a4eaab	tavily	Which Vietnamese celebrity was accused of delaying the disbursement of nearly 10 billion VND in charitable donations they had collected for flood victims in 2020?	Tran Thanh	Hoai Linh	0	0	no_match	
+sealhard_509fa8d560e8	tavily	What was the acceptance rate for the most recent Conference on Empirical Methods in Natural Language Processing (EMNLP), including both the main conference and Findings?	37.67%	22.2% for the main conference and 17.3% for Findings.	0	0	no_match	
+sealhard_52c34c9decc3	tavily	How many movies have surpassed 9 million viewers but not reached 10 million in the South Korean box office?	7	6	0	0	no_match	
+sealhard_5668b93dd088	tavily	Who was the second non-Asian men's soccer player to pass 100 international goals, and has long since passed the previous record international goalscorer, Iran's Ali Daei (109)?	Lionel Messi	Cristiano Ronaldo	0	0	no_match	
+sealhard_5685bd22ca4d	tavily	How many Studio Ghibli feature films have received a Rotten Tomatoes Tomatometer score below 90%?	6	7	0	0	no_match	
+sealhard_57a597e92ac4	tavily	In which year did a team achieve the highest score in a World Baseball Classic (WBC) championship game, leading them to victory in their first-ever WBC final?	2006	2017	0	0	no_match	
+sealhard_5a4a585bfbac	tavily	How many successfully predicted asteroid impacts have resulted in the recovery of meteorites in the last five years?	two	2	1	1	match	
+sealhard_5e17b3c38fb1	tavily	What is the total number of documentary films produced by Sahitya Akademi?	175	175	1	1	match	
+sealhard_61f85b369b4c	tavily	As of now, which country or countries have won a single medal in the history of the Summer Olympic Games—and it was a gold?	Dominica	Dominica	1	1	match	
+sealhard_644ca5e960ff	tavily	How many of the top 30 most-liked YouTube videos belong to MrBeast?	6	9	0	0	no_match	
+sealhard_6747b5584761	tavily	How many countries did Donald Trump visit during his first presidency that Joe Biden did not visit during his presidency?	7	8	0	0	no_match	
+sealhard_6c0f077e50c1	tavily	Which country was affected by Black Monday and experienced a prolonged recession, continuing its decline for an extended period after other global markets had recovered?	New Zealand	New Zealand	1	1	match	
+sealhard_6c8b9a75ad1b	tavily	Of the top ten colleges in America's Top Colleges 2024, how many also ranked among the top ten global universities in the QS World University Rankings 2025?	3	3	1	1	match	
+sealhard_6d8469c83a5a	tavily	In which year did California experience its second instance of wildfires burning more than 2 million acres, destroying scores of homes and other buildings?	2021	2024	0	0	no_match	
+sealhard_6f8f541710fe	tavily	According to 2021 world population data, how many continents account for less than 10% of the world’s population?	5	5	1	1	match	
+sealhard_77156a372cf9	tavily	How many films released before 2020 are currently among the top 30 highest-grossing films worldwide?	22	21	0	0	no_match	
+sealhard_79977a575736	tavily	What was Coco Gauff's WTA ranking points total immediately after last year's US Open – Women's Singles?	4,983	4,983	1	1	match	
+sealhard_7a73644c826b	tavily	How many Studio Ghibli feature films have been released with a runtime of 119 minutes or longer?	9	8	0	0	no_match	
+sealhard_7b44552616b7	tavily	Who was the first person to win the Best Romance category at the Goodreads Choice Awards for three consecutive years?	Colleen Hoover	Emily Henry	0	0	no_match	
+sealhard_7e06b26c28c5	tavily	Which North Atlantic tropical storm, whose peak intensity remained at tropical storm level, caused the highest number of deaths last year?	Tropical Storm Nadine	Tropical Storm Barry	0	0	no_match	
+sealhard_7e9246c1c2fc	tavily	Which U.S. airline had the highest percentage of delayed flights over the full calendar year of 2024, according to the U.S. Department of Transportation's Air Travel Consumer Report?	Frontier Airlines	Frontier Airlines	1	1	match	
+sealhard_7fdc626d3d31	tavily	How many albums have received more than 90 million streams in a single day on Spotify?	16	10	0	0	no_match	
+sealhard_83027d490eb7	tavily	What is the sum of all three-letter Roman numerals that read the same forwards and backwards?	5442	25	0	0	no_match	
+sealhard_84253b2d7450	tavily	Who was the last French player to finish in the top three for the FIFA Ballon d'Or?	Franck Ribéry	Franck Ribéry	1	1	match	
+sealhard_848d0e19b216	tavily	During how many presidential terms in the 21st century has the office of Peru's first vice president been vacant?	4	3	0	0	no_match	
+sealhard_85fcb317a706	tavily	What is the total number of railroad tracks currently used for passenger service in Arlington County, Virginia, according to the Bureau of Transportation?	2	3	0	0	no_match	
+sealhard_862314ca8353	tavily	How many active players are currently in the top 10 of all-time men’s international goal scorers in soccer?	7	6	0	0	no_match	
+sealhard_877552ec67c0	tavily	How many videos on YouTube have received more than 28 million likes?	25	29	0	0	no_match	
+sealhard_88907b1ee49b	tavily	How many total offices has Google opened across the Asia–Pacific, Africa, and Middle East regions since January 1, 2022?	11	1	0	0	no_match	
+sealhard_8979d1d1c501	tavily	How many Formula One drivers appear on both the top 10 youngest and top 10 oldest World Drivers' Championship winners lists?	2	1	0	0	no_match	
+sealhard_8999039cdd56	tavily	What is the most recent film to join the top 10 highest-grossing films of all time?	Ne Zha 2	Zootopia 2	0	0	no_match	
+sealhard_8b97a64daaf1	tavily	How many African nations made their debut in the men's FIFA World Cup during the 21st century?	5	5	1	1	match	
+sealhard_904abf430fa7	tavily	What was the highest-grossing animated film produced by Universal Studios last year?	Despicable Me 4		0	0	no_match	
+sealhard_92742491b67e	tavily	How many Super Bowl games had an attendance of more than 70,000?	47	35	0	0	no_match	
+sealhard_93641f5fc924	tavily	Which Vietnamese professor explained the mysterious case of two monks said to have been meditating for over 400 years, as shown in a YouTube video posted on April 4, 2023?	Nguyen Lan Cuong	Nguyen Van Kim	0	0	no_match	
+sealhard_98cbbbef96fd	tavily	Who was the latest woman to pull off a stunning win at the CMA Awards when she was crowned Entertainer of the Year for the second time?	Taylor Swift	Lainey Wilson	0	0	no_match	
+sealhard_9c2333ca67b4	tavily	Google is significantly expanding its presence in the Asia-Pacific region, with Singapore as their current Asia Pacific headquarters. How many office locations does the company currently operate across Asian countries?	22	22	1	1	match	
+sealhard_9d5b346b1ad2	tavily	How many volcanic eruptions in the 21st century have produced a plume height of at least 18 miles?	2	14	0	0	no_match	
+sealhard_a2c20fcc3ff1	tavily	How many times did Blake Shelton win as a coach on The Voice (U.S.) between 2015 and his departure in 2023?	5	9	0	0	no_match	
+sealhard_ac9846d309e4	tavily	How many current and former Real Madrid players are ranked in the top 10 of the latest Forbes list of the world's highest-paid athletes?	3 players	3	0	1	match	"EM-MISS (EM=0 but correct): Same value: ""3"" == gold ""3 players"""
+sealhard_b01f894cc6d2	tavily	Which language, within the Indo-Aryan branch of the Indo-European family, has the third largest number of native speakers?	Western Punjabi	Punjabi	0	0	no_match	"Debatable: ""Punjabi"" vs gold ""Western Punjabi"" (Lahnda) - left as no-match"
+sealhard_b5744e399b13	tavily	What was the percentage increase in the number of people seeking cocaine treatment in the Republic of Ireland, according to the latest HRB report?	228%	388%	0	0	no_match	
+sealhard_b6c30f169f85	tavily	What is the dine-in price in VND at Tan Son Nhat International Airport for a large cup of corn kernels from McDonald's?	40,000 VND	I cannot determine the answer from available sources.	0	0	no_match	
+sealhard_b95d990d560f	tavily	According to the WHO, in which year were the highest number of measles cases recorded worldwide?	1980	1980	1	1	match	
+sealhard_b9d6a3303845	tavily	Who broke the short course world record in women's 400m freestyle at the youngest age from 2010 to now?	Wang Jianjiahe	Summer McIntosh	0	0	no_match	
+sealhard_c02ac99c3053	tavily	Which food allergens require mandatory labeling in the UK but not in the US, Canada, and Australia?	celery	celery, cereals containing gluten, mustard, sulphur dioxide and sulphites	0	0	no_match	"Over-inclusive: gold ""celery""; model adds 4 extra items - no-match"
+sealhard_c42af40fb77f	tavily	Which has the highest number of viewers among the films that surpassed 9 million but did not reach 10 million viewers in the South Korean box office?	Bohemian Rhapsody	A Violent Prosecutor, 9,707,581 viewers	0	0	no_match	
+sealhard_c71d4bbb72a2	tavily	According to United Nations data from 2015, what percentage of national parliamentary seats in Northern America were held by women?	21.8	21.8%	1	1	match	
+sealhard_c8cb1e820500	tavily	Who was the oldest Miss Universe titleholder at the time of her crowning, cheered as a triumph over ageism in a youth-obsessed world?	R'Bonney Gabriel	Alejandra Marisa Rodríguez	0	0	no_match	
+sealhard_caa717c1ae32	tavily	How many U.S. states and territories experienced a negative percentage change in population between 2010 and 2020?	8	4	0	0	no_match	
+sealhard_cbc32eddafe8	tavily	Which was the third Asian country to report a case of clade Ib mpox during the most recent outbreak?	Pakistan	India	0	0	no_match	
+sealhard_ce095a0ff9b3	tavily	How many films released this year have grossed over $150 million worldwide?	11	9	0	0	no_match	
+sealhard_d0e475bbc1fa	tavily	What is the name of the hotel that features over 7,000 rooms and one of the biggest casino gaming floors on the Las Vegas strip?	The Venetian Resort	MGM Grand Las Vegas	0	0	no_match	
+sealhard_d246c498c8d0	tavily	What was the most recent award did Yann LeCun, Geoffrey Hinton, and Yoshua Bengio win together for their work on deep neural networks?	the 2025 Queen Elizabeth Prize for Engineering	2022 Princess of Asturias Award for Technical and Scientific Research	0	0	no_match	
+sealhard_d3cfe61ba140	tavily	For exactly how many days did the Instagram post by Kendall Jenner's account that once held the record for most-liked post on the platform remain at the top?	313	926 days	0	0	no_match	
+sealhard_d6f7180757d7	tavily	Which country has hosted the most Olympic Games—both Summer and Winter—in the past 20 years?	China	China and Italy, tied with 2 each.	0	0	no_match	"Hedged: gold ""China""; model ""China and Italy tied"" - no-match"
+sealhard_d84ed7de52a6	tavily	Among active male soccer players with over 50 international goals, who has the highest goals-per-match ratio?	Ali Mabkhout	Erling Haaland	0	0	no_match	
+sealhard_d86116d626f4	tavily	How many non-brand TikTok accounts have reached more than 45 million followers?	34	39	0	0	no_match	
+sealhard_da3317f9956a	tavily	How many books has Jamie Oliver published since 2020?	six	8	0	0	no_match	
+sealhard_dfbfbf0c656e	tavily	Who was previously appointed prime minister of the United Kingdom, becoming the first one to win a general election since Tony Blair in 2005?	David Cameron	David Cameron	1	1	match	
+sealhard_e0bad036abba	tavily	How many badminton athletes have won Olympic Gold and more than 2 Olympic medals in total?	8	6	0	0	no_match	
+sealhard_e5ddddb8907e	tavily	According to 2023 data from the U.S. Environmental Protection Agency, which sector produced the lowest CO₂ emissions in the state of Indiana?	Pulp and Paper	I cannot determine the answer from available sources.	0	0	no_match	
+sealhard_eaa4ac25b7c8	tavily	What is the current age of the youngest grandmaster of chess?	16 years	16 years old	0	1	match	"EM-MISS (EM=0 but correct): Same value: ""16 years old"" == ""16 years"""
+sealhard_efdabbe9b72d	tavily	How many versions of the .NET platform have been release that have a support lifetime of more than 12 months?	10	11	0	0	no_match	
+sealhard_efefd0c39dc3	tavily	In what year did the deadliest Philippine typhoon of the first decade of the 21st century occur?	2004	2008	0	0	no_match	
+sealhard_f10df60e2683	tavily	According to Private Equity International's 2024 ranking, among all non-U.S.-based private equity firms with at least $30 billion raised over the past five years, which firm has the latest founding date?	Brookfield Asset Management	Hg	0	0	no_match	
+sealhard_f39b83a91b3d	tavily	Who is the most recent living NBA player to score 60 or more points in a regular-season game and be inducted into the Naismith Memorial Basketball Hall of Fame?	Carmelo Anthony	Dwyane Wade	0	0	no_match	
+sealhard_f3d0240d194b	tavily	How many of the top 20 most-liked Instagram posts by non-football-related accounts—excluding footballers like Lionel Messi and Cristiano Ronaldo and football organizations—also appear in the overall top 20 most-liked posts? Note that Selena Gomez does not have any posts in the overall top 20 most-liked posts.	6	9	0	0	no_match	
+sealhard_f55654234b08	tavily	How many females are there in the top 50 of the Forbes World’s Billionaires List?	6	8	0	0	no_match	
+sealhard_fae643a27cce	tavily	Which nation most recently joined the trillion-dollar economy club, with a nominal GDP exceeding $1 trillion per year?	Turkey	Switzerland and Poland	0	0	no_match	
+sealhard_fb76b1d418d2	tavily	How many hotels in the United States have more than 3,500 rooms?	13	14	0	0	no_match	
+sealhard_fb9cb8c1d039	tavily	What is the total number of branches of the Akhil Bharatiya Marathi Sahitya Mahamandal?	350	6	0	0	no_match	
+sealhard_0117c1361b85	firecrawl	According to the International Telecommunication Union (ITU), which country had the highest number of mobile cellular subscribers (per 100 people) worldwide in 1990?	Sweden	Finland	0	0	no_match	
+sealhard_0611df120e9b	firecrawl	What is the supercomputer that has the fastest speed outside the US and can help transform scientific research by accelerating breakthroughs across various fields?	HPC6	Aurora	0	0	no_match	
+sealhard_06488d667987	firecrawl	How many mountain peaks over 7,200 metres (23,622 feet) are there in Pakistan?	42	44	0	0	no_match	
+sealhard_06b1ff93f9e7	firecrawl	How many active players have won one or more ATP Finals singles titles? Please note that Andy Murray is no longer active.	six	5	0	0	no_match	
+sealhard_0d25d5916602	firecrawl	How many nations have won multiple gold medals in the Open section of the Chess Olympiad, excluding virtual and unofficial events?	7	7	1	1	match	
+sealhard_0fc3e12e6df9	firecrawl	Among the female competitive swimmers who won the most Olympic gold medals in a single games from 1989 to 2019, who achieved this feat at a younger age?	Missy Franklin	Debbie Meyer	0	0	no_match	
+sealhard_13f3dda94ad1	firecrawl	Which country has won the most bronze medals in the history of the World Pastry Cup?	Italy	Italy	1	1	match	
+sealhard_154703c26212	firecrawl	Elon Musk's online persona is synonymous with witty comebacks and sarcastic remarks, often aimed at individuals or institutions. What title did he humorously declare himself as in his Twitter bio just days after closing the acquisition deal to take over the platform?	Twitter Complaint Hotline Operator	Chief Twit	0	0	no_match	
+sealhard_17561ba00ed9	firecrawl	Which is the oldest university in continuous operation in Italy that began as a faculty-led institution? It played a central role in the sciences during the medieval period and the Italian Renaissance, educating Nicholas Copernicus and numerous other Renaissance mathematicians.	University of Padua	University of Bologna	0	0	no_match	
+sealhard_1768d0c92783	firecrawl	What is the smallest positive integer that can be written as the sum of two perfect squares, with both of these perfect squares being prime numbers?	No square number is a prime number.	I cannot determine the answer from available sources.	0	0	no_match	
+sealhard_1b9de8dee6b2	firecrawl	Among the 50 most-liked Instagram posts, how many were made by Cristiano Ronaldo’s account and received over 27 million likes?	8	5	0	0	no_match	
+sealhard_21420e375cbb	firecrawl	How many individuals from the Liberal Democratic Party have served as Prime Minister of Japan since the assassination of Shinzo Abe?	three	3	1	1	match	
+sealhard_26f0dfb5b0e5	firecrawl	What is the most widely used ride booking application in India that offers a wide variety of vehicle choices and prices?	Uber	Ola	0	0	no_match	
+sealhard_2a710db3a65d	firecrawl	According to the documented shipbuilding records from 1966 to 1982, how many Grisha I class corvettes were produced for the Soviet Navy?	37	34	0	0	no_match	
+sealhard_2ccdb7c85090	firecrawl	Which two countries share the longest continuous international border in the world by total length?	Kazakhstan and Russia	Canada and the United States	0	0	no_match	
+sealhard_370de35828d1	firecrawl	How many times in history has the PDC World Darts Championship final featured two English players?	14	14	1	1	match	
+sealhard_3bdf0b4d6146	firecrawl	According to the menu on the website of the Dau Homemade restaurant in Vietnam, what is the listed price in VND for the Special Homemade Bun Dau?	249,000 VND	145.000 VNĐ	0	0	no_match	
+sealhard_3c3bc246c0d6	firecrawl	How many smoke grenade models listed in the Polish Land Forces equipment originate exclusively from the Soviet Union?	0	1	0	0	no_match	
+sealhard_3fdf524a2ea9	firecrawl	Who was the purchaser in the largest confirmed merger or acquisition that ultimately failed to complete?	Astra Zeneca	AstraZeneca	0	1	match	"EM-MISS (EM=0 but correct): Spacing only: ""Astra Zeneca"" == ""AstraZeneca"""
+sealhard_41eb61aaf82d	firecrawl	Which three North American countries will host the 2026 FIFA's Women World Cup, the first to be co-hosted by three nations and the first North American World Cup since 1994?	There won't be a FIFA's Women World Cup in 2026.	Canada, Mexico, the United States	0	0	no_match	
+sealhard_457b38855fa4	firecrawl	On what date did the world record 100 million covid cases, a milestone that signifies the sheer amount of transmission that has occurred around this virus?	January 26, 2021	January 27, 2021	0	0	no_match	
+sealhard_468bd5efbfe8	firecrawl	Which organization is the world's largest card payment processing organization, providing credit cards, debit cards, and electronic payment systems?	UnionPay	UnionPay	1	1	match	
+sealhard_470fed8377ce	firecrawl	Among artists with multiple wins for Album of the Year at the Grammys, who has received the most nominations for this award, with each nomination occurring in a different year?	George Harrison	Frank Sinatra	0	0	no_match	
+sealhard_4981ad02a6fc	firecrawl	"What was the sale price of Italian artist Maurizio Cattelan's ""Comedian"", a conceptual artwork comprising a banana stuck to a wall with duct tape, at its initial sale?"	US$120,000	$120,000 to $150,000	0	0	no_match	"Hedged range ""$120,000 to $150,000"" vs gold ""US$120,000"" - no-match"
+sealhard_4a3db339e0a0	firecrawl	Who was the most recent Sheriff of Los Angeles County killed in the line of duty?	William C. Getman	Deputy Ryan Clinkunbroomer	0	0	no_match	
+sealhard_4adca023da1a	firecrawl	Who is the most recent recipient of a Nobel Prize in one of the sciences who held Asian citizenship at the time of the award?	Akira Yoshino	Susumu Kitagawa	0	0	no_match	
+sealhard_4f128462c995	firecrawl	Elon Musk's online persona is synonymous with witty comebacks and sarcastic remarks, often aimed at individuals or institutions. What title did he humorously declare himself as in his X (formerly Twitter) bio just before closing his deal to acquire the platform, which once again stirred the online world?	Chief Twit	Chief Twit	1	1	match	
+sealhard_4f507e42c1be	firecrawl	According to the Food and Agriculture Organization of the United Nations, which year marked the lowest tea leaf exports from India since 1961?	1996	2024	0	0	no_match	
+sealhard_4f8215a4eaab	firecrawl	Which Vietnamese celebrity was accused of delaying the disbursement of nearly 10 billion VND in charitable donations they had collected for flood victims in 2020?	Tran Thanh	Hoai Linh	0	0	no_match	
+sealhard_509fa8d560e8	firecrawl	What was the acceptance rate for the most recent Conference on Empirical Methods in Natural Language Processing (EMNLP), including both the main conference and Findings?	37.67%	Main conference: 20.8%; Findings: 16.86% (EMNLP 2024, the most recent official acceptance-rate page available)	0	0	no_match	
+sealhard_52c34c9decc3	firecrawl	How many movies have surpassed 9 million viewers but not reached 10 million in the South Korean box office?	7	6	0	0	no_match	
+sealhard_5668b93dd088	firecrawl	Who was the second non-Asian men's soccer player to pass 100 international goals, and has long since passed the previous record international goalscorer, Iran's Ali Daei (109)?	Lionel Messi	Lionel Messi	1	1	match	
+sealhard_5685bd22ca4d	firecrawl	How many Studio Ghibli feature films have received a Rotten Tomatoes Tomatometer score below 90%?	6	7	0	0	no_match	
+sealhard_57a597e92ac4	firecrawl	In which year did a team achieve the highest score in a World Baseball Classic (WBC) championship game, leading them to victory in their first-ever WBC final?	2006	2017	0	0	no_match	
+sealhard_5a4a585bfbac	firecrawl	How many successfully predicted asteroid impacts have resulted in the recovery of meteorites in the last five years?	two	2	1	1	match	
+sealhard_5e17b3c38fb1	firecrawl	What is the total number of documentary films produced by Sahitya Akademi?	175	172	0	0	no_match	
+sealhard_61f85b369b4c	firecrawl	As of now, which country or countries have won a single medal in the history of the Summer Olympic Games—and it was a gold?	Dominica	Dominica	1	1	match	
+sealhard_644ca5e960ff	firecrawl	How many of the top 30 most-liked YouTube videos belong to MrBeast?	6	9	0	0	no_match	
+sealhard_6747b5584761	firecrawl	How many countries did Donald Trump visit during his first presidency that Joe Biden did not visit during his presidency?	7	7	1	1	match	
+sealhard_6c0f077e50c1	firecrawl	Which country was affected by Black Monday and experienced a prolonged recession, continuing its decline for an extended period after other global markets had recovered?	New Zealand	New Zealand	1	1	match	
+sealhard_6c8b9a75ad1b	firecrawl	Of the top ten colleges in America's Top Colleges 2024, how many also ranked among the top ten global universities in the QS World University Rankings 2025?	3	3	1	1	match	
+sealhard_6d8469c83a5a	firecrawl	In which year did California experience its second instance of wildfires burning more than 2 million acres, destroying scores of homes and other buildings?	2021	2020	0	0	no_match	
+sealhard_6f8f541710fe	firecrawl	According to 2021 world population data, how many continents account for less than 10% of the world’s population?	5	4	0	0	no_match	
+sealhard_77156a372cf9	firecrawl	How many films released before 2020 are currently among the top 30 highest-grossing films worldwide?	22	22	1	1	match	
+sealhard_79977a575736	firecrawl	What was Coco Gauff's WTA ranking points total immediately after last year's US Open – Women's Singles?	4,983	4,983	1	1	match	
+sealhard_7a73644c826b	firecrawl	How many Studio Ghibli feature films have been released with a runtime of 119 minutes or longer?	9	8	0	0	no_match	
+sealhard_7b44552616b7	firecrawl	Who was the first person to win the Best Romance category at the Goodreads Choice Awards for three consecutive years?	Colleen Hoover	Colleen Hoover	1	1	match	
+sealhard_7e06b26c28c5	firecrawl	Which North Atlantic tropical storm, whose peak intensity remained at tropical storm level, caused the highest number of deaths last year?	Tropical Storm Nadine	Tropical Storm Nadine	1	1	match	
+sealhard_7e9246c1c2fc	firecrawl	Which U.S. airline had the highest percentage of delayed flights over the full calendar year of 2024, according to the U.S. Department of Transportation's Air Travel Consumer Report?	Frontier Airlines	Frontier Airlines	1	1	match	
+sealhard_7fdc626d3d31	firecrawl	How many albums have received more than 90 million streams in a single day on Spotify?	16	18	0	0	no_match	
+sealhard_83027d490eb7	firecrawl	What is the sum of all three-letter Roman numerals that read the same forwards and backwards?	5442	22	0	0	no_match	
+sealhard_84253b2d7450	firecrawl	Who was the last French player to finish in the top three for the FIFA Ballon d'Or?	Franck Ribéry	Franck Ribéry	1	1	match	
+sealhard_848d0e19b216	firecrawl	During how many presidential terms in the 21st century has the office of Peru's first vice president been vacant?	4	4	1	1	match	
+sealhard_85fcb317a706	firecrawl	What is the total number of railroad tracks currently used for passenger service in Arlington County, Virginia, according to the Bureau of Transportation?	2	I cannot determine the answer from available sources.	0	0	no_match	
+sealhard_862314ca8353	firecrawl	How many active players are currently in the top 10 of all-time men’s international goal scorers in soccer?	7	6	0	0	no_match	
+sealhard_877552ec67c0	firecrawl	How many videos on YouTube have received more than 28 million likes?	25	29	0	0	no_match	
+sealhard_88907b1ee49b	firecrawl	How many total offices has Google opened across the Asia–Pacific, Africa, and Middle East regions since January 1, 2022?	11	3	0	0	no_match	
+sealhard_8979d1d1c501	firecrawl	How many Formula One drivers appear on both the top 10 youngest and top 10 oldest World Drivers' Championship winners lists?	2	1	0	0	no_match	
+sealhard_8999039cdd56	firecrawl	What is the most recent film to join the top 10 highest-grossing films of all time?	Ne Zha 2	Zootopia 2	0	0	no_match	
+sealhard_8b97a64daaf1	firecrawl	How many African nations made their debut in the men's FIFA World Cup during the 21st century?	5	6	0	0	no_match	
+sealhard_904abf430fa7	firecrawl	What was the highest-grossing animated film produced by Universal Studios last year?	Despicable Me 4	Dog Man	0	0	no_match	
+sealhard_92742491b67e	firecrawl	How many Super Bowl games had an attendance of more than 70,000?	47	43	0	0	no_match	
+sealhard_93641f5fc924	firecrawl	Which Vietnamese professor explained the mysterious case of two monks said to have been meditating for over 400 years, as shown in a YouTube video posted on April 4, 2023?	Nguyen Lan Cuong	I cannot determine the answer from available sources.	0	0	no_match	
+sealhard_98cbbbef96fd	firecrawl	Who was the latest woman to pull off a stunning win at the CMA Awards when she was crowned Entertainer of the Year for the second time?	Taylor Swift	Lainey Wilson	0	0	no_match	
+sealhard_9c2333ca67b4	firecrawl	Google is significantly expanding its presence in the Asia-Pacific region, with Singapore as their current Asia Pacific headquarters. How many office locations does the company currently operate across Asian countries?	22	24	0	0	no_match	
+sealhard_9d5b346b1ad2	firecrawl	How many volcanic eruptions in the 21st century have produced a plume height of at least 18 miles?	2	16	0	0	no_match	
+sealhard_a2c20fcc3ff1	firecrawl	How many times did Blake Shelton win as a coach on The Voice (U.S.) between 2015 and his departure in 2023?	5	9	0	0	no_match	
+sealhard_ac9846d309e4	firecrawl	How many current and former Real Madrid players are ranked in the top 10 of the latest Forbes list of the world's highest-paid athletes?	3 players	2	0	0	no_match	
+sealhard_b01f894cc6d2	firecrawl	Which language, within the Indo-Aryan branch of the Indo-European family, has the third largest number of native speakers?	Western Punjabi	Punjabi	0	0	no_match	"Debatable: ""Punjabi"" vs gold ""Western Punjabi"" (Lahnda) - left as no-match"
+sealhard_b5744e399b13	firecrawl	What was the percentage increase in the number of people seeking cocaine treatment in the Republic of Ireland, according to the latest HRB report?	228%	250%	0	0	no_match	
+sealhard_b6c30f169f85	firecrawl	What is the dine-in price in VND at Tan Son Nhat International Airport for a large cup of corn kernels from McDonald's?	40,000 VND	I cannot determine the answer from available sources.	0	0	no_match	
+sealhard_b95d990d560f	firecrawl	According to the WHO, in which year were the highest number of measles cases recorded worldwide?	1980	1980	1	1	match	
+sealhard_b9d6a3303845	firecrawl	Who broke the short course world record in women's 400m freestyle at the youngest age from 2010 to now?	Wang Jianjiahe	Summer McIntosh	0	0	no_match	
+sealhard_c02ac99c3053	firecrawl	Which food allergens require mandatory labeling in the UK but not in the US, Canada, and Australia?	celery	Celery, lupin	0	0	no_match	"Over-inclusive: gold ""celery""; model adds ""lupin"" - no-match"
+sealhard_c42af40fb77f	firecrawl	Which has the highest number of viewers among the films that surpassed 9 million but did not reach 10 million viewers in the South Korean box office?	Bohemian Rhapsody	Bohemian Rhapsody, 9,948,386 viewers	0	1	match	"EM-MISS (EM=0 but correct): Correct entity + extra detail: ""Bohemian Rhapsody, 9,948,386 viewers"""
+sealhard_c71d4bbb72a2	firecrawl	According to United Nations data from 2015, what percentage of national parliamentary seats in Northern America were held by women?	21.8	25%	0	0	no_match	
+sealhard_c8cb1e820500	firecrawl	Who was the oldest Miss Universe titleholder at the time of her crowning, cheered as a triumph over ageism in a youth-obsessed world?	R'Bonney Gabriel	Alejandra Marisa Rodríguez	0	0	no_match	
+sealhard_caa717c1ae32	firecrawl	How many U.S. states and territories experienced a negative percentage change in population between 2010 and 2020?	8	4	0	0	no_match	
+sealhard_cbc32eddafe8	firecrawl	Which was the third Asian country to report a case of clade Ib mpox during the most recent outbreak?	Pakistan	India	0	0	no_match	
+sealhard_ce095a0ff9b3	firecrawl	How many films released this year have grossed over $150 million worldwide?	11	12	0	0	no_match	
+sealhard_d0e475bbc1fa	firecrawl	What is the name of the hotel that features over 7,000 rooms and one of the biggest casino gaming floors on the Las Vegas strip?	The Venetian Resort	MGM Grand Las Vegas	0	0	no_match	
+sealhard_d246c498c8d0	firecrawl	What was the most recent award did Yann LeCun, Geoffrey Hinton, and Yoshua Bengio win together for their work on deep neural networks?	the 2025 Queen Elizabeth Prize for Engineering	2022 Princess of Asturias Award for Technical and Scientific Research	0	0	no_match	
+sealhard_d3cfe61ba140	firecrawl	For exactly how many days did the Instagram post by Kendall Jenner's account that once held the record for most-liked post on the platform remain at the top?	313	1296 days	0	0	no_match	
+sealhard_d6f7180757d7	firecrawl	Which country has hosted the most Olympic Games—both Summer and Winter—in the past 20 years?	China	China and Italy (tie, 2 each)	0	0	no_match	"Hedged: gold ""China""; model ""China and Italy tied"" - no-match"
+sealhard_d84ed7de52a6	firecrawl	Among active male soccer players with over 50 international goals, who has the highest goals-per-match ratio?	Ali Mabkhout	Erling Haaland	0	0	no_match	
+sealhard_d86116d626f4	firecrawl	How many non-brand TikTok accounts have reached more than 45 million followers?	34	39	0	0	no_match	
+sealhard_da3317f9956a	firecrawl	How many books has Jamie Oliver published since 2020?	six	9	0	0	no_match	
+sealhard_dfbfbf0c656e	firecrawl	Who was previously appointed prime minister of the United Kingdom, becoming the first one to win a general election since Tony Blair in 2005?	David Cameron	Keir Starmer	0	0	no_match	
+sealhard_e0bad036abba	firecrawl	How many badminton athletes have won Olympic Gold and more than 2 Olympic medals in total?	8	6	0	0	no_match	
+sealhard_e5ddddb8907e	firecrawl	According to 2023 data from the U.S. Environmental Protection Agency, which sector produced the lowest CO₂ emissions in the state of Indiana?	Pulp and Paper	Commercial sector	0	0	no_match	
+sealhard_eaa4ac25b7c8	firecrawl	What is the current age of the youngest grandmaster of chess?	16 years	16 years old	0	1	match	"EM-MISS (EM=0 but correct): Same value: ""16 years old"" == ""16 years"""
+sealhard_efdabbe9b72d	firecrawl	How many versions of the .NET platform have been release that have a support lifetime of more than 12 months?	10	11	0	0	no_match	
+sealhard_efefd0c39dc3	firecrawl	In what year did the deadliest Philippine typhoon of the first decade of the 21st century occur?	2004	2004	1	1	match	
+sealhard_f10df60e2683	firecrawl	According to Private Equity International's 2024 ranking, among all non-U.S.-based private equity firms with at least $30 billion raised over the past five years, which firm has the latest founding date?	Brookfield Asset Management	Hg	0	0	no_match	
+sealhard_f39b83a91b3d	firecrawl	Who is the most recent living NBA player to score 60 or more points in a regular-season game and be inducted into the Naismith Memorial Basketball Hall of Fame?	Carmelo Anthony	Carmelo Anthony	1	1	match	
+sealhard_f3d0240d194b	firecrawl	How many of the top 20 most-liked Instagram posts by non-football-related accounts—excluding footballers like Lionel Messi and Cristiano Ronaldo and football organizations—also appear in the overall top 20 most-liked posts? Note that Selena Gomez does not have any posts in the overall top 20 most-liked posts.	6	9	0	0	no_match	
+sealhard_f55654234b08	firecrawl	How many females are there in the top 50 of the Forbes World’s Billionaires List?	6	7	0	0	no_match	
+sealhard_fae643a27cce	firecrawl	Which nation most recently joined the trillion-dollar economy club, with a nominal GDP exceeding $1 trillion per year?	Turkey	Poland	0	0	no_match	
+sealhard_fb76b1d418d2	firecrawl	How many hotels in the United States have more than 3,500 rooms?	13	14	0	0	no_match	
+sealhard_fb9cb8c1d039	firecrawl	What is the total number of branches of the Akhil Bharatiya Marathi Sahitya Mahamandal?	350	350	1	1	match	
