@@ -52,13 +52,13 @@ Brave, Tavily, Firecrawl, and Jina Reader expose different product interfaces an
 Figure~\ref{fig:architecture} summarizes the protocol.
 
 \paragraph{Dataset.}
-We use a deterministic proportional stratified sample of \NQueries{} questions from the 254-row \textsc{SealQA-Hard} subset. The strata are \texttt{freshness} $\times$ \texttt{search\_results} $\times$ \texttt{topic}; the seed is 20260509. The sample is designed to preserve the distribution of fast-changing, slow-changing, never-changing, conflicting, unhelpful, and topical categories. Appendix~\ref{app:dataset} gives the full distribution included in the repository's sampling diagnostics.
+We use a deterministic proportional stratified sample of \NQueries{} questions from the 254-row \textsc{SealQA-Hard} subset. The strata are \texttt{freshness} $\times$ \texttt{search\_results} $\times$ \texttt{topic}. The sample is designed to preserve the distribution of fast-changing, slow-changing, never-changing, conflicting, unhelpful, and topical categories. Appendix~\ref{app:dataset} gives the full distribution included in the repository's sampling diagnostics.
 
 \paragraph{Agent.}
 The agent has two tools. \searchWeb{} accepts a query string and returns at most ten ranked results. Each result has a document identifier, rank, title, URL, domain, snippet, and provider metadata. \fetchPage{} accepts a document identifier from a prior search result and returns extracted markdown plus fetch metadata. The model may search again, fetch any previously visible document, answer with a short \texttt{FINAL ANSWER}, or abstain. The maximum iteration budget is 10.
 
 \paragraph{Providers and normalization.}
-We compare Brave Web Search, Tavily Search, and Firecrawl Search. Each adapter normalizes provider output into the same trace schema. Brave's adapter preserves provider-native \texttt{extra\_snippets}. Tavily is run with provider-side raw content disabled. Firecrawl is run without provider-side markdown scraping. All page text visible to the agent therefore comes from the same Jina Reader fetch backend.
+We compare Brave, Tavily, and Firecrawl Search. Each adapter normalizes provider output into the same trace schema. Brave's adapter preserves provider-native \texttt{extra\_snippets}. Tavily is run with provider-side raw content disabled. Firecrawl is run without provider-side markdown scraping. All page text visible to the agent therefore comes from the same Jina Reader fetch backend. Our goal is to ensure we allow all providers  to show comparable content to the model without one provider unfairly dumping large number of page content tokens into the context as in reality that remains infeasible at scale for RAG systems.
 
 \paragraph{Traces.}
 The experiment produces \NTraces{} provider-query trajectories. A trace records every search call, every returned URL, every fetch decision, fetch status, token usage, latency, final answer, and gold answer. The provider-comparison scripts deterministically derive EM/F1, token, URL-hit, and per-query support fields from these traces.

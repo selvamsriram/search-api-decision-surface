@@ -1,10 +1,10 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.3.22)  5 JUN 2026 21:25
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.3.22)  5 JUN 2026 21:55
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**/Users/sriramselvam/Code/searchapi-hard-eval/paper2/main.tex
-(/Users/sriramselvam/Code/searchapi-hard-eval/paper2/main.tex
+**/Users/sriramselvam/Code/searchapi-hard-eval/paper/main.tex
+(/Users/sriramselvam/Code/searchapi-hard-eval/paper/main.tex
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
 (/usr/local/texlive/2026/texmf-dist/tex/latex/base/article.cls
@@ -551,11 +551,6 @@ Underfull \hbox (badness 10000) in paragraph at lines 41--42
  []\T1/ptm/b/n/10.95 (+20) Browsing and hard-search bench-marks.[]
  []
 
-
-Underfull \hbox (badness 1062) in paragraph at lines 55--56
-\T1/ptm/m/n/10.95 (+20) row \T1/ptm/m/sc/10.95 (+20) SealQA-Hard \T1/ptm/m/n/10.95 (+20) sub-set. The strata are
- []
-
 [2]
 Underfull \hbox (badness 1755) in paragraph at lines 61--62
  []\T1/ptm/b/n/10.95 (+20) Providers and nor-mal-iza-tion.[] \T1/ptm/m/n/10.95 (+20) We com-pare
@@ -584,13 +579,13 @@ Underfull \hbox (badness 2529) in paragraph at lines 70--71
 LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 77.
 (/usr/local/texlive/2026/texmf-dist/tex/latex/psnfss/ts1ptm.fd
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
-)
-<figures/fig2_provider_profiles.pdf, id=214, 826.08624pt x 361.35pt>
+) [3 <./figures/fig1_architecture.pdf>]
+<figures/fig2_provider_profiles.pdf, id=349, 826.08624pt x 361.35pt>
 File: figures/fig2_provider_profiles.pdf Graphic file (type pdf)
 <use figures/fig2_provider_profiles.pdf>
 Package pdftex.def Info: figures/fig2_provider_profiles.pdf  used on input line 95.
 (pdftex.def)             Requested size: 446.13727pt x 195.15366pt.
- [3 <./figures/fig1_architecture.pdf>]
+
 Overfull \hbox (64.26456pt too wide) in paragraph at lines 139--148
  [][] 
  []
@@ -605,40 +600,36 @@ Overfull \hbox (44.50755pt too wide) in paragraph at lines 166--178
  [][] 
  []
 
-
-Underfull \vbox (badness 4242) has occurred while \output is active []
-
-
-Underfull \vbox (badness 4242) has occurred while \output is active []
-
- [4 <./figures/fig2_provider_profiles.pdf>]
-<figures/fig4_complementarity.pdf, id=428, 1080.035pt x 239.89626pt>
+<figures/fig4_complementarity.pdf, id=356, 1080.035pt x 239.89626pt>
 File: figures/fig4_complementarity.pdf Graphic file (type pdf)
 <use figures/fig4_complementarity.pdf>
 Package pdftex.def Info: figures/fig4_complementarity.pdf  used on input line 210.
 (pdftex.def)             Requested size: 219.08614pt x 48.6629pt.
 
-Underfull \vbox (badness 2253) has occurred while \output is active []
-
-
-Underfull \vbox (badness 2253) has occurred while \output is active []
-
-
 Underfull \hbox (badness 5667) in paragraph at lines 217--218
 \T1/ptm/m/n/10.95 (+20) The provider-comparison traces also record
  []
 
-[5 <./figures/fig3_decision_partition.pdf>]
+[4]
+Underfull \vbox (badness 4254) has occurred while \output is active []
+
+
+Underfull \vbox (badness 4254) has occurred while \output is active []
+
+
 Underfull \hbox (badness 1270) in paragraph at lines 231--232
  []\T1/ptm/b/n/10.95 (+20) What providers could op-ti-mize.[] \T1/ptm/m/n/10.95 (+20) An agent-
  []
 
-
+[5 <./figures/fig2_provider_profiles.pdf>]
 Underfull \hbox (badness 1194) in paragraph at lines 246--247
  []\T1/ptm/b/n/10.95 (+20) Snippet asym-me-try.[] \T1/ptm/m/n/10.95 (+20) Brave re-turns provider-
  []
 
-[6 <./figures/fig4_complementarity.pdf>] (./main.bbl
+[6 <./figures/fig3_decision_partition.pdf> <./figures/fig4_complementarity.pdf
+
+pdfTeX warning: pdflatex (file ./figures/fig4_complementarity.pdf): PDF inclusion: multiple pdfs with page group included in a single page
+>] (./main.bbl
 LaTeX Font Info:    Font shape `T1/zi4/m/n' will be
 (Font)              scaled to size 10.0pt on input line 12.
 
@@ -686,7 +677,7 @@ Underfull \hbox (badness 6641) in paragraph at lines 286--287
 \T1/ptm/m/n/10.95 (+20) The repos-i-tory sam-ple file records dataset
  []
 
-
+[8]
 Underfull \hbox (badness 10000) in paragraph at lines 290--291
  []\T1/ptm/b/n/10.95 (+20) Brave.[] \T1/ptm/m/n/10.95 (+20) The adapter sends \T1/zi4/m/n/10.95 GET
  []
@@ -716,7 +707,7 @@ Underfull \hbox (badness 3189) in paragraph at lines 290--291
 \T1/zi4/m/n/10.95 web.results[] \T1/ptm/m/n/10.95 (+20) into rank, ti-tle, URL, snip-
  []
 
-[8]
+
 Underfull \hbox (badness 10000) in paragraph at lines 292--293
  []\T1/ptm/b/n/10.95 (+20) Tavily.[] \T1/ptm/m/n/10.95 (+20) The adapter sends \T1/zi4/m/n/10.95 POST
  []
@@ -776,12 +767,6 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 Underfull \hbox (badness 10000) in paragraph at lines 374--375
 \T1/ptm/m/n/10.95 (+20) The pack-age in-cludes $\T1/zi4/m/n/10.95 figures / decision _
  []
-
-
-Underfull \vbox (badness 5460) has occurred while \output is active []
-
-
-Underfull \vbox (badness 5460) has occurred while \output is active []
 
 
 Underfull \hbox (badness 10000) in paragraph at lines 377--378
@@ -844,18 +829,18 @@ Package rerunfilecheck Info: File `main.out' has not changed.
 (rerunfilecheck)             Checksum: DBBBA9660E920821A0D7B850278A7DAD;4340.
  ) 
 Here is how much of TeX's memory you used:
- 16857 strings out of 467525
- 266264 string characters out of 5418982
- 734013 words of memory out of 5000000
+ 16854 strings out of 467525
+ 266237 string characters out of 5418982
+ 738013 words of memory out of 5000000
  44982 multiletter control sequences out of 15000+600000
- 711643 words of font info for 392 fonts, out of 8000000 for 9000
+ 711513 words of font info for 390 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 84i,10n,93p,1698b,634s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 84i,10n,93p,1697b,634s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2026/texmf-dist/fonts/type1/public/inconsolata/Inconsolata-zi4r.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on main.pdf (11 pages, 399708 bytes).
+Output written on main.pdf (11 pages, 399911 bytes).
 PDF statistics:
- 712 PDF objects out of 1000 (max. 8388607)
- 565 compressed objects within 6 object streams
+ 711 PDF objects out of 1000 (max. 8388607)
+ 564 compressed objects within 6 object streams
  107 named destinations out of 1000 (max. 500000)
  72389 words of extra memory for PDF output out of 74296 (max. 10000000)
 
