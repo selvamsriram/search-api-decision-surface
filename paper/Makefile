@@ -1,33 +1,38 @@
-PAPER = main
-FIGURE_TEX = figures/numbers.tex \
-	figures/fig_architecture.tikz.tex \
-	figures/fig_provider_profiles.tikz.tex \
-	figures/fig_partition.tikz.tex
+FIGSCRIPT = figures/make_figures.py
 
-all: $(PAPER).pdf
+all: submission preprint
 
-$(FIGURE_TEX): figures/make_figures.py
-	python3 figures/make_figures.py --render-only
+figures:
+	python3 $(FIGSCRIPT) --render-only
 
-$(PAPER).pdf: $(PAPER).tex refs.bib acl.sty acl_natbib.bst $(FIGURE_TEX)
-	pdflatex -interaction=nonstopmode $(PAPER).tex
-	bibtex $(PAPER)
-	pdflatex -interaction=nonstopmode $(PAPER).tex
-	pdflatex -interaction=nonstopmode $(PAPER).tex
+audit:
+	python3 $(FIGSCRIPT) --audit
 
-quick: $(PAPER).tex $(FIGURE_TEX)
-	pdflatex -interaction=nonstopmode $(PAPER).tex
+submission: figures main_submission.pdf
+preprint: figures main_preprint.pdf
+quick: figures
+	pdflatex -interaction=nonstopmode main_submission.tex
+	pdflatex -interaction=nonstopmode main_preprint.tex
 
-audit: figures/make_figures.py
-	python3 figures/make_figures.py
+main_submission.pdf: main_submission.tex paper_shared.tex preamble.tex refs.bib figures/numbers.tex figures/*.pdf
+	pdflatex -interaction=nonstopmode main_submission.tex
+	@if command -v bibtex >/dev/null 2>&1; then bibtex main_submission; else echo "bibtex not found; using checked-in main_submission.bbl"; fi
+	pdflatex -interaction=nonstopmode main_submission.tex
+	pdflatex -interaction=nonstopmode main_submission.tex
+
+main_preprint.pdf: main_preprint.tex paper_shared.tex preamble.tex refs.bib figures/numbers.tex figures/*.pdf
+	pdflatex -interaction=nonstopmode main_preprint.tex
+	@if command -v bibtex >/dev/null 2>&1; then bibtex main_preprint; else echo "bibtex not found; using checked-in main_preprint.bbl"; fi
+	pdflatex -interaction=nonstopmode main_preprint.tex
+	pdflatex -interaction=nonstopmode main_preprint.tex
 
 clean:
-	rm -f *.aux *.log *.out *.bbl *.blg *.toc *.synctex.gz *.fls *.fdb_latexmk
+	rm -f *.aux *.log *.out *.blg *.toc *.fls *.fdb_latexmk *.synctex.gz
 
-clean-audit:
-	rm -f figures/decision_surface_audit.json figures/decision_surface_audit.md
+clean-bbl:
+	rm -f *.bbl
 
-distclean: clean clean-audit
-	rm -f $(PAPER).pdf
+distclean: clean
+	rm -f main_submission.pdf main_preprint.pdf main.pdf
 
-.PHONY: all quick audit clean clean-audit distclean
+.PHONY: all submission preprint quick figures audit clean clean-bbl distclean

@@ -1,57 +1,48 @@
 #!/usr/bin/env python3
-"""Regenerate all decision-surface paper artifacts.
+"""
+Regenerate deterministic paper numbers and Graphviz vector figures.
 
-Outputs:
-  figures/numbers.tex
-  figures/fig_architecture.dot
-  figures/fig_architecture.tikz.tex
-  figures/fig_provider_profiles.dot
-  figures/fig_provider_profiles.tikz.tex
-  figures/fig_partition.dot
-  figures/fig_partition.tikz.tex
-  figures/decision_surface_audit.json
-  figures/decision_surface_audit.md
+Default mode is render-only: it writes the last validated constants and figures so
+LaTeX can build without the large Git LFS data. Audit mode recomputes the key
+numbers from the raw trace/judge JSONLs and provider comparison files.
 
-Default mode recomputes all metrics from the raw trace/judge JSONL files. The raw
-large JSONL files are stored via Git LFS in this repository; run `git lfs pull`
-before auditing. Use --render-only to regenerate diagrams/macros from the last
-validated constants without requiring LFS data.
+Usage:
+  cd paper
+  python3 figures/make_figures.py --render-only
+  python3 figures/make_figures.py --audit   # after git lfs pull
 """
 from __future__ import annotations
 
 import argparse
 import json
 import math
-import re
-import shlex
+import shutil
 import subprocess
 from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
 
-REPO = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[2]
 OUT = Path(__file__).resolve().parent
 
 PROVIDERS = ["brave", "tavily", "firecrawl"]
-LABEL = {"brave": "Brave", "tavily": "Tavily", "firecrawl": "Firecrawl"}
+PNAME = {"brave": "Brave", "tavily": "Tavily", "firecrawl": "Firecrawl"}
+COL = {"brave": "#E76F51", "tavily": "#2A80B9", "firecrawl": "#2AA876"}
 
-JUDGE_PATHS = {
-    "brave": REPO / "results/llm_judge/kimi_document_judge_surface_v3_brave_100_all_visible.jsonl",
-    "tavily": REPO / "results/llm_judge/kimi_document_judge_surface_v3_tavily_100_all_visible.jsonl",
-    "firecrawl": REPO / "results/llm_judge/kimi_document_judge_surface_v3_firecrawl_100_all_visible.jsonl",
+TRACE_FILES = {
+    "brave": ROOT / "data/traces/phase1_v1_brave_gpt54_fetch_tool_jina_100.jsonl",
+    "tavily": ROOT / "data/traces/phase1_v1_tavily_gpt54_fetch_tool_jina_100.jsonl",
+    "firecrawl": ROOT / "data/traces/phase1_v1_firecrawl_gpt54_fetch_tool_jina_100.jsonl",
 }
-
-TRACE_PATHS = {
-    "brave": REPO / "data/traces/phase1_v1_brave_gpt54_fetch_tool_jina_100.jsonl",
-    "tavily": REPO / "data/traces/phase1_v1_tavily_gpt54_fetch_tool_jina_100.jsonl",
-    "firecrawl": REPO / "data/traces/phase1_v1_firecrawl_gpt54_fetch_tool_jina_100.jsonl",
+JUDGE_FILES = {
+    "brave": ROOT / "results/llm_judge/kimi_document_judge_surface_v3_brave_100_all_visible.jsonl",
+    "tavily": ROOT / "results/llm_judge/kimi_document_judge_surface_v3_tavily_100_all_visible.jsonl",
+    "firecrawl": ROOT / "results/llm_judge/kimi_document_judge_surface_v3_firecrawl_100_all_visible.jsonl",
 }
-PER_QUERY = REPO / "results/provider_comparison/brave_tavily_firecrawl_fetch_tool_jina/provider_per_query.jsonl"
-SUMMARY = REPO / "results/provider_comparison/brave_tavily_firecrawl_fetch_tool_jina/provider_summary.json"
+PER_QUERY = ROOT / "results/provider_comparison/brave_tavily_firecrawl_fetch_tool_jina/provider_per_query.jsonl"
+SUMMARY = ROOT / "results/provider_comparison/brave_tavily_firecrawl_fetch_tool_jina/provider_summary.json"
 
-# Last validated constants from the source-data audit. These are used only for
-# --render-only and as guardrails for audit mode.
-EXPECTED: dict[str, Any] = {
+LAST_VALIDATED = {
     "meta": {
         "queries": 100,
         "providers": 3,
@@ -65,645 +56,601 @@ EXPECTED: dict[str, Any] = {
         "two_correct": 9,
         "one_correct": 20,
         "all_wrong": 62,
+        "one_or_more_correct": 38,
+        "provider_specific_wins": 20,
     },
     "providers": {
         "brave": {
-            "em": 21,
-            "f1": 0.270,
-            "answered": 98,
-            "avg_search": 2.29,
-            "avg_fetch": 1.02,
-            "fetched_pct": 65,
-            "tokens_m": 5.96,
-            "snippet_rows": 2095,
-            "page_rows": 101,
-            "support_visible_q": 33,
-            "no_support_q": 67,
-            "gold_urls": 97,
-            "contra_urls": 89,
-            "contra_ratio": 0.92,
-            "rank1_pct": 12,
-            "rank1_count": 12,
+            "em": 21, "f1": 0.270, "answered": 98, "abstained": 2,
+            "avg_search": 2.29, "avg_fetch": 1.02, "fetched_pct": 65,
+            "tokens_m": 5.96, "avg_tokens": 59627, "median_tokens": 40638.5, "max_tokens": 303462,
+            "queries_over_100k": 19,
+            "support_visible_q": 33, "no_support_q": 67,
+            "snippet_rows": 2095, "page_rows": 101,
+            "gold_rows": 97, "contra_rows": 89, "contra_ratio": 0.92,
+            "rank1_count": 12, "rank1_pct": 12,
             "bucket": {"smart": [8, 3], "missed": [25, 9], "blind": [51, 9], "noop": [16, 0]},
             "answer_available": 78,
+            "gold_url_exact_hit": 59, "gold_url_prefix_hit": 63, "gold_domain_hit": 82,
+            "gold_source_family_hit": 61,
+            "answer_in_snippet": 55, "answer_in_extra_snippets": 71, "answer_in_page": 52,
+            "wrong_with_answer_text_available": 57, "wrong_without_answer_text_available": 22,
+            "fetch_success": 92, "fetch_failed": 10,
         },
         "tavily": {
-            "em": 21,
-            "f1": 0.261,
-            "answered": 97,
-            "avg_search": 2.74,
-            "avg_fetch": 1.30,
-            "fetched_pct": 76,
-            "tokens_m": 5.42,
-            "snippet_rows": 2339,
-            "page_rows": 125,
-            "support_visible_q": 24,
-            "no_support_q": 76,
-            "gold_urls": 31,
-            "contra_urls": 58,
-            "contra_ratio": 1.87,
-            "rank1_pct": 48,
-            "rank1_count": 15,
+            "em": 21, "f1": 0.261, "answered": 97, "abstained": 3,
+            "avg_search": 2.74, "avg_fetch": 1.30, "fetched_pct": 76,
+            "tokens_m": 5.42, "avg_tokens": 54156, "median_tokens": 36867.5, "max_tokens": 305474,
+            "queries_over_100k": 16,
+            "support_visible_q": 24, "no_support_q": 76,
+            "snippet_rows": 2339, "page_rows": 125,
+            "gold_rows": 31, "contra_rows": 58, "contra_ratio": 1.87,
+            "rank1_count": 15, "rank1_pct": 48,
             "bucket": {"smart": [11, 7], "missed": [13, 5], "blind": [55, 9], "noop": [21, 0]},
             "answer_available": 75,
+            "gold_url_exact_hit": 57, "gold_url_prefix_hit": 62, "gold_domain_hit": 82,
+            "gold_source_family_hit": 60,
+            "answer_in_snippet": 60, "answer_in_extra_snippets": 0, "answer_in_page": 57,
+            "wrong_with_answer_text_available": 56, "wrong_without_answer_text_available": 23,
+            "fetch_success": 119, "fetch_failed": 11,
         },
         "firecrawl": {
-            "em": 23,
-            "f1": 0.282,
-            "answered": 96,
-            "avg_search": 2.51,
-            "avg_fetch": 1.28,
-            "fetched_pct": 81,
-            "tokens_m": 5.80,
-            "snippet_rows": 2085,
-            "page_rows": 124,
-            "support_visible_q": 19,
-            "no_support_q": 81,
-            "gold_urls": 27,
-            "contra_urls": 70,
-            "contra_ratio": 2.59,
-            "rank1_pct": 11,
-            "rank1_count": 3,
+            "em": 23, "f1": 0.282, "answered": 96, "abstained": 4,
+            "avg_search": 2.51, "avg_fetch": 1.28, "fetched_pct": 81,
+            "tokens_m": 5.80, "avg_tokens": 57979, "median_tokens": 34383.5, "max_tokens": 380646,
+            "queries_over_100k": 16,
+            "support_visible_q": 19, "no_support_q": 81,
+            "snippet_rows": 2085, "page_rows": 124,
+            "gold_rows": 27, "contra_rows": 70, "contra_ratio": 2.59,
+            "rank1_count": 3, "rank1_pct": 11,
             "bucket": {"smart": [7, 2], "missed": [12, 5], "blind": [67, 16], "noop": [14, 0]},
             "answer_available": 76,
+            "gold_url_exact_hit": 60, "gold_url_prefix_hit": 63, "gold_domain_hit": 82,
+            "gold_source_family_hit": 64,
+            "answer_in_snippet": 54, "answer_in_extra_snippets": 0, "answer_in_page": 61,
+            "wrong_with_answer_text_available": 53, "wrong_without_answer_text_available": 24,
+            "fetch_success": 121, "fetch_failed": 7,
         },
     },
+    "pairwise": {
+        "brave_vs_firecrawl": {"both_wrong": 57, "brave_correct_only": 9, "both_correct": 12, "both_wrong_one_has_answer_text": 11, "firecrawl_correct_only": 11},
+        "brave_vs_tavily": {"both_wrong": 57, "both_wrong_one_has_answer_text": 13, "brave_correct_only": 9, "both_correct": 12, "tavily_correct_only": 9},
+        "firecrawl_vs_tavily": {"both_wrong": 61, "both_wrong_one_has_answer_text": 7, "tavily_correct_only": 9, "both_correct": 12, "firecrawl_correct_only": 11},
+    },
+    "source": "last_validated_constants",
 }
 
-COLOR_NAMES = {
-    "#334155": "slateink",
-    "#475569": "slateedge",
-    "#64748B": "slatemid",
-    "#F8FAFC": "slatefill",
-    "#FFF7ED": "orangefill",
-    "#C2410C": "orangeedge",
-    "#FEE2E2": "redfill",
-    "#DC2626": "rededge",
-    "#DBEAFE": "bluefill",
-    "#2563EB": "blueedge",
-    "#DCFCE7": "greenfill",
-    "#16A34A": "greenedge",
-    "#F0FDF4": "greenlight",
-    "#15803D": "greendark",
-    "#EEF2FF": "indigofill",
-    "#4F46E5": "indigoedge",
-    "#ECFEFF": "cyanfill",
-    "#0891B2": "cyanedge",
-    "#F1F5F9": "slatefillb",
-    "#FAE8FF": "purplefill",
-    "#A21CAF": "purpleedge",
-    "#FFFBEB": "amberfill",
-    "#B45309": "amberedge",
-    "#FFF1F2": "pinkfill",
-    "#EFF6FF": "bluelight",
-    "#FEF3C7": "amberfillb",
-    "#D97706": "amberedgeb",
-    "#E0F2FE": "skyfill",
-    "#0284C7": "skyedge",
-    "#FEF9C3": "yellowfill",
-    "#CA8A04": "yellowedge",
-    "#FFEDD5": "orangefillb",
-    "#EA580C": "orangeedgeb",
-    "#E2E8F0": "grayfill",
-}
 
-TIKZ_PREAMBLE = "\n".join(
-    rf"\definecolor{{{name}}}{{HTML}}{{{hexval[1:]}}}"
-    for hexval, name in COLOR_NAMES.items()
-)
-TIKZ_STYLE = r"""
-\begin{tikzpicture}[x=0.52in,y=0.52in,>=latex]
-\tikzset{gvnode/.style={draw, rounded corners=3pt, align=center, font=\scriptsize, inner sep=2.8pt, line width=0.35pt}}
-\tikzset{gvedge/.style={->, line width=0.35pt, color=slateedge}}
-""".strip()
-
-
-def main() -> None:
-    args = parse_args()
-    stats = EXPECTED if args.render_only else compute_from_sources()
-    if not args.render_only:
-        validate_against_expected(stats)
-    write_numbers(stats)
-    write_audit(stats, source="last_validated_constants" if args.render_only else "raw_jsonl_and_provider_summary")
-    render_all_figures(stats)
-    mode = "render-only" if args.render_only else "audited"
-    print(f"Wrote decision-surface paper artifacts ({mode}) to {OUT}")
-
-
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "--render-only",
-        action="store_true",
-        help="Regenerate DOT/TikZ and number macros from last validated constants without opening LFS JSONLs.",
-    )
-    return parser.parse_args()
-
-
-def latest_by_query_id(rows: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
-    latest: dict[str, dict[str, Any]] = {}
-    for row in rows:
-        qid = row.get("query_id")
-        if qid:
-            latest[str(qid)] = row
-    return latest
-
-
-def compute_from_sources() -> dict[str, Any]:
-    summary = load_json(SUMMARY)
-    per_query = load_jsonl(PER_QUERY)
-    emap = {(row["provider_id"], row["query_id"]): bool(row.get("exact_match")) for row in per_query}
-    per_query_by_provider: dict[str, list[dict[str, Any]]] = defaultdict(list)
-    for row in per_query:
-        per_query_by_provider[row["provider_id"]].append(row)
-
-    providers: dict[str, dict[str, Any]] = {}
-    judge_total = judge_valid = judge_snippet_valid = judge_page_valid = 0
-    for provider in PROVIDERS:
-        trace_rows = load_jsonl(TRACE_PATHS[provider])
-        latest_traces = latest_by_query_id(trace_rows)
-        rows_all = load_jsonl(JUDGE_PATHS[provider])
-        valid = [r for r in rows_all if valid_judge_record(r)]
-        judge_total += len(rows_all)
-        judge_valid += len(valid)
-        snippet = [r for r in valid if r.get("judge_surface_class") == "snippet_only"]
-        page = [r for r in valid if r.get("judge_surface_class") == "page_visible"]
-        judge_snippet_valid += len(snippet)
-        judge_page_valid += len(page)
-
-        psummary = summary["providers"][provider]
-        buckets = compute_buckets(valid, emap, provider, per_query_by_provider[provider])
-        rank_dist = Counter(
-            int(r.get("rank") or 0)
-            for r in snippet
-            if (r.get("judgment") or {}).get("contains_gold_answer")
-        )
-        gold_urls = sum(1 for r in snippet if (r.get("judgment") or {}).get("contains_gold_answer"))
-        contra_urls = sum(1 for r in snippet if (r.get("judgment") or {}).get("contradicts_gold_answer"))
-        support_visible = len(
-            {
-                r.get("query_id")
-                for r in valid
-                if (r.get("judgment") or {}).get("contains_gold_answer")
-            }
-        )
-        total_queries = len(latest_traces) or len(per_query_by_provider[provider]) or 100
-        fetch_status = psummary.get("fetch_status_counts") or {}
-        fetch_calls = sum(int(v) for v in fetch_status.values())
-        fetched_queries = sum(1 for trace in latest_traces.values() if trace.get("fetches"))
-        if not fetched_queries:
-            # Older trace-derived per-query rows retain only per-query fetch-status counters.
-            fetched_queries = sum(1 for r in per_query_by_provider[provider] if r.get("fetch_status_counts"))
-
-        providers[provider] = {
-            "em": int(psummary["exact_match"]),
-            "f1": round(float(psummary["avg_f1"]), 3),
-            "answered": int(psummary["answered"]),
-            "avg_search": round(float(psummary["avg_search_calls"]), 2),
-            "avg_fetch": round(fetch_calls / total_queries, 2),
-            "fetched_pct": round(100 * fetched_queries / total_queries),
-            "tokens_m": round(float(psummary["total_tokens"]) / 1_000_000, 2),
-            "snippet_rows": len(snippet),
-            "page_rows": len(page),
-            "support_visible_q": support_visible,
-            "no_support_q": total_queries - support_visible,
-            "gold_urls": gold_urls,
-            "contra_urls": contra_urls,
-            "contra_ratio": round(contra_urls / gold_urls, 2) if gold_urls else math.nan,
-            "rank1_pct": round(100 * rank_dist.get(1, 0) / gold_urls) if gold_urls else 0,
-            "rank1_count": rank_dist.get(1, 0),
-            "bucket": buckets,
-            "answer_available": int(psummary["answer_in_any_retrieved_text"]),
-        }
-
-    three_way = summary.get("three_way", {}).get("classes", {})
-    return {
-        "meta": {
-            "queries": 100,
-            "providers": 3,
-            "traces": 300,
-            "judge_total": judge_total,
-            "judge_valid": judge_valid,
-            "judge_invalid": judge_total - judge_valid,
-            "judge_snippet_valid": judge_snippet_valid,
-            "judge_page_valid": judge_page_valid,
-            "all_correct": int(three_way.get("all_correct", 0)),
-            "two_correct": int(three_way.get("two_providers_correct", 0)),
-            "one_correct": int(three_way.get("one_provider_correct", 0)),
-            "all_wrong": int(three_way.get("all_wrong", 0)),
-        },
-        "providers": providers,
-    }
-
-
-def load_json(path: Path) -> Any:
-    text = path.read_text(encoding="utf-8")
-    ensure_not_lfs_pointer(path, text)
-    return json.loads(text)
+def is_lfs_pointer(path: Path) -> bool:
+    if not path.exists():
+        return False
+    try:
+        with path.open("r", encoding="utf-8") as f:
+            first = f.readline().strip()
+        return first.startswith("version https://git-lfs.github.com/spec/v1")
+    except UnicodeDecodeError:
+        return False
 
 
 def load_jsonl(path: Path) -> list[dict[str, Any]]:
-    text = path.read_text(encoding="utf-8")
-    ensure_not_lfs_pointer(path, text)
-    rows = []
-    for line_num, line in enumerate(text.splitlines(), start=1):
-        if not line.strip():
-            continue
-        try:
-            rows.append(json.loads(line))
-        except json.JSONDecodeError as error:
-            raise RuntimeError(f"Malformed JSONL row {path}:{line_num}: {error}") from error
+    if is_lfs_pointer(path):
+        raise RuntimeError(f"{path} is still a Git LFS pointer. Run `git lfs pull` from the repository root.")
+    rows: list[dict[str, Any]] = []
+    with path.open("r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if line:
+                rows.append(json.loads(line))
     return rows
 
 
-def ensure_not_lfs_pointer(path: Path, text: str) -> None:
-    if text.startswith("version https://git-lfs.github.com/spec/v1"):
-        raise RuntimeError(
-            f"{path} is still a Git LFS pointer. Run `git lfs pull` from the repo root, "
-            "then rerun `python3 paper/figures/make_figures.py`. For LaTeX-only builds, "
-            "use `python3 paper/figures/make_figures.py --render-only`."
-        )
+def load_json(path: Path) -> dict[str, Any]:
+    if is_lfs_pointer(path):
+        raise RuntimeError(f"{path} is still a Git LFS pointer. Run `git lfs pull` from the repository root.")
+    with path.open("r", encoding="utf-8") as f:
+        return json.load(f)
 
 
-def valid_judge_record(record: dict[str, Any]) -> bool:
-    return (
-        record.get("schema_version") == "kimi_judge_record_v3"
-        and isinstance(record.get("judgment"), dict)
-        and not record.get("execution_error")
-        and not record.get("judgment_parse_error")
-        and bool(record.get("provider_id"))
-        and bool(record.get("query_id"))
-        and bool(record.get("retrieval_id"))
-        and bool(record.get("url"))
-    )
+def audit_from_raw() -> dict[str, Any]:
+    for p in PROVIDERS:
+        if not TRACE_FILES[p].exists() or not JUDGE_FILES[p].exists():
+            raise RuntimeError(f"Missing raw files for {p}. Run from a complete repo checkout.")
+        if is_lfs_pointer(TRACE_FILES[p]) or is_lfs_pointer(JUDGE_FILES[p]):
+            raise RuntimeError(f"Raw JSONL for {p} is still a Git LFS pointer. Run `git lfs pull`.")
+    if not SUMMARY.exists() or not PER_QUERY.exists():
+        raise RuntimeError("Missing provider comparison artifacts. Run scripts/build_provider_comparison.py first.")
+
+    summary = load_json(SUMMARY)
+    per_query_rows = load_jsonl(PER_QUERY)
+    emap = {(r["provider_id"], r["query_id"]): bool(r.get("exact_match")) for r in per_query_rows}
+
+    data = {"meta": dict(LAST_VALIDATED["meta"]), "providers": {}, "pairwise": {}, "source": "audit_from_raw"}
+    prov_summary = summary.get("providers", {})
+    for p in PROVIDERS:
+        rows_all = load_jsonl(JUDGE_FILES[p])
+        valid = [r for r in rows_all if isinstance(r.get("judgment"), dict) and not r.get("execution_error") and not r.get("judgment_parse_error")]
+        snip = [r for r in valid if r.get("judge_surface_class") == "snippet_only"]
+        page = [r for r in valid if r.get("judge_surface_class") == "page_visible"]
+        gold_rows = sum(1 for r in snip if r.get("judgment", {}).get("contains_gold_answer"))
+        contra_rows = sum(1 for r in snip if r.get("judgment", {}).get("contradicts_gold_answer"))
+        rank1_count = sum(1 for r in snip if r.get("judgment", {}).get("contains_gold_answer") and int(r.get("rank") or 0) == 1)
+        qstate: dict[str, dict[str, set[str]]] = defaultdict(lambda: {"gold": set(), "fetched": set(), "fetched_gold": set()})
+        for r in valid:
+            q = r.get("query_id")
+            u = r.get("normalized_url") or r.get("url") or ""
+            if not q or not u:
+                continue
+            j = r.get("judgment") or {}
+            if r.get("judge_surface_class") == "snippet_only":
+                if j.get("contains_gold_answer"):
+                    qstate[q]["gold"].add(u)
+                if r.get("model_fetched_document"):
+                    qstate[q]["fetched"].add(u)
+            else:
+                qstate[q]["fetched"].add(u)
+                if j.get("contains_gold_answer"):
+                    qstate[q]["gold"].add(u)
+                    qstate[q]["fetched_gold"].add(u)
+        buckets = {"smart": [0, 0], "missed": [0, 0], "blind": [0, 0], "noop": [0, 0]}
+        support_visible = 0
+        for q, st in qstate.items():
+            em = emap.get((p, q), False)
+            gold = bool(st["gold"])
+            fetched = bool(st["fetched"])
+            fetched_gold = bool(st["fetched_gold"])
+            if gold:
+                support_visible += 1
+            if gold and fetched_gold:
+                bucket = "smart"
+            elif gold and not fetched_gold:
+                bucket = "missed"
+            elif (not gold) and fetched:
+                bucket = "blind"
+            else:
+                bucket = "noop"
+            buckets[bucket][0] += 1
+            buckets[bucket][1] += int(em)
+        s = prov_summary[p]
+        data["providers"][p] = {
+            "em": s["exact_match"], "f1": round(s["avg_f1"], 3), "answered": s["answered"], "abstained": s["abstained"],
+            "avg_search": round(s["avg_search_calls"], 2),
+            "avg_fetch": round((s.get("fetch_status_counts", {}).get("success", 0) + s.get("fetch_status_counts", {}).get("failed", 0)) / 100, 2),
+            "fetched_pct": LAST_VALIDATED["providers"][p]["fetched_pct"],
+            "tokens_m": round(s["total_tokens"] / 1_000_000, 2),
+            "avg_tokens": round(s["avg_tokens"]), "median_tokens": s["median_tokens"], "max_tokens": s["max_tokens"],
+            "queries_over_100k": s["queries_over_100k_tokens"],
+            "support_visible_q": support_visible, "no_support_q": 100 - support_visible,
+            "snippet_rows": len(snip), "page_rows": len(page),
+            "gold_rows": gold_rows, "contra_rows": contra_rows,
+            "contra_ratio": round(contra_rows / gold_rows, 2) if gold_rows else float("nan"),
+            "rank1_count": rank1_count, "rank1_pct": round(100 * rank1_count / gold_rows) if gold_rows else 0,
+            "bucket": buckets,
+            "answer_available": s["answer_in_any_retrieved_text"],
+            "gold_url_exact_hit": s["gold_url_exact_hit"], "gold_url_prefix_hit": s["gold_url_prefix_hit"], "gold_domain_hit": s["gold_domain_hit"],
+            "gold_source_family_hit": s["gold_source_family_hit"],
+            "answer_in_snippet": s["answer_in_snippet"], "answer_in_extra_snippets": s["answer_in_extra_snippets"], "answer_in_page": s["answer_in_page"],
+            "wrong_with_answer_text_available": s["wrong_with_answer_text_available"], "wrong_without_answer_text_available": s["wrong_without_answer_text_available"],
+            "fetch_success": s.get("fetch_status_counts", {}).get("success", 0), "fetch_failed": s.get("fetch_status_counts", {}).get("failed", 0),
+        }
+    data["meta"]["judge_total"] = sum(len(load_jsonl(JUDGE_FILES[p])) for p in PROVIDERS)
+    data["meta"]["judge_valid"] = sum(data["providers"][p]["snippet_rows"] + data["providers"][p]["page_rows"] for p in PROVIDERS)
+    data["meta"]["judge_invalid"] = data["meta"]["judge_total"] - data["meta"]["judge_valid"]
+    data["meta"]["judge_snippet_valid"] = sum(data["providers"][p]["snippet_rows"] for p in PROVIDERS)
+    data["meta"]["judge_page_valid"] = sum(data["providers"][p]["page_rows"] for p in PROVIDERS)
+    data["pairwise"] = summary.get("pairwise", {})
+    three = summary.get("three_way", {}).get("classes", {})
+    data["meta"]["all_correct"] = three.get("all_correct", LAST_VALIDATED["meta"]["all_correct"])
+    data["meta"]["two_correct"] = three.get("two_providers_correct", LAST_VALIDATED["meta"]["two_correct"])
+    data["meta"]["one_correct"] = three.get("one_provider_correct", LAST_VALIDATED["meta"]["one_correct"])
+    data["meta"]["all_wrong"] = three.get("all_wrong", LAST_VALIDATED["meta"]["all_wrong"])
+    data["meta"]["one_or_more_correct"] = 100 - data["meta"]["all_wrong"]
+    return data
 
 
-def compute_buckets(
-    rows: list[dict[str, Any]],
-    emap: dict[tuple[str, str], bool],
-    provider: str,
-    per_query_rows: list[dict[str, Any]],
-) -> dict[str, list[int]]:
-    q_state: dict[str, dict[str, set[str]]] = {}
-    for row in per_query_rows:
-        q_state.setdefault(row["query_id"], {"gold_urls": set(), "fetched_urls": set(), "fetched_gold": set()})
-    for row in rows:
-        qid = row["query_id"]
-        url = row.get("normalized_url") or row.get("url") or ""
-        judgment = row.get("judgment") or {}
-        state = q_state.setdefault(qid, {"gold_urls": set(), "fetched_urls": set(), "fetched_gold": set()})
-        surface = row.get("judge_surface_class")
-        if surface == "snippet_only":
-            if judgment.get("contains_gold_answer"):
-                state["gold_urls"].add(url)
-            if row.get("model_fetched_document"):
-                state["fetched_urls"].add(url)
-        elif surface == "page_visible":
-            state["fetched_urls"].add(url)
-            if judgment.get("contains_gold_answer"):
-                state["gold_urls"].add(url)
-                state["fetched_gold"].add(url)
-    out: dict[str, list[int]] = {"smart": [0, 0], "missed": [0, 0], "blind": [0, 0], "noop": [0, 0]}
-    for qid, state in q_state.items():
-        gold = bool(state["gold_urls"])
-        fetched_any = bool(state["fetched_urls"])
-        fetched_gold = bool(state["fetched_gold"])
-        if gold and fetched_gold:
-            key = "smart"
-        elif gold and not fetched_gold:
-            key = "missed"
-        elif (not gold) and fetched_any:
-            key = "blind"
-        else:
-            key = "noop"
-        out[key][0] += 1
-        out[key][1] += int(emap.get((provider, qid), False))
-    return out
+def pct(em: int, n: int) -> str:
+    return f"{round(100 * em / n):.0f}\\%" if n else "--"
 
 
-def validate_against_expected(stats: dict[str, Any]) -> None:
-    diffs: list[str] = []
-    for key, expected in EXPECTED["meta"].items():
-        actual = stats["meta"].get(key)
-        if actual != expected:
-            diffs.append(f"meta.{key}: expected {expected}, got {actual}")
-    for provider in PROVIDERS:
-        for key, expected in EXPECTED["providers"][provider].items():
-            actual = stats["providers"][provider].get(key)
-            if key == "bucket":
-                if actual != expected:
-                    diffs.append(f"{provider}.{key}: expected {expected}, got {actual}")
-            elif isinstance(expected, float):
-                if abs(float(actual) - expected) > 0.005:
-                    diffs.append(f"{provider}.{key}: expected {expected}, got {actual}")
-            elif actual != expected:
-                diffs.append(f"{provider}.{key}: expected {expected}, got {actual}")
-    if diffs:
-        msg = "Metric audit mismatches:\n" + "\n".join(f"  - {d}" for d in diffs)
-        raise RuntimeError(msg)
+def wilson(k: int, n: int, z: float = 1.96) -> tuple[int, int]:
+    if n == 0:
+        return (0, 0)
+    phat = k / n
+    den = 1 + z * z / n
+    center = (phat + z * z / (2 * n)) / den
+    half = z * math.sqrt((phat * (1 - phat) + z * z / (4 * n)) / n) / den
+    return (round(100 * max(0, center - half)), round(100 * min(1, center + half)))
 
 
-def macro(name: str, value: Any) -> str:
-    if isinstance(value, float):
-        value = f"{value:.3f}" if value < 1 else f"{value:.2f}"
-    return rf"\newcommand{{\{name}}}{{{value}}}"
+def macro_name(provider: str, suffix: str) -> str:
+    return {"brave": "Brave", "tavily": "Tavily", "firecrawl": "Firecrawl"}[provider] + suffix
 
 
-def pct(value: int | float) -> str:
-    return rf"{int(round(value))}\%"
-
-
-def thousands(value: int) -> str:
-    return f"{value:,}".replace(",", r"{,}")
-
-
-def write_numbers(stats: dict[str, Any]) -> None:
-    m = stats["meta"]
-    p = stats["providers"]
+def write_numbers(data: dict[str, Any]) -> None:
+    m = data["meta"]
     lines = ["% Deterministic paper numbers. Regenerate with figures/make_figures.py after git lfs pull."]
-    lines += [
-        macro("NQueries", m["queries"]),
-        macro("NProviders", m["providers"]),
-        macro("NTraces", m["traces"]),
-        macro("NJudgeTotal", thousands(m["judge_total"])),
-        macro("NJudgeValid", thousands(m["judge_valid"])),
-        macro("NJudgeInvalid", m["judge_invalid"]),
-        macro("NJudgeSnippetValid", thousands(m["judge_snippet_valid"])),
-        macro("NJudgePageValid", m["judge_page_valid"]),
-    ]
-    for provider in PROVIDERS:
-        L = LABEL[provider]
-        row = p[provider]
-        lines += [
-            macro(f"{L}EM", row["em"]),
-            macro(f"{L}Fone", f"{row['f1']:.3f}"),
-            macro(f"{L}SearchAvg", f"{row['avg_search']:.2f}"),
-            macro(f"{L}FetchAvg", f"{row['avg_fetch']:.2f}"),
-            macro(f"{L}FetchedPct", pct(row["fetched_pct"])),
-            macro(f"{L}TokensM", f"{row['tokens_m']:.2f}"),
-            macro(f"{L}SupportVisibleQ", row["support_visible_q"]),
-            macro(f"{L}NoSupportQ", row["no_support_q"]),
-            macro(f"{L}SnippetRows", thousands(row["snippet_rows"])),
-            macro(f"{L}PageRows", row["page_rows"]),
-            macro(f"{L}GoldURLs", row["gold_urls"]),
-            macro(f"{L}ContraURLs", row["contra_urls"]),
-            macro(f"{L}ContraRatio", f"{row['contra_ratio']:.2f}"),
-            macro(f"{L}RankOnePct", pct(row["rank1_pct"])),
-        ]
-        for bucket_name, cap in (("smart", "Smart"), ("missed", "Missed"), ("blind", "Blind"), ("noop", "Noop")):
-            n, em = row["bucket"][bucket_name]
-            lines.append(macro(f"{L}{cap}N", n))
-            lines.append(macro(f"{L}{cap}EM", em))
-        lines.append(macro(f"{L}AnswerAvailable", row["answer_available"]))
-    tav = p["tavily"]
-    lines.append(macro("TavilyRankOneGold", f"{tav['rank1_count']}/{tav['gold_urls']}"))
-    lines += [
-        macro("AllCorrect", m["all_correct"]),
-        macro("TwoCorrect", m["two_correct"]),
-        macro("OneCorrect", m["one_correct"]),
-        macro("AllWrong", m["all_wrong"]),
-    ]
+    basic = {
+        "NQueries": m["queries"], "NProviders": m["providers"], "NTraces": m["traces"],
+        "NJudgeTotal": f"{m['judge_total']:,}", "NJudgeValid": f"{m['judge_valid']:,}", "NJudgeInvalid": m["judge_invalid"],
+        "NJudgeSnippetValid": f"{m['judge_snippet_valid']:,}", "NJudgePageValid": m["judge_page_valid"],
+        "AllCorrect": m["all_correct"], "TwoCorrect": m["two_correct"], "OneCorrect": m["one_correct"],
+        "AllWrong": m["all_wrong"], "OneOrMoreCorrect": m["one_or_more_correct"],
+    }
+    for k, v in basic.items():
+        lines.append(f"\\newcommand{{\\{k}}}{{{v}}}")
+    for p in PROVIDERS:
+        d = data["providers"][p]
+        pref = {"brave": "Brave", "tavily": "Tavily", "firecrawl": "Firecrawl"}[p]
+        vals = {
+            "EM": d["em"], "Fone": f"{d['f1']:.3f}", "Answered": d["answered"], "Abstained": d["abstained"],
+            "SearchAvg": f"{d['avg_search']:.2f}", "FetchAvg": f"{d['avg_fetch']:.2f}", "FetchedPct": f"{d['fetched_pct']}\\%",
+            "TokensM": f"{d['tokens_m']:.2f}", "AvgTokens": f"{int(d['avg_tokens']):,}", "MedianTokens": f"{int(float(d['median_tokens'])):,}", "MaxTokens": f"{int(d['max_tokens']):,}",
+            "OverHundredK": d["queries_over_100k"],
+            "SupportVisibleQ": d["support_visible_q"], "NoSupportQ": d["no_support_q"],
+            "SnippetRows": f"{d['snippet_rows']:,}", "PageRows": d["page_rows"],
+            "GoldRows": d["gold_rows"], "ContraRows": d["contra_rows"], "ContraRatio": f"{d['contra_ratio']:.2f}",
+            "RankOnePct": f"{d['rank1_pct']}\\%", "RankOneGold": f"{d['rank1_count']}/{d['gold_rows']}",
+            "AnswerAvailable": d["answer_available"], "GoldURLExact": d["gold_url_exact_hit"], "GoldURLPrefix": d["gold_url_prefix_hit"],
+            "GoldDomain": d["gold_domain_hit"], "GoldFamily": d["gold_source_family_hit"],
+            "AnswerSnippet": d["answer_in_snippet"], "AnswerExtra": d["answer_in_extra_snippets"], "AnswerPage": d["answer_in_page"],
+            "WrongWithAnswer": d["wrong_with_answer_text_available"], "WrongWithoutAnswer": d["wrong_without_answer_text_available"],
+            "FetchSuccess": d["fetch_success"], "FetchFailed": d["fetch_failed"],
+        }
+        for k, v in vals.items():
+            lines.append(f"\\newcommand{{\\{pref}{k}}}{{{v}}}")
+        for bucket in ["smart", "missed", "blind", "noop"]:
+            n, e = d["bucket"][bucket]
+            bpref = pref + bucket.capitalize().replace("Noop", "Noop")
+            lo, hi = wilson(e, n)
+            lines.append(f"\\newcommand{{\\{bpref}N}}{{{n}}}")
+            lines.append(f"\\newcommand{{\\{bpref}EM}}{{{e}}}")
+            lines.append(f"\\newcommand{{\\{bpref}Rate}}{{{pct(e, n)}}}")
+            lines.append(f"\\newcommand{{\\{bpref}CI}}{{[{lo}--{hi}]}}")
+    lines.append("\\newcommand{\\TavilySmartMinusMissed}{+26}")
+    lines.append("\\newcommand{\\BraveSmartMinusMissed}{+2}")
+    lines.append("\\newcommand{\\FirecrawlSmartMinusMissed}{-13}")
     (OUT / "numbers.tex").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
-def write_audit(stats: dict[str, Any], *, source: str) -> None:
-    payload = {"source": source, **stats}
-    (OUT / "decision_surface_audit.json").write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+def esc(s: Any) -> str:
+    return str(s).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+
+def provider_box(p: str, d: dict[str, Any]) -> str:
+    b = d["bucket"]
+    return f'''<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="8" COLOR="{COL[p]}">
+<TR><TD BGCOLOR="{COL[p]}"><FONT COLOR="white" POINT-SIZE="28"><B>{PNAME[p]}</B></FONT></TD></TR>
+<TR><TD><FONT POINT-SIZE="22">EM <B>{d['em']}/100</B> &nbsp; F1 {d['f1']:.3f}</FONT></TD></TR>
+<TR><TD><FONT POINT-SIZE="21">visible support <B>{d['support_visible_q']}</B> queries</FONT></TD></TR>
+<TR><TD><FONT POINT-SIZE="21">rank-1 gold <B>{d['rank1_pct']}%</B> ({d['rank1_count']}/{d['gold_rows']})</FONT></TD></TR>
+<TR><TD><FONT POINT-SIZE="21">contradict:gold <B>{d['contra_ratio']:.2f}</B> ({d['contra_rows']}/{d['gold_rows']})</FONT></TD></TR>
+<TR><TD><FONT POINT-SIZE="19">SMART {b['smart'][0]}/{b['smart'][1]} EM &nbsp; MISSED {b['missed'][0]}/{b['missed'][1]}</FONT></TD></TR>
+<TR><TD><FONT POINT-SIZE="19">BLIND {b['blind'][0]}/{b['blind'][1]} EM &nbsp; NO-OP {b['noop'][0]}/{b['noop'][1]}</FONT></TD></TR>
+</TABLE>
+>'''
+
+
+def write_dot_files(data: dict[str, Any]) -> None:
+    # Architecture figure.
+    arch = r'''digraph G {
+  graph [rankdir=LR, bgcolor="transparent", margin=0.05, nodesep=0.55, ranksep=0.65, splines=ortho];
+  node [shape=plain, fontname="Helvetica"];
+  edge [color="#58606A", penwidth=2.2, arrowsize=0.85, fontname="Helvetica", fontsize=18];
+  queries [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="9" COLOR="#B7791F">
+    <TR><TD BGCOLOR="#FFF2D9"><FONT POINT-SIZE="24"><B>100 SealQA-Hard questions</B></FONT></TD></TR>
+    <TR><TD><FONT POINT-SIZE="18">stratified by freshness x search-result label x topic</FONT></TD></TR>
+    </TABLE>>];
+  providers [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="8">
+    <TR><TD BGCOLOR="#E76F51"><FONT COLOR="white" POINT-SIZE="22"><B>Brave</B></FONT></TD></TR>
+    <TR><TD BGCOLOR="#2A80B9"><FONT COLOR="white" POINT-SIZE="22"><B>Tavily</B></FONT></TD></TR>
+    <TR><TD BGCOLOR="#2AA876"><FONT COLOR="white" POINT-SIZE="22"><B>Firecrawl</B></FONT></TD></TR>
+    <TR><TD><FONT POINT-SIZE="17">only condition that changes</FONT></TD></TR>
+    </TABLE>>];
+  surface [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="9" COLOR="#2A80B9">
+    <TR><TD BGCOLOR="#D9ECFA"><FONT POINT-SIZE="23"><B>search surface</B></FONT></TD></TR>
+    <TR><TD><FONT POINT-SIZE="18">rank, title, URL, snippet, metadata</FONT></TD></TR>
+    <TR><TD><FONT POINT-SIZE="18">pre-fetch evidence available to the agent</FONT></TD></TR>
+    </TABLE>>];
+  agent [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="9" COLOR="#465766">
+    <TR><TD BGCOLOR="#F6F8FB"><FONT POINT-SIZE="23"><B>frozen GPT-5.4 agent</B></FONT></TD></TR>
+    <TR><TD><FONT POINT-SIZE="18">search_web(query)</FONT></TD></TR>
+    <TR><TD><FONT POINT-SIZE="18">fetch_page(document_id)</FONT></TD></TR>
+    <TR><TD><FONT POINT-SIZE="18">max 10 iterations</FONT></TD></TR>
+    </TABLE>>];
+  fetcher [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="9" COLOR="#7B4FA3">
+    <TR><TD BGCOLOR="#EFE2F5"><FONT POINT-SIZE="23"><B>Jina Reader fetcher</B></FONT></TD></TR>
+    <TR><TD><FONT POINT-SIZE="18">shared page backend across providers</FONT></TD></TR>
+    </TABLE>>];
+  trace [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="9" COLOR="#657786">
+    <TR><TD BGCOLOR="#ECEFF3"><FONT POINT-SIZE="23"><B>trajectory JSONL</B></FONT></TD></TR>
+    <TR><TD><FONT POINT-SIZE="18">every search, visible URL, fetch, answer</FONT></TD></TR>
+    </TABLE>>];
+  judge [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="9" COLOR="#7B4FA3">
+    <TR><TD BGCOLOR="#EFE2F5"><FONT POINT-SIZE="23"><B>per-URL judge</B></FONT></TD></TR>
+    <TR><TD><FONT POINT-SIZE="18">Kimi-K2.6, temp 0</FONT></TD></TR>
+    <TR><TD><FONT POINT-SIZE="18">snippet-only for every URL</FONT></TD></TR>
+    <TR><TD><FONT POINT-SIZE="18">page-visible for fetched URLs</FONT></TD></TR>
+    </TABLE>>];
+  metrics [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="9" COLOR="#238B45">
+    <TR><TD BGCOLOR="#E4F6EA"><FONT POINT-SIZE="23"><B>decision-surface metrics</B></FONT></TD></TR>
+    <TR><TD><FONT POINT-SIZE="18">visible support lower bound</FONT></TD></TR>
+    <TR><TD><FONT POINT-SIZE="18">SMART / MISSED / BLIND / NO-OP</FONT></TD></TR>
+    <TR><TD><FONT POINT-SIZE="18">contradict-to-gold ratio</FONT></TD></TR>
+    </TABLE>>];
+  queries -> providers -> surface -> agent -> trace;
+  agent -> fetcher [label="fetch when chosen"];
+  fetcher -> agent;
+  trace -> judge -> metrics;
+}
+'''
+    (OUT / "fig1_architecture.dot").write_text(arch, encoding="utf-8")
+
+    # Provider profile figure.
+    prof_nodes = []
+    prof_edges = []
+    for p in PROVIDERS:
+        prof_nodes.append(f'  {p} [label={provider_box(p, data["providers"][p])}];')
+    profile = f'''digraph G {{
+  graph [rankdir=LR, bgcolor="transparent", margin=0.02, nodesep=0.28, ranksep=0.30];
+  node [shape=plain, fontname="Helvetica"];
+  edge [style=invis];
+  title [label=<
+    <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="3">
+    <TR><TD><FONT POINT-SIZE="30"><B>Same final accuracy, different decision surfaces</B></FONT></TD></TR>
+    <TR><TD><FONT POINT-SIZE="18">Each cell is provider x 100 queries. Counts are queries unless URL rows are shown.</FONT></TD></TR>
+    </TABLE>>];
+{chr(10).join(prof_nodes)}
+  title -> brave -> tavily -> firecrawl;
+}}
+'''
+    (OUT / "fig2_provider_profiles.dot").write_text(profile, encoding="utf-8")
+
+    # Decision partition figure.
+    rows = []
+    colors = {"smart": "#238B45", "missed": "#F2C94C", "blind": "#D95F02", "noop": "#A8B3B5"}
+    labels = {"smart": "SMART", "missed": "MISSED", "blind": "BLIND", "noop": "NO-OP"}
+    for p in PROVIDERS:
+        d = data["providers"][p]
+        rows.append(f'<TR><TD BGCOLOR="{COL[p]}"><FONT COLOR="white" POINT-SIZE="22"><B>{PNAME[p]}</B></FONT></TD>' +
+                    ''.join([f'<TD BGCOLOR="{colors[b]}"><FONT COLOR="{ "black" if b in ["missed", "noop"] else "white" }" POINT-SIZE="20"><B>{labels[b]}</B><BR/>{d["bucket"][b][0]} queries<BR/>{d["bucket"][b][1]} EM ({round(100*d["bucket"][b][1]/d["bucket"][b][0]) if d["bucket"][b][0] else 0}%)</FONT></TD>' for b in ["smart","missed","blind","noop"]]) + '</TR>')
+    part = f'''digraph G {{
+  graph [rankdir=TB, bgcolor="transparent", margin=0.02];
+  node [shape=plain, fontname="Helvetica"];
+  partition [label=<
+  <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="10">
+  <TR><TD COLSPAN="5" BGCOLOR="#F6F8FB"><FONT POINT-SIZE="28"><B>Decision partition: what the agent did with visible support</B></FONT></TD></TR>
+  <TR><TD><FONT POINT-SIZE="16"><B>Provider</B></FONT></TD><TD><FONT POINT-SIZE="16"><B>visible support + fetched support</B></FONT></TD><TD><FONT POINT-SIZE="16"><B>visible support + did not fetch support</B></FONT></TD><TD><FONT POINT-SIZE="16"><B>no visible support + fetched</B></FONT></TD><TD><FONT POINT-SIZE="16"><B>no visible support + no fetch</B></FONT></TD></TR>
+  {''.join(rows)}
+  </TABLE>>];
+}}
+'''
+    (OUT / "fig3_decision_partition.dot").write_text(part, encoding="utf-8")
+
+    # Complementarity figure.
+    comp = f'''digraph G {{
+  graph [rankdir=LR, bgcolor="transparent", margin=0.03, nodesep=0.5, ranksep=0.6, splines=ortho];
+  node [shape=plain, fontname="Helvetica"];
+  edge [color="#58606A", penwidth=2.0, arrowsize=0.8];
+  agg [label=<
+  <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="10" COLOR="#465766">
+  <TR><TD BGCOLOR="#F6F8FB"><FONT POINT-SIZE="26"><B>Aggregate view</B></FONT></TD></TR>
+  <TR><TD><FONT POINT-SIZE="22">Brave {data['providers']['brave']['em']}/100</FONT></TD></TR>
+  <TR><TD><FONT POINT-SIZE="22">Tavily {data['providers']['tavily']['em']}/100</FONT></TD></TR>
+  <TR><TD><FONT POINT-SIZE="22">Firecrawl {data['providers']['firecrawl']['em']}/100</FONT></TD></TR>
+  <TR><TD><FONT POINT-SIZE="18">looks interchangeable</FONT></TD></TR>
+  </TABLE>>];
+  instance [label=<
+  <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="10" COLOR="#2A80B9">
+  <TR><TD BGCOLOR="#D9ECFA" COLSPAN="2"><FONT POINT-SIZE="26"><B>Instance-level view</B></FONT></TD></TR>
+  <TR><TD><FONT POINT-SIZE="22">all 3 correct</FONT></TD><TD><FONT POINT-SIZE="22"><B>{data['meta']['all_correct']}</B></FONT></TD></TR>
+  <TR><TD><FONT POINT-SIZE="22">exactly 2 correct</FONT></TD><TD><FONT POINT-SIZE="22"><B>{data['meta']['two_correct']}</B></FONT></TD></TR>
+  <TR><TD><FONT POINT-SIZE="22">exactly 1 correct</FONT></TD><TD><FONT POINT-SIZE="22"><B>{data['meta']['one_correct']}</B></FONT></TD></TR>
+  <TR><TD><FONT POINT-SIZE="22">all wrong</FONT></TD><TD><FONT POINT-SIZE="22"><B>{data['meta']['all_wrong']}</B></FONT></TD></TR>
+  </TABLE>>];
+  implication [label=<
+  <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="10" COLOR="#B7791F">
+  <TR><TD BGCOLOR="#FFF2D9"><FONT POINT-SIZE="25"><B>Implication</B></FONT></TD></TR>
+  <TR><TD><FONT POINT-SIZE="20">Provider choice changes which questions are solvable.</FONT></TD></TR>
+  <TR><TD><FONT POINT-SIZE="20">EM parity is not behavioral equivalence.</FONT></TD></TR>
+  </TABLE>>];
+  agg -> instance -> implication;
+}}
+'''
+    (OUT / "fig4_complementarity.dot").write_text(comp, encoding="utf-8")
+
+
+def render_dots() -> None:
+    dot = shutil.which("dot")
+    if not dot:
+        print("WARNING: Graphviz `dot` not found; DOT sources written but PDFs not rendered.")
+        return
+    for dot_path in sorted(OUT.glob("fig*.dot")):
+        pdf_path = dot_path.with_suffix(".pdf")
+        svg_path = dot_path.with_suffix(".svg")
+        subprocess.run([dot, "-Tpdf", str(dot_path), "-o", str(pdf_path)], check=True)
+        subprocess.run([dot, "-Tsvg", str(dot_path), "-o", str(svg_path)], check=True)
+        print(f"wrote {pdf_path.relative_to(ROOT)}")
+
+
+def write_audit(data: dict[str, Any]) -> None:
+    (OUT / "decision_surface_audit.json").write_text(json.dumps(data, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     lines = [
-        "# Decision-surface data dictionary and audit",
-        "",
-        f"Source mode: `{source}`.",
-        "",
-        "This file is regenerated by `paper/figures/make_figures.py`. Audit mode recomputes metrics from raw LFS JSONL files; render-only mode writes the last validated constants so the paper can compile without large local data.",
-        "",
-        "## Core metric definitions",
-        "",
+        "# Decision-surface data dictionary and audit", "",
+        f"Source mode: `{data.get('source')}`.", "",
+        "This file is regenerated by `paper/figures/make_figures.py`. Audit mode recomputes metrics from raw LFS JSONL files; render-only mode writes the last validated constants so the paper can compile without large local data.", "",
+        "## Core metric definitions", "",
         "- **Visible support**: at least one judged URL for the provider-query pair has `contains_gold_answer=true` on the snippet-only or page-visible surface. Because unfetched pages are not page-judged, this is a lower bound on true pool support.",
         "- **SMART**: visible support exists and the agent fetched a gold-supporting URL.",
         "- **MISSED**: visible support exists and the agent fetched none of the supporting URLs.",
         "- **BLIND**: no visible support exists and the agent fetched at least one URL.",
         "- **NO-OP**: no visible support exists and the agent fetched no URL.",
-        "- **Contradict-to-gold ratio**: snippet-only `contradicts_gold_answer` URL count divided by snippet-only `contains_gold_answer` URL count.",
-        "",
-        "## Provider summary",
-        "",
-        "| Provider | EM | visible support | SMART | MISSED | BLIND | NO-OP | contradict:gold |",
-        "|---|---:|---:|---:|---:|---:|---:|---:|",
+        "- **Contradict-to-gold ratio**: snippet-only `contradicts_gold_answer` URL count divided by snippet-only `contains_gold_answer` URL count.", "",
+        "## Provider summary", "",
+        "| Provider | EM | visible support | SMART | MISSED | BLIND | NO-OP | rank-1 gold | contradict:gold | answer text visible |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
-    for provider in PROVIDERS:
-        row = stats["providers"][provider]
-        b = row["bucket"]
-        lines.append(
-            f"| {LABEL[provider]} | {row['em']} | {row['support_visible_q']} | "
-            f"{b['smart'][0]}/{b['smart'][1]} | {b['missed'][0]}/{b['missed'][1]} | "
-            f"{b['blind'][0]}/{b['blind'][1]} | {b['noop'][0]}/{b['noop'][1]} | "
-            f"{row['contra_ratio']:.2f} ({row['contra_urls']}/{row['gold_urls']}) |"
-        )
-    lines += [
-        "",
-        "## Raw files consumed in audit mode",
-        "",
-        f"- `{TRACE_PATHS['brave'].relative_to(REPO)}`",
-        f"- `{TRACE_PATHS['tavily'].relative_to(REPO)}`",
-        f"- `{TRACE_PATHS['firecrawl'].relative_to(REPO)}`",
-        f"- `{JUDGE_PATHS['brave'].relative_to(REPO)}`",
-        f"- `{JUDGE_PATHS['tavily'].relative_to(REPO)}`",
-        f"- `{JUDGE_PATHS['firecrawl'].relative_to(REPO)}`",
-        f"- `{PER_QUERY.relative_to(REPO)}`",
-        f"- `{SUMMARY.relative_to(REPO)}`",
-        "",
-        "Before audit mode, run `git lfs pull` from the repository root. If any raw JSONL path is still a Git LFS pointer, the script exits with a clear error instead of silently using incomplete data.",
-    ]
-    (OUT / "decision_surface_audit.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    for p in PROVIDERS:
+        d = data["providers"][p]
+        b = d["bucket"]
+        lines.append(f"| {PNAME[p]} | {d['em']} | {d['support_visible_q']} | {b['smart'][0]}/{b['smart'][1]} | {b['missed'][0]}/{b['missed'][1]} | {b['blind'][0]}/{b['blind'][1]} | {b['noop'][0]}/{b['noop'][1]} | {d['rank1_pct']}% ({d['rank1_count']}/{d['gold_rows']}) | {d['contra_ratio']:.2f} ({d['contra_rows']}/{d['gold_rows']}) | {d['answer_available']} |")
+    lines.extend([
+        "", "## Cross-provider complementarity", "",
+        f"- All three correct: {data['meta']['all_correct']}",
+        f"- Exactly two correct: {data['meta']['two_correct']}",
+        f"- Exactly one correct: {data['meta']['one_correct']}",
+        f"- All wrong: {data['meta']['all_wrong']}",
+        "", "## Raw files consumed in audit mode", "",
+    ])
+    for p in PROVIDERS:
+        lines.append(f"- `{TRACE_FILES[p].relative_to(ROOT)}`")
+    for p in PROVIDERS:
+        lines.append(f"- `{JUDGE_FILES[p].relative_to(ROOT)}`")
+    lines.append(f"- `{PER_QUERY.relative_to(ROOT)}`")
+    lines.append(f"- `{SUMMARY.relative_to(ROOT)}`")
+    lines.append("\nBefore audit mode, run `git lfs pull` from the repository root. If any raw JSONL path is still a Git LFS pointer, the script exits with a clear error instead of silently using incomplete data.\n")
+    (OUT / "decision_surface_audit.md").write_text("\n".join(lines), encoding="utf-8")
 
 
-def build_architecture_dot(_: dict[str, Any]) -> str:
-    return r'''
-digraph G {
-  graph [rankdir=LR, bgcolor="transparent", splines=ortho, nodesep=0.55, ranksep=0.80, margin=0.02];
-  node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=11, margin="0.10,0.06", color="#334155", penwidth=1.2, fillcolor="#F8FAFC"];
-  edge [fontname="Helvetica", fontsize=9, color="#475569", arrowsize=0.7, penwidth=1.1];
-  q [label="100\nSealQA-Hard\nqueries", fillcolor="#FFF7ED", color="#C2410C"];
-  brave [label="Brave", fillcolor="#FEE2E2", color="#DC2626"];
-  tavily [label="Tavily", fillcolor="#DBEAFE", color="#2563EB"];
-  firecrawl [label="Firecrawl", fillcolor="#DCFCE7", color="#16A34A"];
-  surface [label="provider\ndecision surface\n(snippets + URLs + ranks)", fillcolor="#F8FAFC", color="#334155"];
-  agent [label="frozen GPT-5.4\nagent\nsearch_web + fetch_page", fillcolor="#EEF2FF", color="#4F46E5"];
-  jina [label="Jina Reader\npage fetcher\nfixed backend", fillcolor="#ECFEFF", color="#0891B2"];
-  trace [label="JSONL trace\nsearches, fetches,\nfinal answer", fillcolor="#F1F5F9", color="#475569"];
-  judge [label="Kimi-K2.6\nper-URL judge\ntemp. 0", fillcolor="#FAE8FF", color="#A21CAF"];
-  oracle [label="visible-URL oracle\ngold / contradiction / garbage", fillcolor="#F0FDF4", color="#15803D"];
-  metrics [label="decision-surface metrics\nEM, buckets, rank, r_c:g", fillcolor="#FFFBEB", color="#B45309"];
-  q -> brave; q -> tavily; q -> firecrawl;
-  brave -> surface; tavily -> surface; firecrawl -> surface;
-  surface -> agent [label="search surface"];
-  agent -> jina [label="selected URLs"];
-  jina -> agent [label="markdown page"];
-  agent -> trace;
-  trace -> judge [label="one row per visible URL"];
-  judge -> oracle;
-  oracle -> metrics;
-  trace -> metrics [label="actions + EM"];
+def main() -> None:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--audit", action="store_true", help="Recompute constants from raw JSONL files.")
+    ap.add_argument("--render-only", action="store_true", help="Use last validated constants.")
+    args = ap.parse_args()
+    data = audit_from_raw() if args.audit else json.loads(json.dumps(LAST_VALIDATED))
+    write_numbers(data)
+    write_dot_files_v2(data)
+    render_dots()
+    write_audit(data)
+    print(f"Wrote {OUT/'numbers.tex'} and decision_surface_audit.*")
+
+
+
+def write_dot_files_v2(data: dict[str, Any]) -> None:
+    """Large, low-aspect-ratio Graphviz figures for the camera-ready source."""
+    arch = r'''digraph G {
+  graph [rankdir=TB, bgcolor="transparent", margin=0.03];
+  node [shape=plain, fontname="Helvetica"];
+  arch [label=<
+  <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="10">
+    <TR><TD COLSPAN="7" BGCOLOR="#F6F8FB"><FONT POINT-SIZE="30"><B>Per-URL oracle for agentic search</B></FONT><BR/><FONT POINT-SIZE="17">fixed query set, model, prompt, tools, iteration budget, judge, and Jina Reader fetcher; only the commercial search surface varies</FONT></TD></TR>
+    <TR>
+      <TD BGCOLOR="#FFF2D9"><FONT POINT-SIZE="21"><B>100 SealQA-Hard questions</B></FONT><BR/><FONT POINT-SIZE="16">stratified sample</FONT></TD>
+      <TD><FONT POINT-SIZE="26">&#8594;</FONT></TD>
+      <TD><FONT POINT-SIZE="18"><B><FONT COLOR="#E76F51">Brave</FONT><BR/><FONT COLOR="#2A80B9">Tavily</FONT><BR/><FONT COLOR="#2AA876">Firecrawl</FONT></B></FONT><BR/><FONT POINT-SIZE="15">provider condition</FONT></TD>
+      <TD><FONT POINT-SIZE="26">&#8594;</FONT></TD>
+      <TD BGCOLOR="#D9ECFA"><FONT POINT-SIZE="21"><B>Search surface</B></FONT><BR/><FONT POINT-SIZE="16">rank, title, URL,<BR/>snippet, metadata</FONT></TD>
+      <TD><FONT POINT-SIZE="26">&#8594;</FONT></TD>
+      <TD BGCOLOR="#F6F8FB"><FONT POINT-SIZE="21"><B>GPT-5.4 agent</B></FONT><BR/><FONT POINT-SIZE="16">search_web + fetch_page<BR/>max 10 iterations</FONT></TD>
+    </TR>
+    <TR>
+      <TD COLSPAN="2"><FONT POINT-SIZE="16">Shared page backend</FONT></TD>
+      <TD COLSPAN="3" BGCOLOR="#EFE2F5"><FONT POINT-SIZE="20"><B>Jina Reader fetcher</B></FONT><BR/><FONT POINT-SIZE="15">only for URLs the agent opens</FONT></TD>
+      <TD><FONT POINT-SIZE="26">&#8596;</FONT></TD>
+      <TD BGCOLOR="#ECEFF3"><FONT POINT-SIZE="20"><B>Trajectory JSONL</B></FONT><BR/><FONT POINT-SIZE="15">searches, visible URLs,<BR/>fetches, final answer</FONT></TD>
+    </TR>
+    <TR>
+      <TD COLSPAN="3"><FONT POINT-SIZE="16">Every visible URL is judged after the run</FONT></TD>
+      <TD><FONT POINT-SIZE="26">&#8594;</FONT></TD>
+      <TD BGCOLOR="#EFE2F5"><FONT POINT-SIZE="20"><B>Kimi-K2.6 judge</B></FONT><BR/><FONT POINT-SIZE="15">snippet-only; page-visible when fetched</FONT></TD>
+      <TD><FONT POINT-SIZE="26">&#8594;</FONT></TD>
+      <TD BGCOLOR="#E4F6EA"><FONT POINT-SIZE="20"><B>Decision metrics</B></FONT><BR/><FONT POINT-SIZE="15">visible support, SMART/MISSED/<BR/>BLIND/NO-OP, contamination</FONT></TD>
+    </TR>
+  </TABLE>>];
 }
 '''
+    (OUT / "fig1_architecture.dot").write_text(arch, encoding="utf-8")
 
+    provider_cells = []
+    for p in PROVIDERS:
+        d = data["providers"][p]
+        b = d["bucket"]
+        provider_cells.append(f'''<TD VALIGN="TOP">
+          <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="8" COLOR="{COL[p]}">
+          <TR><TD BGCOLOR="{COL[p]}"><FONT COLOR="white" POINT-SIZE="26"><B>{PNAME[p]}</B></FONT></TD></TR>
+          <TR><TD><FONT POINT-SIZE="19">EM <B>{d['em']}/100</B> &nbsp; F1 {d['f1']:.3f}</FONT></TD></TR>
+          <TR><TD><FONT POINT-SIZE="19">visible support <B>{d['support_visible_q']}</B> queries</FONT></TD></TR>
+          <TR><TD><FONT POINT-SIZE="19">rank-1 gold <B>{d['rank1_pct']}%</B> ({d['rank1_count']}/{d['gold_rows']})</FONT></TD></TR>
+          <TR><TD><FONT POINT-SIZE="19">contradict:gold <B>{d['contra_ratio']:.2f}</B> ({d['contra_rows']}/{d['gold_rows']})</FONT></TD></TR>
+          <TR><TD><FONT POINT-SIZE="17">SMART {b['smart'][0]}/{b['smart'][1]} EM &nbsp; MISSED {b['missed'][0]}/{b['missed'][1]}</FONT></TD></TR>
+          <TR><TD><FONT POINT-SIZE="17">BLIND {b['blind'][0]}/{b['blind'][1]} EM &nbsp; NO-OP {b['noop'][0]}/{b['noop'][1]}</FONT></TD></TR>
+          </TABLE>
+        </TD>''')
+    profile = f'''digraph G {{
+      graph [rankdir=TB, bgcolor="transparent", margin=0.02];
+      node [shape=plain, fontname="Helvetica"];
+      profile [label=<
+        <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="12" CELLPADDING="0">
+          <TR><TD COLSPAN="3"><FONT POINT-SIZE="30"><B>Same final accuracy, different decision surfaces</B></FONT><BR/><FONT POINT-SIZE="17">Counts are queries unless URL rows are shown; bucket cells show n / exact-match count.</FONT></TD></TR>
+          <TR>{''.join(provider_cells)}</TR>
+        </TABLE>>];
+    }}
+    '''
+    (OUT / "fig2_provider_profiles.dot").write_text(profile, encoding="utf-8")
 
-def build_provider_profiles_dot(stats: dict[str, Any]) -> str:
-    p = stats["providers"]
-    return f'''
-digraph G {{
-  graph [rankdir=LR, bgcolor="transparent", splines=ortho, nodesep=0.45, ranksep=0.55, margin=0.02];
-  node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=10, margin="0.08,0.05", color="#334155", penwidth=1.1, fillcolor="#F8FAFC"];
-  edge [fontname="Helvetica", fontsize=8, color="#64748B", arrowsize=0.55, penwidth=1.0];
-  b0 [label="Brave\\nEM {p['brave']['em']}/100", fillcolor="#FEE2E2", color="#DC2626"];
-  b1 [label="visible support\\n{p['brave']['support_visible_q']} queries", fillcolor="#FFF1F2", color="#DC2626"];
-  b2 [label="large snippet-side\\nsupport pool\\n{p['brave']['gold_urls']} gold URLs", fillcolor="#FFF1F2", color="#DC2626"];
-  b3 [label="low contamination\\nr_c:g = {p['brave']['contra_ratio']:.2f}", fillcolor="#FFF1F2", color="#DC2626"];
-  t0 [label="Tavily\\nEM {p['tavily']['em']}/100", fillcolor="#DBEAFE", color="#2563EB"];
-  t1 [label="visible support\\n{p['tavily']['support_visible_q']} queries", fillcolor="#EFF6FF", color="#2563EB"];
-  t2 [label="rank-1 concentration\\n{p['tavily']['rank1_count']}/{p['tavily']['gold_urls']} gold URLs", fillcolor="#EFF6FF", color="#2563EB"];
-  t3 [label="fetching gold pays\\nSMART EM {round(100*p['tavily']['bucket']['smart'][1]/p['tavily']['bucket']['smart'][0])}%", fillcolor="#EFF6FF", color="#2563EB"];
-  f0 [label="Firecrawl\\nEM {p['firecrawl']['em']}/100", fillcolor="#DCFCE7", color="#16A34A"];
-  f1 [label="visible support\\n{p['firecrawl']['support_visible_q']} queries", fillcolor="#F0FDF4", color="#16A34A"];
-  f2 [label="broad exploration\\n{p['firecrawl']['bucket']['blind'][0]} BLIND queries", fillcolor="#F0FDF4", color="#16A34A"];
-  f3 [label="high contamination\\nr_c:g = {p['firecrawl']['contra_ratio']:.2f}", fillcolor="#F0FDF4", color="#16A34A"];
-  b0 -> b1 -> b2 -> b3;
-  t0 -> t1 -> t2 -> t3;
-  f0 -> f1 -> f2 -> f3;
-  {{ rank=same; b0; t0; f0; }}
-  {{ rank=same; b1; t1; f1; }}
-  {{ rank=same; b2; t2; f2; }}
-  {{ rank=same; b3; t3; f3; }}
+    # Reuse the original partition and complementarity writers by copying their current DOTs if they exist after the old writer.
+    colors = {"smart": "#238B45", "missed": "#F2C94C", "blind": "#D95F02", "noop": "#A8B3B5"}
+    labels = {"smart": "SMART", "missed": "MISSED", "blind": "BLIND", "noop": "NO-OP"}
+    rows = []
+    for p in PROVIDERS:
+        d = data["providers"][p]
+        row_cells = []
+        for b in ["smart", "missed", "blind", "noop"]:
+            n, e = d["bucket"][b]
+            color = "black" if b in {"missed", "noop"} else "white"
+            rate = round(100 * e / n) if n else 0
+            row_cells.append(f'<TD BGCOLOR="{colors[b]}"><FONT COLOR="{color}" POINT-SIZE="20"><B>{labels[b]}</B><BR/>{n} queries<BR/>{e} EM ({rate}%)</FONT></TD>')
+        rows.append(f'<TR><TD BGCOLOR="{COL[p]}"><FONT COLOR="white" POINT-SIZE="22"><B>{PNAME[p]}</B></FONT></TD>' + ''.join(row_cells) + '</TR>')
+    part = f'''digraph G {{
+  graph [rankdir=TB, bgcolor="transparent", margin=0.02];
+  node [shape=plain, fontname="Helvetica"];
+  partition [label=<
+  <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="10">
+  <TR><TD COLSPAN="5" BGCOLOR="#F6F8FB"><FONT POINT-SIZE="28"><B>Decision partition: what the agent did with visible support</B></FONT></TD></TR>
+  <TR><TD><FONT POINT-SIZE="16"><B>Provider</B></FONT></TD><TD><FONT POINT-SIZE="16"><B>visible support + fetched support</B></FONT></TD><TD><FONT POINT-SIZE="16"><B>visible support + did not fetch support</B></FONT></TD><TD><FONT POINT-SIZE="16"><B>no visible support + fetched</B></FONT></TD><TD><FONT POINT-SIZE="16"><B>no visible support + no fetch</B></FONT></TD></TR>
+  {''.join(rows)}
+  </TABLE>>];
 }}
 '''
+    (OUT / "fig3_decision_partition.dot").write_text(part, encoding="utf-8")
 
-
-def build_partition_dot(stats: dict[str, Any]) -> str:
-    p = stats["providers"]
-    return f'''
-digraph G {{
-  graph [rankdir=TB, bgcolor="transparent", splines=ortho, nodesep=0.55, ranksep=0.55, margin=0.02];
-  node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=10, margin="0.08,0.05", color="#334155", penwidth=1.1, fillcolor="#F8FAFC"];
-  edge [fontname="Helvetica", fontsize=8, color="#64748B", arrowsize=0.55, penwidth=1.0];
-  start [label="For each provider-query pair\\njoin judge labels with agent actions", fillcolor="#F8FAFC", color="#334155"];
-  gold [label="Any visible URL\\ncontains gold?", shape=diamond, fillcolor="#FEF3C7", color="#D97706"];
-  fetched_gold [label="Agent fetched\\na gold URL?", shape=diamond, fillcolor="#DCFCE7", color="#16A34A"];
-  fetched_any [label="Agent fetched\\nany URL?", shape=diamond, fillcolor="#E0F2FE", color="#0284C7"];
-  smart [label="SMART\\nvisible support + fetched it\\nBrave {p['brave']['bucket']['smart'][0]}, Tavily {p['tavily']['bucket']['smart'][0]}, Firecrawl {p['firecrawl']['bucket']['smart'][0]}", fillcolor="#DCFCE7", color="#16A34A"];
-  missed [label="MISSED\\nvisible support + did not fetch it\\nBrave {p['brave']['bucket']['missed'][0]}, Tavily {p['tavily']['bucket']['missed'][0]}, Firecrawl {p['firecrawl']['bucket']['missed'][0]}", fillcolor="#FEF9C3", color="#CA8A04"];
-  blind [label="BLIND\\nno visible support + fetched\\nBrave {p['brave']['bucket']['blind'][0]}, Tavily {p['tavily']['bucket']['blind'][0]}, Firecrawl {p['firecrawl']['bucket']['blind'][0]}", fillcolor="#FFEDD5", color="#EA580C"];
-  noop [label="NO-OP\\nno visible support + no fetch\\nBrave {p['brave']['bucket']['noop'][0]}, Tavily {p['tavily']['bucket']['noop'][0]}, Firecrawl {p['firecrawl']['bucket']['noop'][0]}", fillcolor="#E2E8F0", color="#475569"];
-  start -> gold;
-  gold -> fetched_gold [label="yes"];
-  gold -> fetched_any [label="no"];
-  fetched_gold -> smart [label="yes"];
-  fetched_gold -> missed [label="no"];
-  fetched_any -> blind [label="yes"];
-  fetched_any -> noop [label="no"];
+    comp = f'''digraph G {{
+  graph [rankdir=LR, bgcolor="transparent", margin=0.03, nodesep=0.5, ranksep=0.6, splines=ortho];
+  node [shape=plain, fontname="Helvetica"];
+  edge [color="#58606A", penwidth=2.0, arrowsize=0.8];
+  agg [label=<
+  <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="10" COLOR="#465766">
+  <TR><TD BGCOLOR="#F6F8FB"><FONT POINT-SIZE="26"><B>Aggregate view</B></FONT></TD></TR>
+  <TR><TD><FONT POINT-SIZE="22">Brave {data['providers']['brave']['em']}/100</FONT></TD></TR>
+  <TR><TD><FONT POINT-SIZE="22">Tavily {data['providers']['tavily']['em']}/100</FONT></TD></TR>
+  <TR><TD><FONT POINT-SIZE="22">Firecrawl {data['providers']['firecrawl']['em']}/100</FONT></TD></TR>
+  <TR><TD><FONT POINT-SIZE="18">looks interchangeable</FONT></TD></TR>
+  </TABLE>>];
+  instance [label=<
+  <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="10" COLOR="#2A80B9">
+  <TR><TD BGCOLOR="#D9ECFA" COLSPAN="2"><FONT POINT-SIZE="26"><B>Instance-level view</B></FONT></TD></TR>
+  <TR><TD><FONT POINT-SIZE="22">all 3 correct</FONT></TD><TD><FONT POINT-SIZE="22"><B>{data['meta']['all_correct']}</B></FONT></TD></TR>
+  <TR><TD><FONT POINT-SIZE="22">exactly 2 correct</FONT></TD><TD><FONT POINT-SIZE="22"><B>{data['meta']['two_correct']}</B></FONT></TD></TR>
+  <TR><TD><FONT POINT-SIZE="22">exactly 1 correct</FONT></TD><TD><FONT POINT-SIZE="22"><B>{data['meta']['one_correct']}</B></FONT></TD></TR>
+  <TR><TD><FONT POINT-SIZE="22">all wrong</FONT></TD><TD><FONT POINT-SIZE="22"><B>{data['meta']['all_wrong']}</B></FONT></TD></TR>
+  </TABLE>>];
+  implication [label=<
+  <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="10" COLOR="#B7791F">
+  <TR><TD BGCOLOR="#FFF2D9"><FONT POINT-SIZE="25"><B>Implication</B></FONT></TD></TR>
+  <TR><TD><FONT POINT-SIZE="20">Provider choice changes which questions are solvable.</FONT></TD></TR>
+  <TR><TD><FONT POINT-SIZE="20">EM parity is not behavioral equivalence.</FONT></TD></TR>
+  </TABLE>>];
+  agg -> instance -> implication;
 }}
 '''
-
-
-def render_all_figures(stats: dict[str, Any]) -> None:
-    specs = {
-        "fig_architecture": build_architecture_dot(stats),
-        "fig_provider_profiles": build_provider_profiles_dot(stats),
-        "fig_partition": build_partition_dot(stats),
-    }
-    for name, dot in specs.items():
-        render_dot_to_tikz(name, dot)
-
-
-def tex_escape(text: str) -> str:
-    text = text.replace(r"\n", "\n")
-    repl = {
-        "&": r"\&",
-        "%": r"\%",
-        "$": r"\$",
-        "#": r"\#",
-        "_": r"\_",
-        "{": r"\{",
-        "}": r"\}",
-        "~": r"\textasciitilde{}",
-        "^": r"\textasciicircum{}",
-    }
-    out = "".join(repl.get(ch, ch) for ch in text)
-    return out.replace("\n", r"\\")
-
-
-def parse_node_attrs(dot: str) -> dict[str, dict[str, str]]:
-    attrs: dict[str, dict[str, str]] = {}
-    for line in dot.splitlines():
-        line = line.strip()
-        match = re.match(r"([A-Za-z0-9_]+)\s+\[(.*)\];", line)
-        if not match:
-            continue
-        name, attr_text = match.groups()
-        parsed: dict[str, str] = {}
-        for attr_match in re.finditer(r'(\w+)\s*=\s*("(?:[^"\\]|\\.)*"|[^,\]]+)', attr_text):
-            key, value = attr_match.groups()
-            if value.startswith('"'):
-                value = bytes(value[1:-1], "utf-8").decode("unicode_escape")
-            else:
-                value = value.strip()
-            parsed[key] = value
-        attrs[name] = parsed
-    return attrs
-
-
-def render_dot_to_tikz(name: str, dot: str) -> None:
-    dot_path = OUT / f"{name}.dot"
-    dot_path.write_text(dot.strip() + "\n", encoding="utf-8")
-    attrs = parse_node_attrs(dot)
-    proc = subprocess.run(["dot", "-Tplain", str(dot_path)], check=True, text=True, capture_output=True)
-    nodes: list[tuple[str, float, float, float, float, str]] = []
-    edges: list[tuple[list[tuple[float, float]], str | None]] = []
-    for line in proc.stdout.splitlines():
-        parts = shlex.split(line)
-        if not parts:
-            continue
-        if parts[0] == "node":
-            _, node_id, x, y, width, height, label, *_ = parts
-            nodes.append((node_id, float(x), float(y), float(width), float(height), label))
-        elif parts[0] == "edge":
-            n_points = int(parts[3])
-            idx = 4
-            pts: list[tuple[float, float]] = []
-            for _ in range(n_points):
-                pts.append((float(parts[idx]), float(parts[idx + 1])))
-                idx += 2
-            label = None
-            # Graphviz plain edge labels are followed by x y after the label.
-            if len(parts) >= idx + 3 and not _is_float(parts[idx]):
-                label = parts[idx]
-            edges.append((pts, label))
-    tex = ["% Generated from Graphviz DOT by figures/make_figures.py; do not edit by hand.", TIKZ_PREAMBLE, TIKZ_STYLE]
-    for pts, label in edges:
-        coords = " -- ".join(f"({x:.3f},{y:.3f})" for x, y in pts)
-        tex.append(rf"\draw[gvedge] {coords};")
-        if label:
-            x, y = pts[len(pts) // 2]
-            tex.append(rf"\node[font=\tiny, fill=white, inner sep=1pt, text=slatemid] at ({x:.3f},{y:.3f}) {{{tex_escape(label)}}};")
-    for node_id, x, y, width, height, label in nodes:
-        node_attrs = attrs.get(node_id, {})
-        fill = COLOR_NAMES.get(node_attrs.get("fillcolor", "#F8FAFC"), "slatefill")
-        edge = COLOR_NAMES.get(node_attrs.get("color", "#334155"), "slateink")
-        shape = node_attrs.get("shape", "box")
-        if shape == "diamond":
-            style = f"gvnode, diamond, aspect=2.1, fill={fill}, draw={edge}, text=slateink"
-        else:
-            style = f"gvnode, minimum width={width * 0.52:.3f}in, minimum height={height * 0.52:.3f}in, fill={fill}, draw={edge}, text=slateink"
-        tex.append(rf"\node[{style}] ({node_id}) at ({x:.3f},{y:.3f}) {{{tex_escape(label)}}};")
-    tex.append(r"\end{tikzpicture}")
-    (OUT / f"{name}.tikz.tex").write_text("\n".join(tex) + "\n", encoding="utf-8")
-
-
-def _is_float(value: str) -> bool:
-    try:
-        float(value)
-        return True
-    except ValueError:
-        return False
+    (OUT / "fig4_complementarity.dot").write_text(comp, encoding="utf-8")
 
 
 if __name__ == "__main__":
