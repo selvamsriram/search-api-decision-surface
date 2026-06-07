@@ -1,38 +1,39 @@
-FIGSCRIPT = figures/make_figures.py
+PAPER_SUBMISSION = main_submission
+PAPER_PREPRINT = main_preprint
+FIGURE_SCRIPT = figures/make_figures.py
 
 all: submission preprint
 
+# Strict, audited figure/macro regeneration. This reads results/em_vs_semantic_audit.tsv
+# and raw LFS judge JSONLs; run `git lfs pull` before this target.
 figures:
-	python3 $(FIGSCRIPT) --render-only
+	python3 $(FIGURE_SCRIPT)
 
-audit:
-	python3 $(FIGSCRIPT) --audit
+submission: figures $(PAPER_SUBMISSION).tex paper_shared.tex preamble.tex refs.bib
+	pdflatex -interaction=nonstopmode $(PAPER_SUBMISSION).tex
+	bibtex $(PAPER_SUBMISSION)
+	pdflatex -interaction=nonstopmode $(PAPER_SUBMISSION).tex
+	pdflatex -interaction=nonstopmode $(PAPER_SUBMISSION).tex
 
-submission: figures main_submission.pdf
-preprint: figures main_preprint.pdf
-quick: figures
-	pdflatex -interaction=nonstopmode main_submission.tex
-	pdflatex -interaction=nonstopmode main_preprint.tex
+preprint: figures $(PAPER_PREPRINT).tex paper_shared.tex preamble.tex refs.bib
+	pdflatex -interaction=nonstopmode $(PAPER_PREPRINT).tex
+	bibtex $(PAPER_PREPRINT)
+	pdflatex -interaction=nonstopmode $(PAPER_PREPRINT).tex
+	pdflatex -interaction=nonstopmode $(PAPER_PREPRINT).tex
 
-main_submission.pdf: main_submission.tex paper_shared.tex preamble.tex refs.bib figures/numbers.tex figures/*.pdf
-	pdflatex -interaction=nonstopmode main_submission.tex
-	@if command -v bibtex >/dev/null 2>&1; then bibtex main_submission; else echo "bibtex not found; using checked-in main_submission.bbl"; fi
-	pdflatex -interaction=nonstopmode main_submission.tex
-	pdflatex -interaction=nonstopmode main_submission.tex
+# Layout-only target. Uses semantic TSV if present and last validated bucket constants
+# if raw LFS judge files are unavailable. Do not use this for final numbers.
+render-only:
+	python3 $(FIGURE_SCRIPT) --render-only
 
-main_preprint.pdf: main_preprint.tex paper_shared.tex preamble.tex refs.bib figures/numbers.tex figures/*.pdf
-	pdflatex -interaction=nonstopmode main_preprint.tex
-	@if command -v bibtex >/dev/null 2>&1; then bibtex main_preprint; else echo "bibtex not found; using checked-in main_preprint.bbl"; fi
-	pdflatex -interaction=nonstopmode main_preprint.tex
-	pdflatex -interaction=nonstopmode main_preprint.tex
+quick: render-only
+	pdflatex -interaction=nonstopmode $(PAPER_SUBMISSION).tex
 
 clean:
-	rm -f *.aux *.log *.out *.blg *.toc *.fls *.fdb_latexmk *.synctex.gz
-
-clean-bbl:
-	rm -f *.bbl
+	rm -f *.aux *.bbl *.blg *.log *.out *.toc *.fls *.fdb_latexmk *.synctex.gz
+	rm -f figures/*.dot figures/*.svg
 
 distclean: clean
-	rm -f main_submission.pdf main_preprint.pdf main.pdf
+	rm -f $(PAPER_SUBMISSION).pdf $(PAPER_PREPRINT).pdf
 
-.PHONY: all submission preprint quick figures audit clean clean-bbl distclean
+.PHONY: all figures submission preprint render-only quick clean distclean

@@ -1,30 +1,40 @@
 digraph G {
-  graph [rankdir=TB, bgcolor="transparent", margin=0.03];
-  node [shape=plain, fontname="Helvetica"];
-  arch [label=<
-  <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="10">
-    <TR><TD COLSPAN="7" BGCOLOR="#F6F8FB"><FONT POINT-SIZE="30"><B>Per-URL oracle for agentic search</B></FONT><BR/><FONT POINT-SIZE="17">fixed query set, model, prompt, tools, iteration budget, judge, and Jina Reader fetcher; only the commercial search surface varies</FONT></TD></TR>
-    <TR>
-      <TD BGCOLOR="#FFF2D9"><FONT POINT-SIZE="21"><B>100 SealQA-Hard questions</B></FONT><BR/><FONT POINT-SIZE="16">stratified sample</FONT></TD>
-      <TD><FONT POINT-SIZE="26">&#8594;</FONT></TD>
-      <TD><FONT POINT-SIZE="18"><B><FONT COLOR="#E76F51">Brave</FONT><BR/><FONT COLOR="#2A80B9">Tavily</FONT><BR/><FONT COLOR="#2AA876">Firecrawl</FONT></B></FONT><BR/><FONT POINT-SIZE="15">provider condition</FONT></TD>
-      <TD><FONT POINT-SIZE="26">&#8594;</FONT></TD>
-      <TD BGCOLOR="#D9ECFA"><FONT POINT-SIZE="21"><B>Search surface</B></FONT><BR/><FONT POINT-SIZE="16">rank, title, URL,<BR/>snippet, metadata</FONT></TD>
-      <TD><FONT POINT-SIZE="26">&#8594;</FONT></TD>
-      <TD BGCOLOR="#F6F8FB"><FONT POINT-SIZE="21"><B>GPT-5.4 agent</B></FONT><BR/><FONT POINT-SIZE="16">search_web + fetch_page<BR/>max 10 iterations</FONT></TD>
-    </TR>
-    <TR>
-      <TD COLSPAN="2"><FONT POINT-SIZE="16">Shared page backend</FONT></TD>
-      <TD COLSPAN="3" BGCOLOR="#EFE2F5"><FONT POINT-SIZE="20"><B>Jina Reader fetcher</B></FONT><BR/><FONT POINT-SIZE="15">only for URLs the agent opens</FONT></TD>
-      <TD><FONT POINT-SIZE="26">&#8596;</FONT></TD>
-      <TD BGCOLOR="#ECEFF3"><FONT POINT-SIZE="20"><B>Trajectory JSONL</B></FONT><BR/><FONT POINT-SIZE="15">searches, visible URLs,<BR/>fetches, final answer</FONT></TD>
-    </TR>
-    <TR>
-      <TD COLSPAN="3"><FONT POINT-SIZE="16">Every visible URL is judged after the run</FONT></TD>
-      <TD><FONT POINT-SIZE="26">&#8594;</FONT></TD>
-      <TD BGCOLOR="#EFE2F5"><FONT POINT-SIZE="20"><B>Kimi-K2.6 judge</B></FONT><BR/><FONT POINT-SIZE="15">snippet-only; page-visible when fetched</FONT></TD>
-      <TD><FONT POINT-SIZE="26">&#8594;</FONT></TD>
-      <TD BGCOLOR="#E4F6EA"><FONT POINT-SIZE="20"><B>Decision metrics</B></FONT><BR/><FONT POINT-SIZE="15">visible support, SMART/MISSED/<BR/>BLIND/NO-OP, contamination</FONT></TD>
-    </TR>
-  </TABLE>>];
+  graph [rankdir=TB, bgcolor="white", margin=0.03, pad=0.02, nodesep=0.30, ranksep=0.34, splines=ortho, fontname="Helvetica"];
+  node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=13, penwidth=1.35, margin="0.12,0.07", color="#334155", fontcolor="#0F172A"];
+  edge [fontname="Helvetica", fontsize=10, color="#64748B", arrowsize=0.7, penwidth=1.1, fontcolor="#475569"];
+
+  q      [label=< <B>100 hard questions</B><BR/><FONT POINT-SIZE="10">SealQA-Hard stratified sample</FONT> >, fillcolor="#FFF7ED", color="#EA580C"];
+  agent  [label=< <B>Frozen GPT-5.4 agent</B><BR/><FONT POINT-SIZE="10">same prompt, tools, budget</FONT> >, fillcolor="#EEF2FF", color="#4F46E5"];
+  step   [label=< <B>Agent loop step</B><BR/><FONT POINT-SIZE="10">observe evidence, reason,<BR/>then choose next action</FONT> >, fillcolor="#FEF9C3", color="#CA8A04"];
+  search [label=< <B>search_web</B><BR/><FONT POINT-SIZE="10">one or many calls</FONT> >, fillcolor="#E0F2FE", color="#0284C7"];
+  prov   [label=< <B>Provider condition</B><BR/><FONT POINT-SIZE="10">Brave / Tavily / Firecrawl<BR/>only varied component</FONT> >, fillcolor="#F0FDFA", color="#0F766E"];
+  surf   [label=< <B>Decision surface</B><BR/><FONT POINT-SIZE="10">document id, rank, title, URL,<BR/>snippet surface, metadata<BR/><I>no page text unless fetched</I></FONT> >, fillcolor="#DCFCE7", color="#16A34A"];
+  fetch  [label=< <B>fetch_page</B><BR/><FONT POINT-SIZE="10">selected document IDs<BR/>shared Jina Reader backend</FONT> >, fillcolor="#FAE8FF", color="#9333EA"];
+  obs    [label=< <B>Tool observations</B><BR/><FONT POINT-SIZE="10">search results or page evidence<BR/>returned to the agent</FONT> >, fillcolor="#F8FAFC", color="#475569"];
+  ans    [label=< <B>Final answer</B><BR/><FONT POINT-SIZE="10">short answer or abstention</FONT> >, fillcolor="#E2E8F0", color="#475569"];
+  trace  [label=< <B>Trajectory JSONL</B><BR/><FONT POINT-SIZE="10">all searches, visible URLs,<BR/>fetches, tokens, final + gold answer</FONT> >, fillcolor="#F8FAFC", color="#475569"];
+  records [label=< <B>Judge records</B><BR/><FONT POINT-SIZE="10">snippet-only for every visible URL<BR/>page-visible for fetched URLs</FONT> >, fillcolor="#FFE4E6", color="#E11D48"];
+  kimi    [label=< <B>Kimi-K2.6 judge</B><BR/><FONT POINT-SIZE="10">gold support, contradiction,<BR/>model-answer support, spans,<BR/>garbage, confidence</FONT> >, fillcolor="#FDF2F8", color="#BE185D"];
+  metrics [label=< <B>Decision-surface metrics</B><BR/><FONT POINT-SIZE="10">visible support, SMART/MISSED/<BR/>BLIND/NO-OP, blind fetch,<BR/>contradict:gold, semantic-correct</FONT> >, fillcolor="#FFFBEB", color="#D97706"];
+
+  q -> agent -> step;
+  step -> search [color="#0284C7"];
+  search -> prov -> surf -> obs;
+  step -> fetch [color="#7C3AED"];
+  fetch -> obs;
+  obs -> step [color="#CA8A04", penwidth=1.5, constraint=false];
+  step -> ans [color="#475569"];
+  ans -> trace -> records -> kimi -> metrics;
+
+  {rank=same; search; fetch;}
+  subgraph cluster_exec {
+    label="Execution lane: agent loop repeats until final answer; only search provider changes";
+    color="#CBD5E1"; style="rounded"; penwidth=1.0; fontsize=15; fontname="Helvetica";
+    q; agent; step; search; prov; surf; fetch; obs; ans; trace;
+  }
+  subgraph cluster_oracle {
+    label="Oracle lane: replay visible evidence one URL at a time";
+    color="#CBD5E1"; style="rounded"; penwidth=1.0; fontsize=15; fontname="Helvetica";
+    records; kimi; metrics;
+  }
 }

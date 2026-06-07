@@ -1,28 +1,73 @@
 digraph G {
-  graph [rankdir=LR, bgcolor="transparent", margin=0.03, nodesep=0.5, ranksep=0.6, splines=ortho];
+  graph [rankdir=TB, bgcolor="white", margin=0.04, fontname="Helvetica"];
   node [shape=plain, fontname="Helvetica"];
-  edge [color="#58606A", penwidth=2.0, arrowsize=0.8];
-  agg [label=<
-  <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="10" COLOR="#465766">
-  <TR><TD BGCOLOR="#F6F8FB"><FONT POINT-SIZE="26"><B>Aggregate view</B></FONT></TD></TR>
-  <TR><TD><FONT POINT-SIZE="22">Brave 21/100</FONT></TD></TR>
-  <TR><TD><FONT POINT-SIZE="22">Tavily 21/100</FONT></TD></TR>
-  <TR><TD><FONT POINT-SIZE="22">Firecrawl 23/100</FONT></TD></TR>
-  <TR><TD><FONT POINT-SIZE="18">looks interchangeable</FONT></TD></TR>
+  upset [label=<
+  <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="5" COLOR="#CBD5E1">
+    <TR>
+      <TD COLSPAN="5" BGCOLOR="#F8FAFC"><FONT POINT-SIZE="20"><B>Semantic-correct overlap across providers</B></FONT><BR/><FONT POINT-SIZE="13">Any provider: <B>44</B> / 100 &nbsp;&nbsp; Best single: <B>26</B> / 100 &nbsp;&nbsp; Oracle routing lift: <B>+18</B></FONT></TD>
+    </TR>
+    <TR>
+      <TD WIDTH="310" BGCOLOR="#111827"><FONT COLOR="white"><B>Region</B></FONT></TD>
+      <TD WIDTH="125" BGCOLOR="#111827"><FONT COLOR="white"><B>Brave</B></FONT></TD>
+      <TD WIDTH="125" BGCOLOR="#111827"><FONT COLOR="white"><B>Tavily</B></FONT></TD>
+      <TD WIDTH="125" BGCOLOR="#111827"><FONT COLOR="white"><B>Firecrawl</B></FONT></TD>
+      <TD WIDTH="115" BGCOLOR="#111827"><FONT COLOR="white"><B>Queries</B></FONT></TD>
+    </TR>
+    <TR>
+      <TD ALIGN="LEFT" WIDTH="310" BGCOLOR="#DCFCE7">All three providers</TD>
+      <TD WIDTH="125" BGCOLOR="#DCFCE7"><FONT POINT-SIZE="20" COLOR="#111827">&#9679;</FONT></TD>
+      <TD WIDTH="125" BGCOLOR="#DCFCE7"><FONT POINT-SIZE="20" COLOR="#111827">&#9679;</FONT></TD>
+      <TD WIDTH="125" BGCOLOR="#DCFCE7"><FONT POINT-SIZE="20" COLOR="#111827">&#9679;</FONT></TD>
+      <TD WIDTH="115" BGCOLOR="#DCFCE7"><FONT POINT-SIZE="22"><B>10</B></FONT></TD>
+    </TR>
+    <TR>
+      <TD ALIGN="LEFT" WIDTH="310" BGCOLOR="#EFF6FF">Brave + Tavily only</TD>
+      <TD WIDTH="125" BGCOLOR="#EFF6FF"><FONT POINT-SIZE="20" COLOR="#111827">&#9679;</FONT></TD>
+      <TD WIDTH="125" BGCOLOR="#EFF6FF"><FONT POINT-SIZE="20" COLOR="#111827">&#9679;</FONT></TD>
+      <TD WIDTH="125" BGCOLOR="#EFF6FF"><FONT POINT-SIZE="20" COLOR="#CBD5E1">&#9675;</FONT></TD>
+      <TD WIDTH="115" BGCOLOR="#EFF6FF"><FONT POINT-SIZE="22"><B>4</B></FONT></TD>
+    </TR>
+    <TR>
+      <TD ALIGN="LEFT" WIDTH="310" BGCOLOR="#EFF6FF">Brave + Firecrawl only</TD>
+      <TD WIDTH="125" BGCOLOR="#EFF6FF"><FONT POINT-SIZE="20" COLOR="#111827">&#9679;</FONT></TD>
+      <TD WIDTH="125" BGCOLOR="#EFF6FF"><FONT POINT-SIZE="20" COLOR="#CBD5E1">&#9675;</FONT></TD>
+      <TD WIDTH="125" BGCOLOR="#EFF6FF"><FONT POINT-SIZE="20" COLOR="#111827">&#9679;</FONT></TD>
+      <TD WIDTH="115" BGCOLOR="#EFF6FF"><FONT POINT-SIZE="22"><B>4</B></FONT></TD>
+    </TR>
+    <TR>
+      <TD ALIGN="LEFT" WIDTH="310" BGCOLOR="#EFF6FF">Tavily + Firecrawl only</TD>
+      <TD WIDTH="125" BGCOLOR="#EFF6FF"><FONT POINT-SIZE="20" COLOR="#CBD5E1">&#9675;</FONT></TD>
+      <TD WIDTH="125" BGCOLOR="#EFF6FF"><FONT POINT-SIZE="20" COLOR="#111827">&#9679;</FONT></TD>
+      <TD WIDTH="125" BGCOLOR="#EFF6FF"><FONT POINT-SIZE="20" COLOR="#111827">&#9679;</FONT></TD>
+      <TD WIDTH="115" BGCOLOR="#EFF6FF"><FONT POINT-SIZE="22"><B>4</B></FONT></TD>
+    </TR>
+    <TR>
+      <TD ALIGN="LEFT" WIDTH="310" BGCOLOR="#FEF3C7">Brave only</TD>
+      <TD WIDTH="125" BGCOLOR="#FEF3C7"><FONT POINT-SIZE="20" COLOR="#111827">&#9679;</FONT></TD>
+      <TD WIDTH="125" BGCOLOR="#FEF3C7"><FONT POINT-SIZE="20" COLOR="#CBD5E1">&#9675;</FONT></TD>
+      <TD WIDTH="125" BGCOLOR="#FEF3C7"><FONT POINT-SIZE="20" COLOR="#CBD5E1">&#9675;</FONT></TD>
+      <TD WIDTH="115" BGCOLOR="#FEF3C7"><FONT POINT-SIZE="22"><B>7</B></FONT></TD>
+    </TR>
+    <TR>
+      <TD ALIGN="LEFT" WIDTH="310" BGCOLOR="#FEF3C7">Tavily only</TD>
+      <TD WIDTH="125" BGCOLOR="#FEF3C7"><FONT POINT-SIZE="20" COLOR="#CBD5E1">&#9675;</FONT></TD>
+      <TD WIDTH="125" BGCOLOR="#FEF3C7"><FONT POINT-SIZE="20" COLOR="#111827">&#9679;</FONT></TD>
+      <TD WIDTH="125" BGCOLOR="#FEF3C7"><FONT POINT-SIZE="20" COLOR="#CBD5E1">&#9675;</FONT></TD>
+      <TD WIDTH="115" BGCOLOR="#FEF3C7"><FONT POINT-SIZE="22"><B>7</B></FONT></TD>
+    </TR>
+    <TR>
+      <TD ALIGN="LEFT" WIDTH="310" BGCOLOR="#FEF3C7">Firecrawl only</TD>
+      <TD WIDTH="125" BGCOLOR="#FEF3C7"><FONT POINT-SIZE="20" COLOR="#CBD5E1">&#9675;</FONT></TD>
+      <TD WIDTH="125" BGCOLOR="#FEF3C7"><FONT POINT-SIZE="20" COLOR="#CBD5E1">&#9675;</FONT></TD>
+      <TD WIDTH="125" BGCOLOR="#FEF3C7"><FONT POINT-SIZE="20" COLOR="#111827">&#9679;</FONT></TD>
+      <TD WIDTH="115" BGCOLOR="#FEF3C7"><FONT POINT-SIZE="22"><B>8</B></FONT></TD>
+    </TR>
+    <TR>
+      <TD ALIGN="LEFT" WIDTH="310" BGCOLOR="#FEE2E2">None correct</TD>
+      <TD WIDTH="125" BGCOLOR="#FEE2E2"><FONT POINT-SIZE="20" COLOR="#CBD5E1">&#9675;</FONT></TD>
+      <TD WIDTH="125" BGCOLOR="#FEE2E2"><FONT POINT-SIZE="20" COLOR="#CBD5E1">&#9675;</FONT></TD>
+      <TD WIDTH="125" BGCOLOR="#FEE2E2"><FONT POINT-SIZE="20" COLOR="#CBD5E1">&#9675;</FONT></TD>
+      <TD WIDTH="115" BGCOLOR="#FEE2E2"><FONT POINT-SIZE="22"><B>56</B></FONT></TD>
+    </TR>
   </TABLE>>];
-  instance [label=<
-  <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="10" COLOR="#2A80B9">
-  <TR><TD BGCOLOR="#D9ECFA" COLSPAN="2"><FONT POINT-SIZE="26"><B>Instance-level view</B></FONT></TD></TR>
-  <TR><TD><FONT POINT-SIZE="22">all 3 correct</FONT></TD><TD><FONT POINT-SIZE="22"><B>9</B></FONT></TD></TR>
-  <TR><TD><FONT POINT-SIZE="22">exactly 2 correct</FONT></TD><TD><FONT POINT-SIZE="22"><B>9</B></FONT></TD></TR>
-  <TR><TD><FONT POINT-SIZE="22">exactly 1 correct</FONT></TD><TD><FONT POINT-SIZE="22"><B>20</B></FONT></TD></TR>
-  <TR><TD><FONT POINT-SIZE="22">all wrong</FONT></TD><TD><FONT POINT-SIZE="22"><B>62</B></FONT></TD></TR>
-  </TABLE>>];
-  implication [label=<
-  <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="10" COLOR="#B7791F">
-  <TR><TD BGCOLOR="#FFF2D9"><FONT POINT-SIZE="25"><B>Implication</B></FONT></TD></TR>
-  <TR><TD><FONT POINT-SIZE="20">Provider choice changes which questions are solvable.</FONT></TD></TR>
-  <TR><TD><FONT POINT-SIZE="20">EM parity is not behavioral equivalence.</FONT></TD></TR>
-  </TABLE>>];
-  agg -> instance -> implication;
 }

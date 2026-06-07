@@ -1,4 +1,4 @@
-\begin{thebibliography}{27}
+\begin{thebibliography}{31}
 \providecommand{\natexlab}[1]{#1}
 
 \bibitem[{Asai et~al.(2024)Asai, Wu, Wang, Sil, and Hajishirzi}]{asai2023selfrag}
@@ -10,6 +10,11 @@ Akari Asai, Zeqiu Wu, Yizhong Wang, Avirup Sil, and Hannaneh Hajishirzi. 2024.
 {Brave Software}. 2026.
 \newblock Brave search api reference.
 \newblock \url{https://api-dashboard.search.brave.com/api-reference/}.
+
+\bibitem[{Es et~al.(2024)Es, James, Espinosa-Anke, and Schockaert}]{es2024ragas}
+Shahul Es, Jithin James, Luis Espinosa-Anke, and Steven Schockaert. 2024.
+\newblock {RAGAS}: Automated evaluation of retrieval augmented generation.
+\newblock In \emph{Proceedings of the 18th Conference of the European Chapter of the Association for Computational Linguistics: System Demonstrations}.
 
 \bibitem[{{Firecrawl}(2026)}]{firecrawl-docs}
 {Firecrawl}. 2026.
@@ -30,6 +35,11 @@ Gautier Izacard, Mathilde Caron, Lucas Hosseini, Sebastian Riedel, Piotr Bojanow
 Gautier Izacard and Edouard Grave. 2021.
 \newblock Leveraging passage retrieval with generative models for open domain question answering.
 \newblock In \emph{Proceedings of the 16th Conference of the European Chapter of the Association for Computational Linguistics}, pages 874--880.
+
+\bibitem[{J{"a}rvelin and Kek{"a}l{"a}inen(2002)}]{jarvelin2002cumulated}
+Kalervo J{"a}rvelin and Jaana Kek{"a}l{"a}inen. 2002.
+\newblock Cumulated gain-based evaluation of ir techniques.
+\newblock \emph{ACM Transactions on Information Systems}, 20(4):422--446.
 
 \bibitem[{{Jina AI}(2026)}]{jina-reader}
 {Jina AI}. 2026.
@@ -61,13 +71,18 @@ Yang Liu, Dan Iter, Yichong Xu, Shuohang Wang, Ruochen Xu, and Chenguang Zhu. 20
 \newblock {G-Eval}: {NLG} evaluation using {GPT-4} with better human alignment.
 \newblock \emph{arXiv preprint arXiv:2303.16634}.
 
+\bibitem[{Manning et~al.(2008)Manning, Raghavan, and Sch{"u}tze}]{manning2008introduction}
+Christopher~D. Manning, Prabhakar Raghavan, and Hinrich Sch{"u}tze. 2008.
+\newblock \emph{Introduction to Information Retrieval}.
+\newblock Cambridge University Press.
+
 \bibitem[{Mialon et~al.(2024)Mialon, Fourrier, Swift, Wolf, LeCun, and Scialom}]{mialon2023gaia}
 Gregoire Mialon, Clementine Fourrier, Craig Swift, Thomas Wolf, Yann LeCun, and Thomas Scialom. 2024.
 \newblock {GAIA}: A benchmark for general ai assistants.
 \newblock In \emph{International Conference on Learning Representations}.
 
-\bibitem[{Nakano et~al.(2021)Nakano, Hilton, Balaji, Wu, Ouyang, Kim, Hesse, Jain, Kosaraju, Saunders, Jiang, Cobbe, Eloundou, Krueger, Button, Knight, Chess, and Schulman}]{nakano2021webgpt}
-Reiichiro Nakano, Jacob Hilton, Suchir Balaji, Jeff Wu, Long Ouyang, Christina Kim, Christopher Hesse, Shantanu Jain, Vineet Kosaraju, William Saunders, Xu~Jiang, Karl Cobbe, Tyna Eloundou, Gretchen Krueger, Kevin Button, Matthew Knight, Benjamin Chess, and John Schulman. 2021.
+\bibitem[{Nakano et~al.(2021)Nakano, Hilton, Balaji, Wu, Ouyang, Kim, Hesse, Jain, Kosaraju, Saunders, Jiang, Cobbe, Eloundou et~al.}]{nakano2021webgpt}
+Reiichiro Nakano, Jacob Hilton, Suchir Balaji, Jeff Wu, Long Ouyang, Christina Kim, Christopher Hesse, Shantanu Jain, Vineet Kosaraju, William Saunders, Xu~Jiang, Karl Cobbe, Tyna Eloundou, and 1 others. 2021.
 \newblock {WebGPT}: Browser-assisted question-answering with human feedback.
 \newblock \emph{arXiv preprint arXiv:2112.09332}.
 
@@ -80,6 +95,11 @@ Thinh Pham, Nguyen Nguyen, Pratibha Zunjare, Weiyuan Chen, Yu-Min Tseng, and Tu~
 Ofir Press, Muru Zhang, Sewon Min, Ludwig Schmidt, Noah~A. Smith, and Mike Lewis. 2022.
 \newblock Measuring and narrowing the compositionality gap in language models.
 \newblock \emph{arXiv preprint arXiv:2210.03350}.
+
+\bibitem[{Saad-Falcon et~al.(2024)Saad-Falcon, Khattab, Potts, and Zaharia}]{saadfalcon2024ares}
+Jon Saad-Falcon, Omar Khattab, Christopher Potts, and Matei Zaharia. 2024.
+\newblock {ARES}: An automated evaluation framework for retrieval-augmented generation systems.
+\newblock \emph{arXiv preprint arXiv:2311.09476}.
 
 \bibitem[{Schick et~al.(2023)Schick, Dwivedi-Yu, Dess{\`i}, Raileanu, Lomeli, Hambro, Zettlemoyer, Cancedda, and Scialom}]{schick-etal-2023-toolformer}
 Timo Schick, Jane Dwivedi-Yu, Roberto Dess{\`i}, Roberta Raileanu, Maria Lomeli, Eric Hambro, Luke Zettlemoyer, Nicola Cancedda, and Thomas Scialom. 2023.

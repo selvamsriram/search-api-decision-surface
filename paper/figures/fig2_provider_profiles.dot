@@ -1,40 +1,102 @@
 digraph G {
-      graph [rankdir=TB, bgcolor="transparent", margin=0.02];
-      node [shape=plain, fontname="Helvetica"];
-      profile [label=<
-        <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="12" CELLPADDING="0">
-          <TR><TD COLSPAN="3"><FONT POINT-SIZE="30"><B>Same final accuracy, different decision surfaces</B></FONT><BR/><FONT POINT-SIZE="17">Counts are queries unless URL rows are shown; bucket cells show n / exact-match count.</FONT></TD></TR>
-          <TR><TD VALIGN="TOP">
-          <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="8" COLOR="#E76F51">
-          <TR><TD BGCOLOR="#E76F51"><FONT COLOR="white" POINT-SIZE="26"><B>Brave</B></FONT></TD></TR>
-          <TR><TD><FONT POINT-SIZE="19">EM <B>21/100</B> &nbsp; F1 0.270</FONT></TD></TR>
-          <TR><TD><FONT POINT-SIZE="19">visible support <B>33</B> queries</FONT></TD></TR>
-          <TR><TD><FONT POINT-SIZE="19">rank-1 gold <B>12%</B> (12/97)</FONT></TD></TR>
-          <TR><TD><FONT POINT-SIZE="19">contradict:gold <B>0.92</B> (89/97)</FONT></TD></TR>
-          <TR><TD><FONT POINT-SIZE="17">SMART 8/3 EM &nbsp; MISSED 25/9</FONT></TD></TR>
-          <TR><TD><FONT POINT-SIZE="17">BLIND 51/9 EM &nbsp; NO-OP 16/0</FONT></TD></TR>
-          </TABLE>
-        </TD><TD VALIGN="TOP">
-          <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="8" COLOR="#2A80B9">
-          <TR><TD BGCOLOR="#2A80B9"><FONT COLOR="white" POINT-SIZE="26"><B>Tavily</B></FONT></TD></TR>
-          <TR><TD><FONT POINT-SIZE="19">EM <B>21/100</B> &nbsp; F1 0.261</FONT></TD></TR>
-          <TR><TD><FONT POINT-SIZE="19">visible support <B>24</B> queries</FONT></TD></TR>
-          <TR><TD><FONT POINT-SIZE="19">rank-1 gold <B>48%</B> (15/31)</FONT></TD></TR>
-          <TR><TD><FONT POINT-SIZE="19">contradict:gold <B>1.87</B> (58/31)</FONT></TD></TR>
-          <TR><TD><FONT POINT-SIZE="17">SMART 11/7 EM &nbsp; MISSED 13/5</FONT></TD></TR>
-          <TR><TD><FONT POINT-SIZE="17">BLIND 55/9 EM &nbsp; NO-OP 21/0</FONT></TD></TR>
-          </TABLE>
-        </TD><TD VALIGN="TOP">
-          <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="8" COLOR="#2AA876">
-          <TR><TD BGCOLOR="#2AA876"><FONT COLOR="white" POINT-SIZE="26"><B>Firecrawl</B></FONT></TD></TR>
-          <TR><TD><FONT POINT-SIZE="19">EM <B>23/100</B> &nbsp; F1 0.282</FONT></TD></TR>
-          <TR><TD><FONT POINT-SIZE="19">visible support <B>19</B> queries</FONT></TD></TR>
-          <TR><TD><FONT POINT-SIZE="19">rank-1 gold <B>11%</B> (3/27)</FONT></TD></TR>
-          <TR><TD><FONT POINT-SIZE="19">contradict:gold <B>2.59</B> (70/27)</FONT></TD></TR>
-          <TR><TD><FONT POINT-SIZE="17">SMART 7/2 EM &nbsp; MISSED 12/5</FONT></TD></TR>
-          <TR><TD><FONT POINT-SIZE="17">BLIND 67/16 EM &nbsp; NO-OP 14/0</FONT></TD></TR>
-          </TABLE>
-        </TD></TR>
-        </TABLE>>];
-    }
-    
+  graph [rankdir=LR, bgcolor="white", margin=0.04, nodesep=0.45, ranksep=0.50, splines=ortho, fontname="Helvetica"];
+  node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=16, margin="0.12,0.08", penwidth=1.6];
+  edge [style=invis];
+  brave [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6">
+  <TR><TD COLSPAN="3"><FONT POINT-SIZE="24"><B>Brave</B></FONT></TD></TR>
+  <TR><TD COLSPAN="3"><FONT POINT-SIZE="15">snippet-rich surface</FONT></TD></TR>
+  <TR><TD COLSPAN="3"><FONT POINT-SIZE="22"><B>25/100</B> correct</FONT></TD></TR>
+  <TR>
+    <TD ALIGN="LEFT" WIDTH="66"><FONT POINT-SIZE="14">Support</FONT></TD>
+    <TD><TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD WIDTH="112" HEIGHT="9" BGCOLOR="#E11D48"></TD><TD WIDTH="4" HEIGHT="9" BGCOLOR="#E5E7EB"></TD></TR>
+</TABLE></TD>
+    <TD WIDTH="52" ALIGN="RIGHT"><FONT POINT-SIZE="14"><B>33</B></FONT></TD>
+  </TR>  <TR>
+    <TD ALIGN="LEFT" WIDTH="66"><FONT POINT-SIZE="14">Rank-1</FONT></TD>
+    <TD><TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD WIDTH="28" HEIGHT="9" BGCOLOR="#E11D48"></TD><TD WIDTH="84" HEIGHT="9" BGCOLOR="#E5E7EB"></TD></TR>
+</TABLE></TD>
+    <TD WIDTH="52" ALIGN="RIGHT"><FONT POINT-SIZE="14"><B>12%</B></FONT></TD>
+  </TR>  <TR>
+    <TD ALIGN="LEFT" WIDTH="66"><FONT POINT-SIZE="14">Contra</FONT></TD>
+    <TD><TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD WIDTH="40" HEIGHT="9" BGCOLOR="#E11D48"></TD><TD WIDTH="72" HEIGHT="9" BGCOLOR="#E5E7EB"></TD></TR>
+</TABLE></TD>
+    <TD WIDTH="52" ALIGN="RIGHT"><FONT POINT-SIZE="14"><B>0.92</B></FONT></TD>
+  </TR>  <TR>
+    <TD ALIGN="LEFT" WIDTH="66"><FONT POINT-SIZE="14">Fetch</FONT></TD>
+    <TD><TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD WIDTH="90" HEIGHT="9" BGCOLOR="#E11D48"></TD><TD WIDTH="22" HEIGHT="9" BGCOLOR="#E5E7EB"></TD></TR>
+</TABLE></TD>
+    <TD WIDTH="52" ALIGN="RIGHT"><FONT POINT-SIZE="14"><B>65%</B></FONT></TD>
+  </TR>
+</TABLE>
+>, fillcolor="#FEE2E2", color="#334155"];
+  tavily [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6">
+  <TR><TD COLSPAN="3"><FONT POINT-SIZE="24"><B>Tavily</B></FONT></TD></TR>
+  <TR><TD COLSPAN="3"><FONT POINT-SIZE="15">rank-one concentration</FONT></TD></TR>
+  <TR><TD COLSPAN="3"><FONT POINT-SIZE="22"><B>25/100</B> correct</FONT></TD></TR>
+  <TR>
+    <TD ALIGN="LEFT" WIDTH="66"><FONT POINT-SIZE="14">Support</FONT></TD>
+    <TD><TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD WIDTH="81" HEIGHT="9" BGCOLOR="#2563EB"></TD><TD WIDTH="31" HEIGHT="9" BGCOLOR="#E5E7EB"></TD></TR>
+</TABLE></TD>
+    <TD WIDTH="52" ALIGN="RIGHT"><FONT POINT-SIZE="14"><B>24</B></FONT></TD>
+  </TR>  <TR>
+    <TD ALIGN="LEFT" WIDTH="66"><FONT POINT-SIZE="14">Rank-1</FONT></TD>
+    <TD><TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD WIDTH="112" HEIGHT="9" BGCOLOR="#2563EB"></TD><TD WIDTH="4" HEIGHT="9" BGCOLOR="#E5E7EB"></TD></TR>
+</TABLE></TD>
+    <TD WIDTH="52" ALIGN="RIGHT"><FONT POINT-SIZE="14"><B>48%</B></FONT></TD>
+  </TR>  <TR>
+    <TD ALIGN="LEFT" WIDTH="66"><FONT POINT-SIZE="14">Contra</FONT></TD>
+    <TD><TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD WIDTH="81" HEIGHT="9" BGCOLOR="#2563EB"></TD><TD WIDTH="31" HEIGHT="9" BGCOLOR="#E5E7EB"></TD></TR>
+</TABLE></TD>
+    <TD WIDTH="52" ALIGN="RIGHT"><FONT POINT-SIZE="14"><B>1.87</B></FONT></TD>
+  </TR>  <TR>
+    <TD ALIGN="LEFT" WIDTH="66"><FONT POINT-SIZE="14">Fetch</FONT></TD>
+    <TD><TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD WIDTH="105" HEIGHT="9" BGCOLOR="#2563EB"></TD><TD WIDTH="7" HEIGHT="9" BGCOLOR="#E5E7EB"></TD></TR>
+</TABLE></TD>
+    <TD WIDTH="52" ALIGN="RIGHT"><FONT POINT-SIZE="14"><B>76%</B></FONT></TD>
+  </TR>
+</TABLE>
+>, fillcolor="#DBEAFE", color="#334155"];
+  firecrawl [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6">
+  <TR><TD COLSPAN="3"><FONT POINT-SIZE="24"><B>Firecrawl</B></FONT></TD></TR>
+  <TR><TD COLSPAN="3"><FONT POINT-SIZE="15">broad exploration</FONT></TD></TR>
+  <TR><TD COLSPAN="3"><FONT POINT-SIZE="22"><B>26/100</B> correct</FONT></TD></TR>
+  <TR>
+    <TD ALIGN="LEFT" WIDTH="66"><FONT POINT-SIZE="14">Support</FONT></TD>
+    <TD><TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD WIDTH="64" HEIGHT="9" BGCOLOR="#16A34A"></TD><TD WIDTH="48" HEIGHT="9" BGCOLOR="#E5E7EB"></TD></TR>
+</TABLE></TD>
+    <TD WIDTH="52" ALIGN="RIGHT"><FONT POINT-SIZE="14"><B>19</B></FONT></TD>
+  </TR>  <TR>
+    <TD ALIGN="LEFT" WIDTH="66"><FONT POINT-SIZE="14">Rank-1</FONT></TD>
+    <TD><TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD WIDTH="26" HEIGHT="9" BGCOLOR="#16A34A"></TD><TD WIDTH="86" HEIGHT="9" BGCOLOR="#E5E7EB"></TD></TR>
+</TABLE></TD>
+    <TD WIDTH="52" ALIGN="RIGHT"><FONT POINT-SIZE="14"><B>11%</B></FONT></TD>
+  </TR>  <TR>
+    <TD ALIGN="LEFT" WIDTH="66"><FONT POINT-SIZE="14">Contra</FONT></TD>
+    <TD><TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD WIDTH="112" HEIGHT="9" BGCOLOR="#16A34A"></TD><TD WIDTH="4" HEIGHT="9" BGCOLOR="#E5E7EB"></TD></TR>
+</TABLE></TD>
+    <TD WIDTH="52" ALIGN="RIGHT"><FONT POINT-SIZE="14"><B>2.59</B></FONT></TD>
+  </TR>  <TR>
+    <TD ALIGN="LEFT" WIDTH="66"><FONT POINT-SIZE="14">Fetch</FONT></TD>
+    <TD><TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD WIDTH="112" HEIGHT="9" BGCOLOR="#16A34A"></TD><TD WIDTH="4" HEIGHT="9" BGCOLOR="#E5E7EB"></TD></TR>
+</TABLE></TD>
+    <TD WIDTH="52" ALIGN="RIGHT"><FONT POINT-SIZE="14"><B>81%</B></FONT></TD>
+  </TR>
+</TABLE>
+>, fillcolor="#DCFCE7", color="#334155"];
+  brave -> tavily -> firecrawl;
+}
