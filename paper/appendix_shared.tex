@@ -9,7 +9,7 @@ For a provider $p$ and query $q$, let $U_{p,q}$ denote the valid judged URLs vis
 \rowcolor{TableHead}\textbf{Cell} & \textbf{Condition} & \textbf{Interpretation} \\
 \midrule
 \smart{} & $\exists u:G(u)$ and $\exists u:G(u)\wedge F(u)$ & The surface exposed support and the agent opened support. \\
-\missed{} & $\exists u:G(u)$ and $\neg\exists u:G(u)\wedge F(u)$ & Support was visible, but not fetched. \\
+\missed{} & $\exists u:G(u)$ and $\neg\exists u:G(u)\wedge F(u)$ & Support was visible but not fetched. \\
 \blind{} & $\neg\exists u:G(u)$ and $\exists u:F(u)$ & The agent spent fetch budget without visible support. \\
 \noop{} & $\neg\exists u:G(u)$ and $\neg\exists u:F(u)$ & No judged support and no fetch. \\
 \bottomrule
@@ -38,7 +38,7 @@ The answer model, prompt, tools, and loop budget are fixed across providers. The
 \midrule
 Answer model & GPT-5.4 Azure deployment, temperature 0 \\
 Loop budget & 10 iterations, up to 10 results per search call \\
-Tools & \searchWeb{} over one configured provider; \fetchPage{} by model-visible \texttt{document\_id} \\
+Tools & \searchWeb{} over one configured provider; \fetchPage{} using model-visible \texttt{document\_id} \\
 Turn structure & The model may issue multiple search or fetch calls in one turn; each call is traced separately \\
 Search observation & \texttt{document\_id}, rank, title, URL, domain, snippet surface, provider metadata \\
 Fetch observation & Source provenance, fetch metadata, and extracted markdown/text from the shared backend \\
@@ -67,11 +67,11 @@ Firecrawl & v2 search, limit 10, web source only, US, 60s timeout & \texttt{desc
 \end{tabular}
 \end{center}
 
-The normalized result fields are \texttt{rank}, \texttt{title}, \texttt{url}, \texttt{domain}, \texttt{snippet}, and \texttt{provider\_metadata}. URL normalization removes fragments and common tracking parameters. Brave's additional snippet blocks are rendered as \texttt{<extra\_snippet>} elements because they were visible to the agent as part of the provider surface; we do not reclassify them as fetched page evidence.
+The normalized result fields are \texttt{rank}, \texttt{title}, \texttt{url}, \texttt{domain}, \texttt{snippet}, and \texttt{provider\_metadata}. URL normalization removes fragments and common tracking parameters. Brave's additional snippet blocks are rendered as \texttt{<extra\_snippet>} elements because they were visible to the agent as part of the provider surface; we do not reclassify them as fetched-page evidence.
 
 \section{Shared Page Fetch Backend}
 \label{app:fetch}
-All page text in the main experiment comes from the same \fetchPage{} backend, independent of the search provider. The backend is Jina Reader markdown through \texttt{r.jina.ai}; it is invoked only after the agent selects a \texttt{document\_id}. Fetch artifacts are cached as gzip JSON records keyed by the normalized URL and backend, with fetch status, final URL, content type, truncation flag, extractor name, extracted character count, token estimate, text hash, latency, and extracted text. The configured guardrails are a 15s timeout, 2MB maximum read, and concurrency 4. In the analyzed run, successful fetches are recorded as \texttt{jina\_reader\_markdown}; failures are retained as failed fetches rather than silently dropped.
+All page text in the main experiment comes from the same \fetchPage{} backend, independent of the search provider. The backend is Jina Reader markdown through \texttt{r.jina.ai}; it is invoked only after the agent selects a \texttt{document\_id}. Fetch artifacts are cached as gzip JSON records keyed by the normalized URL and backend, with fetch status, final URL, content type, truncation flag, extractor name, extracted character count, token estimate, text hash, latency, and extracted text. The configured guardrails are a 15s timeout, a 2MB maximum read, and concurrency 4. In the analyzed run, successful fetches are recorded as \texttt{jina\_reader\_markdown}; failures are retained as failed fetches rather than silently dropped.
 
 \section{Judge Prompt and Output Schema}
 \label{app:judge-schema}

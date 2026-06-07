@@ -1,4 +1,4 @@
-# ACL paper package: Search APIs as Decision Surfaces
+# ACL paper package: Beyond Answer Accuracy: Search APIs as Decision Surfaces for Tool-Using Agents
 
 This directory contains the ACL review and preprint sources for the paper.
 

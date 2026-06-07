@@ -1,24 +1,23 @@
 \begin{abstract}
-Search APIs are the fundamental retrieval layer and often the most often used tool by agents. Traditional Search APIs provide URL, title and snippet allowing a preview of contents from the website. Owing to token cost constraints, progressive disclosure by allowing the agent to fetch full page only after introduction of a snippet is slowly becoming the norm in agent retrieval architecture. In such systems, when evaluating performance of Search APIs, answer accuracy is often considered as primary metric.  We argue that a commercial search API is better understood as a \emph{decision surface}: the ranked snippets, URLs, and metadata that determine whether an agent answers immediately, searches again, or spends tokens opening pages. We test this claim with one frozen GPT-5.4 agent, two tools (\searchWeb{} and \fetchPage{}), and \NQueries{} questions from \textsc{SealQA-Hard}, varying only the search provider (Brave, Tavily, Firecrawl). A Kimi-K2.6 oracle labels every element (URL, title, snippet and fetched page (if fetched)) content visible to the agent, producing \NJudgeValid{} valid per-URL judgments. We use an audited \emph{correct-answer} label, \semanticMatch{}, which preserves exact matches while accepting harmless formatting and naming variants. Under this measure the providers remain close (\BraveCorrect{}, \TavilyCorrect{}, \FirecrawlCorrect{} / 100), but their evidence economies differ sharply: by offering gold information rich snippets (Brave), concentrated gold supporting URLs at rank 1 (Tavily) or encouraging broad exploration (Firecrawl). We also introduce an agent answer agnostic metric: contradict-to-gold URL ratio, that varies from \BraveContraRatio{} to \FirecrawlContraRatio{}. Provider choice is therefore a retrieval-budget and policy decision, not merely a recall decision.
+Search APIs are the fundamental retrieval layer for many agents and are often their most frequently used tool. Traditional search APIs provide URLs, titles, and snippets that preview website contents. Because full-page retrieval is token-intensive, agent retrieval architectures increasingly use progressive disclosure: the agent first sees snippets and then chooses whether to fetch full pages. In such systems, search API performance is often evaluated primarily by answer accuracy. We argue that a commercial search API is better understood as a \emph{decision surface}: the ranked snippets, URLs, and metadata that determine whether an agent answers immediately, searches again, or spends tokens opening pages. We test this claim with one frozen GPT-5.4 agent, two tools (\searchWeb{} and \fetchPage{}), and \NQueries{} questions from \textsc{SealQA-Hard}, varying only the search provider (Brave, Tavily, Firecrawl). A Kimi-K2.6 oracle labels every content element visible to the agent (URL, title, snippet, and fetched page, when fetched), producing \NJudgeValid{} valid per-URL judgments. We use an audited \emph{correct-answer} label, \semanticMatch{}, which preserves exact matches while accepting harmless formatting and naming variants. Under this measure, the providers remain close (\BraveCorrect{}, \TavilyCorrect{}, \FirecrawlCorrect{} / 100), but their evidence economies differ sharply: Brave offers gold-answer-rich snippets, Tavily concentrates gold-supporting URLs at rank 1, and Firecrawl encourages broad exploration. We also introduce an answer-agnostic metric, the contradiction-to-gold URL ratio, which varies from \BraveContraRatio{} to \FirecrawlContraRatio{}. Provider choice is therefore a retrieval-budget and policy decision, not merely a recall decision.
 \end{abstract}
 
 \section{Introduction}
 
-Early versions of search-augemented agents were primarily dependent on the extracted page data that were provided by Search API providers. As complex use cases have evolved over time, the agent landscape is shifting toward progressive disclosure approach where the models are provided top-n URLs, title, snippet and key metadata like freshness, etc. In this new landsape, the engineering practices often treats Search API providers as a replaceable component. If two APIs return plausible top-$k$ URLs and produce similar answer accuracy, the rest of the agent pipeline is assumed to be largely unaffected.
+Early search-augmented agents often depended primarily on extracted page data provided by search API providers. As complex use cases have evolved, the agent landscape has shifted toward progressive disclosure: models receive top-$n$ URLs, titles, snippets, and key metadata such as freshness, and then decide whether to fetch full pages. In this new landscape, engineering practice often treats search API providers as replaceable components. If two APIs return plausible top-$k$ URLs and produce similar answer accuracy, the rest of the agent pipeline is assumed to be largely unaffected.
 
-This paper argues that the relevant object is the \emph{pre-fetch surface}. Before a page is opened, an agent does not see a search index or a corpus and relies on Search API results. That surface is the evidence state on which the agent decides whether to answer, search again, or spend fetch tokens. We call commercial search APIs \textbf{decision surfaces} for tool-using language agents.
+This paper argues that the relevant object is the \emph{pre-fetch surface}. Before a page is opened, an agent does not see a search index or a corpus; it relies on search API results. That surface is the evidence state on which the agent decides whether to answer, search again, or spend fetch tokens. We call commercial search APIs \textbf{decision surfaces} for tool-using language agents.
 
 The distinction matters because final correctness can converge while the internal pipeline diverges. A provider may expose enough snippet evidence for immediate answering. Another may put the relevant URL at rank 1, making a top-result fetch policy effective. A third may expose sparse snippets but encourage broad exploration. These regimes can yield similar aggregate accuracy with different cost, latency, contamination, and failure modes.
 
-We test this claim under a controlled protocol, we freeze the answer model, prompt, tools, maximum iterations, judge, and page-fetch backend. The only experimental condition is the commercial search API: Brave, Tavily, or Firecrawl. We then judge every data visible to the agent. The per-URL oracle lets us ask not only whether the final answer was correct, but what evidence and actions were available at the decision surface. 
+Under a controlled protocol, we freeze the answer model, prompt, tools, maximum iterations, judge, and page-fetch backend. The only experimental condition is the commercial search API: Brave, Tavily, or Firecrawl. We then judge every piece of evidence visible to the agent. The per-URL oracle lets us ask not only whether the final answer was correct, but also what evidence and actions were available at the decision surface.
 
 \paragraph{Contributions.}
 \begin{enumerate}[leftmargin=*,topsep=2pt]
 \tightlist
 \item We formalize commercial search APIs as \emph{decision surfaces} for tool-using agents rather than static ranked-list retrievers.
 \item We introduce a per-URL oracle protocol that labels every API result element the agent saw, including fetched pages.
-\item We define surface-visible support, a four-way 
-decision partition (SMART, MISSED, BLIND, NO-OP), and a contradiction-to-gold metric that is independent of the model answer.
+\item We define surface-visible support, a four-way decision partition (SMART, MISSED, BLIND, NO-OP), and a contradiction-to-gold metric that is independent of the model answer.
 \item We show that similar correctness hides different provider-induced retrieval regimes: visible support, rank concentration, blind exploration, contamination, and complementarity.
 \end{enumerate}
 
@@ -56,13 +55,13 @@ Brave, Tavily, Firecrawl, and Jina Reader expose different product surfaces \cit
 Figure~\ref{fig:architecture} summarizes the experiment.
 
 \paragraph{Dataset.}
-We use a deterministic proportional stratified sample of \NQueries{} questions from the 254-row \textsc{SealQA-Hard} subset. The strata are \texttt{freshness} $\times$ \texttt{search\_results} $\times$ \texttt{topic}. We chose {SealQA-Hard} since it provides a challenging dataset that encourages  model exploration and questions that are not yet fully resolved by a simple snippet only Search API response. Appendix~\ref{app:dataset} gives the full sampling summary.
+We use a deterministic proportional stratified sample of \NQueries{} questions from the 254-row \textsc{SealQA-Hard} subset. The strata are \texttt{freshness} $\times$ \texttt{search\_results} $\times$ \texttt{topic}. We chose \textsc{SealQA-Hard} because it provides challenging questions that encourage model exploration and are not yet fully resolved by a simple snippet-only search API response. Appendix~\ref{app:dataset} gives the full sampling summary.
 
 \paragraph{Agent and tools.}
 The answer model is GPT-5.4 with a maximum of 10 iterations. It has two tools. \searchWeb{} accepts a query and returns up to ten ranked results, each with a document identifier, rank, title, URL, domain, snippet surface, and provider metadata. \fetchPage{} accepts a document identifier from a prior search result and returns extracted markdown plus fetch metadata. The tool interface allows the agent to issue \emph{multiple} \searchWeb{} calls or \emph{multiple} \fetchPage{} calls in a single turn; the trace records each call separately. The final answer must use the exact prefix \texttt{FINAL ANSWER:} and be grounded in retrieved evidence.
 
 \paragraph{Providers and snippet normalization.}
-We compare Brave, Tavily, and Firecrawl Search. Each adapter normalizes provider output into the same result schema. Brave exposes provider-native additional snippet blocks. We aggregate those into the generic \emph{snippet surface} rather than treating them as a separate evidence channel; the agent saw them as snippets, and the judge saw the same text. We still discuss this asymmetry as a limitation because it changes the amount of pre-fetch text Brave returns. Tavily is run with raw content disabled, and Firecrawl is run without provider-side markdown scraping. Page text visible to the agent therefore comes only from the shared Jina Reader backend.
+We compare Brave, Tavily, and Firecrawl Search. Each adapter normalizes provider output into the same result schema. Brave exposes additional provider-native snippet blocks. We aggregate those blocks into the generic \emph{snippet surface} rather than treating them as a separate evidence channel; the agent saw them as snippets, and the judge saw the same text. We still discuss this asymmetry as a limitation because it changes the amount of pre-fetch text Brave returns. Tavily is run with raw content disabled, and Firecrawl is run without provider-side markdown scraping. Page text visible to the agent therefore comes only from the shared Jina Reader backend.
 
 \paragraph{Traces.}
 The experiment produces \NTraces{} provider-query trajectories. A trace records every search call, every returned URL, every fetch decision, fetch status, token usage, latency, final answer, and gold answer. Provider-comparison scripts deterministically derive token, URL-hit, and per-query support fields from these traces. Answer correctness comes from the separate semantic audit TSV.
@@ -97,16 +96,16 @@ The judge returns JSON only and is instructed not to use outside knowledge. The 
 \end{tabular}
 \end{center}
 
-Across providers, \NJudgeValid{} of \NJudgeTotal{} judge rows are valid; \NJudgeInvalid{} invalid rows are excluded. Valid rows split into \NJudgeSnippetValid{} snippet-only and \NJudgePageValid{} page-visible rows.
+Across providers, \NJudgeValid{} of \NJudgeTotal{} judge rows are valid; \NJudgeInvalid{} invalid rows are excluded. Valid rows are split into \NJudgeSnippetValid{} snippet-only and \NJudgePageValid{} page-visible rows.
 
 \paragraph{Visible support.}
-For a provider-query pair, visible support exists if at least one valid judge row has \containsGold{} true on either the snippet-only surface or a page-visible surface. This is a lower bound on true provider pool support because unfetched pages are not page-judged.
+For a provider-query pair, visible support exists if at least one valid judge row has \containsGold{} true on either the snippet-only surface or a page-visible surface. This is a lower bound on true provider-pool support because unfetched pages are not page-judged.
 
 \paragraph{Decision partition.}
 We join the per-URL oracle with trace actions and assign each provider-query pair to one cell: \smart{} if visible support exists and the agent fetched a gold-supporting URL; \missed{} if visible support exists and the agent fetched none of the supporting URLs; \blind{} if no visible support exists and the agent fetched at least one URL; and \noop{} if no visible support exists and no URL was fetched. The partition is descriptive, not causal: a \missed{} query may still be answered correctly from snippets.
 
 \paragraph{Answer-independent contamination.}
-We define the contradict-to-gold ratio over snippet-only URL rows:
+We define the contradiction-to-gold ratio over snippet-only URL rows:
 \[
  r_{c:g}=\frac{|\{u:\contraGold(u)\}|}{|\{u:\containsGold(u)\}|}.
 \]
@@ -185,7 +184,7 @@ Decision-cell counts are visualized in Figure~\ref{fig:partition}; Wilson interv
 
 \subsection{Aggregate correctness hides complementarity}
 
-Only \AllCorrect{} questions are answered correctly by all three providers. \TwoCorrect{} are correct under exactly two providers, \OneCorrect{} under exactly one, and \AllWrong{} under none. Thus provider choice changes \emph{which} questions are solved, not only how many. This suggests that provider routing or provider-aware fetch policies may matter more than choosing a single winner.
+Only \AllCorrect{} questions are answered correctly by all three providers. \TwoCorrect{} are correct under exactly two providers, \OneCorrect{} under exactly one, and \AllWrong{} under none. Thus, provider choice changes \emph{which} questions are solved, not only how many. This suggests that provider routing or provider-aware fetch policies may matter more than choosing a single winner.
 
 \begin{figure*}[!t]
 \centering
@@ -235,7 +234,7 @@ The agent's actions are observed, not randomized. We do not intervene on ranks, 
 The main experiment has 100 questions and three providers. Small cells should be read as diagnostic rather than definitive. Additional providers such as Bing, Google CSE, Serper, Exa, and others would broaden the claim.
 
 \section{Conclusion}
-Evaluating search APIs for tool using agents must consider looking for more than answer accuracy.  In this controlled study, semantic-correct answer rates are close, but the internal retrieval economy changes sharply: visible support, rank concentration, contradiction, fetch behavior, and instance-level correctness all depend on the provider surface. Search APIs for agents should therefore be evaluated as decision surfaces: ranked, snippet-bearing action states that allocate retrieval budget.
+Evaluating search APIs for tool-using agents requires looking beyond answer accuracy. In this controlled study, semantic correctness rates are close, but the internal retrieval economy changes sharply: visible support, rank concentration, contradiction, fetch behavior, and instance-level correctness all depend on the provider surface. Search APIs for agents should therefore be evaluated as decision surfaces: ranked, snippet-bearing action states that allocate retrieval budget.
 
 \section*{Ethics Statement}
 This work evaluates commercial search APIs and LLM agents on public web-search QA data. We do not claim that one provider is universally better. Provider names are reported because they are experimental conditions and because reproduction requires knowing which APIs produced the surfaces. The study may help reduce unnecessary page fetches and improve handling of contradictory evidence. It could also be misread as a provider leaderboard without respecting the stated limitations; we discourage that use.
