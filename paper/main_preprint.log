@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.3.22)  7 JUN 2026 02:35
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.3.22)  7 JUN 2026 03:19
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -640,6 +640,17 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
 
+
+Package hyperref Warning: Ignoring empty anchor on input line 15.
+
+LaTeX Font Info:    Font shape `T1/zi4/m/n' will be
+(Font)              scaled to size 9.0pt on input line 15.
+
+Underfull \hbox (badness 10000) in paragraph at lines 15--15
+[][][]\T1/ptm/b/n/9 (+20) Code and ar-ti-facts: [][]$\T1/zi4/m/n/9 https : / / 
+github . com /
+ []
+
 (./paper_shared.tex
 LaTeX Font Info:    Font shape `T1/zi4/m/n' will be
 (Font)              scaled to size 10.0pt on input line 2.
@@ -661,7 +672,7 @@ Underfull \hbox (badness 1515) in paragraph at lines 41--42
  []\T1/ptm/b/n/10.95 (+20) Attribution, ver-i-fi-a-bil-ity, and LLM judges.[]
  []
 
-<figures/fig1_architecture.png, id=171, 5370.0625pt x 2350.7825pt>
+<figures/fig1_architecture.png, id=172, 5370.0625pt x 2350.7825pt>
 File: figures/fig1_architecture.png Graphic file (type png)
 <use figures/fig1_architecture.png>
 Package pdftex.def Info: figures/fig1_architecture.png  used on input line 51.
@@ -688,19 +699,19 @@ LaTeX Font Warning: Font shape `U/lasy/m/n' in size <3.4> not available
 LaTeX Font Info:    Font shape `T1/zi4/m/n' will be
 (Font)              scaled to size 6.8pt on input line 85.
 [3 <./figures/fig1_architecture.png>]
-<figures/fig2_provider_profiles.pdf, id=236, 879.285pt x 232.87pt>
+<figures/fig2_provider_profiles.pdf, id=238, 879.285pt x 232.87pt>
 File: figures/fig2_provider_profiles.pdf Graphic file (type pdf)
 <use figures/fig2_provider_profiles.pdf>
 Package pdftex.def Info: figures/fig2_provider_profiles.pdf  used on input line
  122.
 (pdftex.def)             Requested size: 446.13727pt x 118.1545pt.
-<figures/fig3_decision_partition.pdf, id=240, 754.82pt x 172.645pt>
+<figures/fig3_decision_partition.pdf, id=242, 754.82pt x 172.645pt>
 File: figures/fig3_decision_partition.pdf Graphic file (type pdf)
 <use figures/fig3_decision_partition.pdf>
 Package pdftex.def Info: figures/fig3_decision_partition.pdf  used on input lin
 e 177.
 (pdftex.def)             Requested size: 446.13727pt x 102.04143pt.
-<figures/fig4_complementarity.pdf, id=244, 817.0525pt x 373.395pt>
+<figures/fig4_complementarity.pdf, id=246, 817.0525pt x 373.395pt>
 File: figures/fig4_complementarity.pdf Graphic file (type pdf)
 <use figures/fig4_complementarity.pdf>
 Package pdftex.def Info: figures/fig4_complementarity.pdf  used on input line 1
@@ -777,10 +788,7 @@ Underfull \hbox (badness 1365) in paragraph at lines 165--170
 
 [7]) [8
 
-] (./appendix_shared.tex
-LaTeX Font Info:    Font shape `T1/zi4/m/n' will be
-(Font)              scaled to size 9.0pt on input line 3.
- [9
+] (./appendix_shared.tex [9
 
 ]
 Underfull \hbox (badness 10000) in paragraph at lines 96--97
@@ -832,11 +840,11 @@ Package rerunfilecheck Info: File `main_preprint.out' has not changed.
 (rerunfilecheck)             Checksum: 510D2636D6B8F778282A03E131F69079;4487.
  ) 
 Here is how much of TeX's memory you used:
- 16989 strings out of 467525
- 269179 string characters out of 5418982
+ 16991 strings out of 467525
+ 269206 string characters out of 5418982
  722883 words of memory out of 5000000
- 45004 multiletter control sequences out of 15000+600000
- 724900 words of font info for 461 fonts, out of 8000000 for 9000
+ 45005 multiletter control sequences out of 15000+600000
+ 724963 words of font info for 462 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  90i,11n,93p,1908b,664s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2026/texmf-dist/fonts/type1/public/inconsolata/Inconsolat
@@ -853,10 +861,10 @@ cal/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/loca
 l/texlive/2026/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/
 2026/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2026/texmf
 -dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on main_preprint.pdf (11 pages, 784589 bytes).
+Output written on main_preprint.pdf (11 pages, 784973 bytes).
 PDF statistics:
- 570 PDF objects out of 1000 (max. 8388607)
- 470 compressed objects within 5 object streams
+ 572 PDF objects out of 1000 (max. 8388607)
+ 472 compressed objects within 5 object streams
  109 named destinations out of 1000 (max. 500000)
  82125 words of extra memory for PDF output out of 89155 (max. 10000000)
 
