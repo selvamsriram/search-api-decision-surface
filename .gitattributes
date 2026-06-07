@@ -1,3 +1,2 @@
-results/llm_judge/*.jsonl filter=lfs diff=lfs merge=lfs -text
-data/traces/*.jsonl filter=lfs diff=lfs merge=lfs -text
-results/*.jsonl filter=lfs diff=lfs merge=lfs -text
+data/traces/**/*.jsonl filter=lfs diff=lfs merge=lfs -text
+results/**/*.jsonl filter=lfs diff=lfs merge=lfs -text
