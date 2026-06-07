@@ -181,9 +181,7 @@ Table~\ref{tab:visible-support} shows that the per-URL oracle sees a larger prov
 
 Figure~\ref{fig:partition} shows the mechanism. Brave's support-visible mass is larger, but many such queries are \missed{} rather than \smart{}, consistent with a snippet-rich surface where fetching is not always needed. Tavily's support is smaller but rank concentrated, making \smart{} fetches higher-yield. Firecrawl's largest regime is \blind{} exploration: no support was visible to the judge before fetch, yet the agent frequently opened pages.
 
-% Decision-cell counts are visualized in Figure~
-ef{fig:partition}; Wilson intervals are in Appendix~
-ef{app:wilson}.
+Decision-cell counts are visualized in Figure~\ref{fig:partition}; Wilson intervals are reported in Appendix~\ref{app:additional}.
 
 \subsection{Aggregate correctness hides complementarity}
 
@@ -250,6 +248,8 @@ All paper numbers are deterministic functions of the committed query sample, tra
 \onecolumn
 \appendix
 \small
+\input{appendix_shared}
+\endinput
 \section{Formal Metric Definitions}
 \label{app:metrics}
 For a provider $p$ and query $q$, let $U_{p,q}$ denote the valid judged URLs visible in the trajectory. Let $G(u)$ be the event that the judge marks \containsGold{} true on either the snippet-only record or a page-visible record, and let $F(u)$ indicate that the agent fetched URL $u$. A query has \emph{visible support} when some $u\in U_{p,q}$ satisfies $G(u)$. It is \smart{} when visible support exists and a gold-supporting URL was fetched; \missed{} when visible support exists but no gold-supporting URL was fetched; \blind{} when no visible support exists but the agent fetched at least one URL; and \noop{} when no visible support exists and the agent fetched nothing. The contradiction ratio is computed over snippet-only rows as contradicting URLs divided by gold-supporting URLs.

@@ -2,6 +2,7 @@
   "meta": {
     "all_correct": 10,
     "all_wrong": 56,
+    "best_single_correct": 26,
     "judge_invalid": 40,
     "judge_page_valid": 350,
     "judge_snippet_valid": 6519,
@@ -9,6 +10,17 @@
     "judge_valid": 6869,
     "one_correct": 22,
     "one_or_more_correct": 44,
+    "oracle_router_lift": 18,
+    "overlap_regions": {
+      "brave": 7,
+      "brave_firecrawl": 4,
+      "brave_tavily": 4,
+      "brave_tavily_firecrawl": 10,
+      "firecrawl": 8,
+      "none": 56,
+      "tavily": 7,
+      "tavily_firecrawl": 4
+    },
     "providers": 3,
     "queries": 100,
     "traces": 300,

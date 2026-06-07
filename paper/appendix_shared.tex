@@ -1,0 +1,191 @@
+\section{Formal Metric Definitions}
+\label{app:metrics}
+For a provider $p$ and query $q$, let $U_{p,q}$ denote the valid judged URLs visible in the trajectory. Each URL can have a snippet-only judgment and, if the agent opened it, a page-visible judgment. Let $G(u)$ be true when any valid judgment for $u$ marks \containsGold{} true, and let $F(u)$ be true when the trace contains a \fetchPage{} call for $u$.
+
+\begin{center}
+\footnotesize
+\begin{tabular}{lll}
+\toprule
+\rowcolor{TableHead}\textbf{Cell} & \textbf{Condition} & \textbf{Interpretation} \\
+\midrule
+\smart{} & $\exists u:G(u)$ and $\exists u:G(u)\wedge F(u)$ & The surface exposed support and the agent opened support. \\
+\missed{} & $\exists u:G(u)$ and $\neg\exists u:G(u)\wedge F(u)$ & Support was visible, but not fetched. \\
+\blind{} & $\neg\exists u:G(u)$ and $\exists u:F(u)$ & The agent spent fetch budget without visible support. \\
+\noop{} & $\neg\exists u:G(u)$ and $\neg\exists u:F(u)$ & No judged support and no fetch. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The partition is computed per provider-query pair after joining judge rows to trace actions by normalized URL and retrieval provenance. It is descriptive: a \missed{} query can still be answered correctly from snippets, and a \blind{} query can still succeed if a fetched page reveals evidence not present in snippets. The answer-independent contradiction ratio is computed only over snippet-only rows:
+\[
+ r_{c:g}=\frac{|\{u:\contraGold(u)\}|}{|\{u:\containsGold(u)\}|}.
+\]
+
+\section{Dataset Stratification}
+\label{app:dataset}
+The sample file records dataset \texttt{vtllms/sealqa}, subset \texttt{seal\_hard}, sample size 100, source size 254, seed 20260509, and strata \texttt{freshness}, \texttt{search\_results}, and \texttt{topic}. Marginal counts are: 25 fast-changing, 43 slow-changing, 32 never-changing; 57 conflicting and 43 unhelpful search-result labels; topics are Science \& Technology 27, Sports 22, Entertainment 22, Others 12, Politics 9, and History \& Geography 8. Effective years are 61 before 2024, 16 in 2024, and 23 in 2025. Multi-label question-type tags include 72 advanced reasoning, 61 entity/event disambiguation, 13 temporal tracking, 5 cross-lingual, and 2 false-premise.
+
+\Needspace{12\baselineskip}
+\section{Fixed Agent Contract}
+\label{app:agent-contract}
+The answer model, prompt, tools, and loop budget are fixed across providers. The agent receives a factual question in \texttt{<user\_query>} tags and can call \searchWeb{} and, in the main condition, \fetchPage{}.
+
+\begin{center}
+\footnotesize
+\begin{tabular}{L{0.20\linewidth}L{0.70\linewidth}}
+\toprule
+\rowcolor{TableHead}\textbf{Component} & \textbf{Fixed value} \\
+\midrule
+Answer model & GPT-5.4 Azure deployment, temperature 0 \\
+Loop budget & 10 iterations, up to 10 results per search call \\
+Tools & \searchWeb{} over one configured provider; \fetchPage{} by model-visible \texttt{document\_id} \\
+Turn structure & The model may issue multiple search or fetch calls in one turn; each call is traced separately \\
+Search observation & \texttt{document\_id}, rank, title, URL, domain, snippet surface, provider metadata \\
+Fetch observation & Source provenance, fetch metadata, and extracted markdown/text from the shared backend \\
+Final answer rule & Response must begin with \texttt{FINAL ANSWER:} and contain only the short factual answer \\
+Hidden fields & Gold answers and gold URLs are retained in traces for offline grading, never sent to the answer model \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+In fetch-tool mode, \searchWeb{} observations are snippet-only. Page text enters the model context only after the model chooses a prior \texttt{document\_id}. This makes fetch behavior observable and prevents provider comparisons from being driven by automatic page inclusion.
+
+\section{Provider Request Configurations}
+\label{app:providers}
+All providers are configured to return web-search results rather than provider-side page extracts. Each adapter normalizes provider output to the same model-visible schema before rendering.
+
+\begin{center}
+\footnotesize
+\begin{tabular}{L{0.10\linewidth}L{0.31\linewidth}L{0.28\linewidth}L{0.20\linewidth}}
+\toprule
+\rowcolor{TableHead}\textbf{Provider} & \textbf{Request settings} & \textbf{Snippet field} & \textbf{Disabled content} \\
+\midrule
+Brave & GET, count 10, offset 0, US/en, moderate safe search, web-only & \texttt{description} plus \texttt{extra\_snippets} & Text decorations \\
+Tavily & POST, \texttt{search\_depth=basic}, \texttt{topic=general}, max 10 & \texttt{content} & Answer, images, favicon, raw content \\
+Firecrawl & v2 search, limit 10, web source only, US, 60s timeout & \texttt{description} / metadata description & Provider-side markdown scraping \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The normalized result fields are \texttt{rank}, \texttt{title}, \texttt{url}, \texttt{domain}, \texttt{snippet}, and \texttt{provider\_metadata}. URL normalization removes fragments and common tracking parameters. Brave's additional snippet blocks are rendered as \texttt{<extra\_snippet>} elements because they were visible to the agent as part of the provider surface; we do not reclassify them as fetched page evidence.
+
+\section{Shared Page Fetch Backend}
+\label{app:fetch}
+All page text in the main experiment comes from the same \fetchPage{} backend, independent of the search provider. The backend is Jina Reader markdown through \texttt{r.jina.ai}; it is invoked only after the agent selects a \texttt{document\_id}. Fetch artifacts are cached as gzip JSON records keyed by the normalized URL and backend, with fetch status, final URL, content type, truncation flag, extractor name, extracted character count, token estimate, text hash, latency, and extracted text. The configured guardrails are a 15s timeout, 2MB maximum read, and concurrency 4. In the analyzed run, successful fetches are recorded as \texttt{jina\_reader\_markdown}; failures are retained as failed fetches rather than silently dropped.
+
+\section{Judge Prompt and Output Schema}
+\label{app:judge-schema}
+The Kimi-K2.6 judge is run one URL at a time. The judge receives the question, gold answer, model final answer, and one retrieved document rendered in the same XML-like representation that the answer model saw. Snippet-only records contain title, URL, domain, snippets, extra snippets, and metadata. Page-visible records additionally contain the fetched page block that was returned by \fetchPage{}.
+
+\begin{center}
+\footnotesize
+\begin{tabular}{L{0.20\linewidth}L{0.70\linewidth}}
+\toprule
+\rowcolor{TableHead}\textbf{Judge guardrail} & \textbf{Implementation} \\
+\midrule
+No external knowledge & Prompt restricts the judge to supplied document content \\
+Strict output & JSON-only schema with support, contradiction, garbage, spans, and confidence \\
+Valid-row filter & Requires schema version, parsed judgment, provider/query/retrieval/URL IDs, and no execution or parse error \\
+Garbage handling & Deterministic precheck flags failed, unsupported, empty, or media fetches before LLM judging \\
+Duplicate control & Exact prompt-cache reuse; optional query-URL reuse separates snippet-only from page-visible surfaces \\
+Error policy & Invalid judge rows are excluded, not converted into negative evidence \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The schema fields used in the paper are \containsGold{}, \goldSnip{}, \goldPage{}, \texttt{supports\_model\_answer}, \contraGold{}, \texttt{is\_garbage}, evidence spans, and confidence. Across the main artifacts, \NJudgeValid{} of \NJudgeTotal{} rows are valid, split into \NJudgeSnippetValid{} snippet-only and \NJudgePageValid{} page-visible rows.
+
+\section{Example Judgments and Semantic Corrections}
+\label{app:examples}
+The semantic audit marks some EM misses as correct when the answer is semantically equivalent. Representative examples are: Brave \emph{Astra Zeneca} vs. \emph{AstraZeneca}; Brave \emph{UnionPay} vs. \emph{China UnionPay}; Tavily \emph{3 players} vs. \emph{3}; Firecrawl \emph{Bohemian Rhapsody} vs. \emph{Bohemian Rhapsody, 9,948,386 viewers}; and Firecrawl \emph{16 years} vs. \emph{16 years old}. The regenerated audit file records the exact TSV rows and judge notes. Per-URL judge examples can be inspected by joining the judge JSONLs with the trace viewer: support-bearing rows have \containsGold{} true and a span; contamination rows have \contraGold{} true; relevant-but-insufficient rows remain false for both support fields.
+
+\Needspace{9\baselineskip}
+\section{Trace Schema and Reproducibility}
+\label{app:trace-repro}
+Each provider-query run is one JSONL trace with the full sequence of LLM request snapshots, tool calls, normalized search responses, fetch records, token usage, latency, final response, extracted final answer, and offline gold fields. The trace schema supports recomputing metrics without rerunning provider APIs. Raw provider payloads are preserved under \texttt{raw\_response}; rendered tool observations are preserved inside the request snapshots, which allows later audits of exactly what the answer model saw.
+
+The figure script regenerates all paper macros and figures from four artifact families: the semantic audit TSV, the three trace JSONLs, the three Kimi judge JSONLs, and provider-comparison summaries. Strict make targets fail if raw judge files are missing or still Git LFS pointers. The test suite covers several protocol invariants: fetch-tool mode keeps search observations snippet-only, \fetchPage{} resolves prior document IDs to URLs internally, judge prompts include the expected document fields and schema, unsupported page types are marked unusable, and provider summaries count recovered transient failures.
+
+\Needspace{9\baselineskip}
+\section{Trace Viewer and Qualitative Audit}
+\label{app:trace-viewer}
+The repository includes human-readable trajectory views in \url{results/trace_views/}. The rendering script is \url{scripts/render_trace.py}, and \url{scripts/trace_dashboard.py} provides a local browsing dashboard. These views were used for spot-checking case studies, verifying multi-call turns, and inspecting failures where answer text was present but unused. They are not an independent metric source: the paper numbers come from trace JSONLs, judge JSONLs, the semantic TSV, and provider-comparison summaries.
+
+\Needspace{9\baselineskip}
+\section{Additional Diagnostics and Artifact Manifest}
+\label{app:additional}
+The tables below report selected diagnostics that support the main claims without changing the headline conclusions.
+
+\begin{center}
+\footnotesize
+\begin{tabular}{lrrr}
+\toprule
+\rowcolor{TableHead}\textbf{Metric} & \textbf{Brave} & \textbf{Tavily} & \textbf{Firecrawl} \\
+\midrule
+Gold URL exact hit & \BraveGoldURLExact{} & \TavilyGoldURLExact{} & \FirecrawlGoldURLExact{} \\
+Gold domain hit & \BraveGoldDomain{} & \TavilyGoldDomain{} & \FirecrawlGoldDomain{} \\
+Gold source-family hit & \BraveGoldFamily{} & \TavilyGoldFamily{} & \FirecrawlGoldFamily{} \\
+Answer in snippet surface & \BraveSnippetSurfaceHit{} & \TavilySnippetSurfaceHit{} & \FirecrawlSnippetSurfaceHit{} \\
+Answer in fetched page & \BraveAnswerPage{} & \TavilyAnswerPage{} & \FirecrawlAnswerPage{} \\
+Answer in any retrieved text & \BraveAnswerAvailable{} & \TavilyAnswerAvailable{} & \FirecrawlAnswerAvailable{} \\
+Wrong despite answer text & \BraveWrongWithAnswer{} & \TavilyWrongWithAnswer{} & \FirecrawlWrongWithAnswer{} \\
+\bottomrule
+\end{tabular}
+\captionof{table}{Deterministic retrieval diagnostics from trace-derived provider summaries. These string and URL proxies are separate from the Kimi per-URL support labels.}
+\label{tab:app-retrieval-diagnostics}
+\end{center}
+
+\begin{center}
+\footnotesize
+\begin{tabular}{ll}
+\toprule
+\rowcolor{TableHead}\textbf{Provider/cell} & \textbf{Correct rate and Wilson 95\% CI} \\
+\midrule
+Brave \smart{} & \BraveSmartCorrect{}/\BraveSmartN{}: \BraveSmartRate{} \BraveSmartCI{} \\
+Brave \missed{} & \BraveMissedCorrect{}/\BraveMissedN{}: \BraveMissedRate{} \BraveMissedCI{} \\
+Brave \blind{} & \BraveBlindCorrect{}/\BraveBlindN{}: \BraveBlindRate{} \BraveBlindCI{} \\
+Tavily \smart{} & \TavilySmartCorrect{}/\TavilySmartN{}: \TavilySmartRate{} \TavilySmartCI{} \\
+Tavily \missed{} & \TavilyMissedCorrect{}/\TavilyMissedN{}: \TavilyMissedRate{} \TavilyMissedCI{} \\
+Tavily \blind{} & \TavilyBlindCorrect{}/\TavilyBlindN{}: \TavilyBlindRate{} \TavilyBlindCI{} \\
+Firecrawl \smart{} & \FirecrawlSmartCorrect{}/\FirecrawlSmartN{}: \FirecrawlSmartRate{} \FirecrawlSmartCI{} \\
+Firecrawl \missed{} & \FirecrawlMissedCorrect{}/\FirecrawlMissedN{}: \FirecrawlMissedRate{} \FirecrawlMissedCI{} \\
+Firecrawl \blind{} & \FirecrawlBlindCorrect{}/\FirecrawlBlindN{}: \FirecrawlBlindRate{} \FirecrawlBlindCI{} \\
+\bottomrule
+\end{tabular}
+\captionof{table}{Wilson 95\% intervals for decision-cell correctness. NO-OP rates are 0\% for all providers in this run.}
+\label{tab:app-wilson}
+\end{center}
+
+\begin{center}
+\footnotesize
+\begin{tabular}{lrrrr}
+\toprule
+\rowcolor{TableHead}\textbf{Pair} & \textbf{both} & \textbf{left only} & \textbf{right only} & \textbf{both wrong} \\
+\midrule
+Brave vs. Firecrawl & 14 & 11 & 12 & 63 \\
+Brave vs. Tavily & 14 & 11 & 11 & 64 \\
+Firecrawl vs. Tavily & 14 & 12 & 11 & 63 \\
+\bottomrule
+\end{tabular}
+\captionof{table}{Pairwise semantic-correct overlap derived from the semantic audit TSV.}
+\label{tab:app-pairwise}
+\end{center}
+
+\begin{center}
+\footnotesize
+\begin{tabular}{lrrr}
+\toprule
+\rowcolor{TableHead}\textbf{Metric} & \textbf{Brave} & \textbf{Tavily} & \textbf{Firecrawl} \\
+\midrule
+Total tokens & \BraveTokensM{}M & \TavilyTokensM{}M & \FirecrawlTokensM{}M \\
+Median/query & \BraveMedianTokens{} & \TavilyMedianTokens{} & \FirecrawlMedianTokens{} \\
+Max/query & \BraveMaxTokens{} & \TavilyMaxTokens{} & \FirecrawlMaxTokens{} \\
+$>$100k queries & \BraveOverHundredK{} & \TavilyOverHundredK{} & \FirecrawlOverHundredK{} \\
+Fetch success/fail & \BraveFetchSuccess{}/\BraveFetchFailed{} & \TavilyFetchSuccess{}/\TavilyFetchFailed{} & \FirecrawlFetchSuccess{}/\FirecrawlFetchFailed{} \\
+\bottomrule
+\end{tabular}
+\captionof{table}{Token and fetch diagnostics from provider summaries.}
+\label{tab:app-token}
+\end{center}
+
+\paragraph{Raw artifacts.} Audit mode consumes the semantic audit TSV, three phase-1 trace JSONLs, three Kimi per-URL judge JSONLs, and the provider-comparison summary artifacts. The script checks for Git LFS pointer files and fails explicitly if raw data has not been pulled.
