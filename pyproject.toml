@@ -1,10 +1,32 @@
 [project]
 name = "searchapi-hard-eval"
 version = "0.1.0"
-description = "V1 infrastructure for Search API provider effects on SealQA Hard."
+description = "Evaluation infrastructure for Search API provider effects on tool-using language agents."
+readme = "README.md"
 requires-python = ">=3.11"
+authors = [
+  { name = "Sriram Selvam" },
+  { name = "Anneswa Ghosh" },
+]
 dependencies = [
   "trafilatura>=1.9.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=7.4",
+]
+
+[project.scripts]
+searchapi-run-phase1 = "searchapi_eval.orchestrator:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+searchapi_eval = [
+  "agent/prompts/*.liquid",
+  "evaluation/prompts/*.liquid",
 ]
 
 [tool.pytest.ini_options]
