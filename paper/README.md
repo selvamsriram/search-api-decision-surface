@@ -26,6 +26,30 @@ make render-only
 make quick
 ```
 
+## arXiv package
+
+Use the author-visible preprint build for arXiv. Do not upload this whole
+directory, because `main.tex` is the anonymous ACL wrapper and the directory
+also contains auxiliary files. Instead run:
+
+```bash
+cd paper
+make preprint
+make arxiv
+```
+
+This writes a clean source archive to:
+
+```text
+paper/build/search-api-decision-surface-arxiv.tar.gz
+```
+
+The archive stages `main_preprint.tex` as `main.tex`, copies
+`main_preprint.bbl` as `main.bbl`, includes only the TeX sources, ACL style,
+bibliography files, generated paper macros, and the four figures actually used
+by the manuscript, then recompiles the staged package before creating the
+tarball.
+
 ## Layout notes
 
 The main paper stays in ACL two-column layout. The appendix switches to one-column after the bibliography to avoid narrow-column overlap for audit definitions and diagnostic tables. Figures are deterministic Graphviz DOT renderings with committed PDF/SVG outputs.

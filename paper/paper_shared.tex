@@ -1,5 +1,5 @@
 \begin{abstract}
-Search APIs are the fundamental retrieval layer and often the most often used tool by agents. Traditional Search APIs provide URL, title and snippet allowing a preview of contents from the website. Owing to token cost constraints, incremental disclosure by allowing the agent to fetch full page only after introduction of a snippet is slowly becoming the norm in agent retrieval architecture. In such systems, when evaluating performance of Search APIs, answer accuracy is often considered as primary metric.  We argue that a commercial search API is better understood as a \emph{decision surface}: the ranked snippets, URLs, and metadata that determine whether an agent answers immediately, searches again, or spends tokens opening pages. We test this claim with one frozen GPT-5.4 agent, two tools (\searchWeb{} and \fetchPage{}), and \NQueries{} questions from \textsc{SealQA-Hard}, varying only the search provider (Brave, Tavily, Firecrawl). A Kimi-K2.6 oracle labels every element (URL, title, snippet and fetched page (if fetched)) content visible to the agent, producing \NJudgeValid{} valid per-URL judgments. We use an audited \emph{correct-answer} label, \semanticMatch{}, which preserves exact matches while accepting harmless formatting and naming variants. Under this measure the providers remain close (\BraveCorrect{}, \TavilyCorrect{}, \FirecrawlCorrect{} / 100), but their evidence economies differ sharply: by offering gold information rich snippets (Brave), concentrated gold supporting URLs at rank 1 (Tavily) or encouraging broad exploration (Firecrawl). We also introduce an agent answer agnostic metric: contradict-to-gold URL ratio, that varies from \BraveContraRatio{} to \FirecrawlContraRatio{}. Provider choice is therefore a retrieval-budget and policy decision, not merely a recall decision.
+Search APIs are the fundamental retrieval layer and often the most often used tool by agents. Traditional Search APIs provide URL, title and snippet allowing a preview of contents from the website. Owing to token cost constraints, progressive disclosure by allowing the agent to fetch full page only after introduction of a snippet is slowly becoming the norm in agent retrieval architecture. In such systems, when evaluating performance of Search APIs, answer accuracy is often considered as primary metric.  We argue that a commercial search API is better understood as a \emph{decision surface}: the ranked snippets, URLs, and metadata that determine whether an agent answers immediately, searches again, or spends tokens opening pages. We test this claim with one frozen GPT-5.4 agent, two tools (\searchWeb{} and \fetchPage{}), and \NQueries{} questions from \textsc{SealQA-Hard}, varying only the search provider (Brave, Tavily, Firecrawl). A Kimi-K2.6 oracle labels every element (URL, title, snippet and fetched page (if fetched)) content visible to the agent, producing \NJudgeValid{} valid per-URL judgments. We use an audited \emph{correct-answer} label, \semanticMatch{}, which preserves exact matches while accepting harmless formatting and naming variants. Under this measure the providers remain close (\BraveCorrect{}, \TavilyCorrect{}, \FirecrawlCorrect{} / 100), but their evidence economies differ sharply: by offering gold information rich snippets (Brave), concentrated gold supporting URLs at rank 1 (Tavily) or encouraging broad exploration (Firecrawl). We also introduce an agent answer agnostic metric: contradict-to-gold URL ratio, that varies from \BraveContraRatio{} to \FirecrawlContraRatio{}. Provider choice is therefore a retrieval-budget and policy decision, not merely a recall decision.
 \end{abstract}
 
 \section{Introduction}
@@ -250,88 +250,3 @@ All paper numbers are deterministic functions of the committed query sample, tra
 \small
 \input{appendix_shared}
 \endinput
-\section{Formal Metric Definitions}
-\label{app:metrics}
-For a provider $p$ and query $q$, let $U_{p,q}$ denote the valid judged URLs visible in the trajectory. Let $G(u)$ be the event that the judge marks \containsGold{} true on either the snippet-only record or a page-visible record, and let $F(u)$ indicate that the agent fetched URL $u$. A query has \emph{visible support} when some $u\in U_{p,q}$ satisfies $G(u)$. It is \smart{} when visible support exists and a gold-supporting URL was fetched; \missed{} when visible support exists but no gold-supporting URL was fetched; \blind{} when no visible support exists but the agent fetched at least one URL; and \noop{} when no visible support exists and the agent fetched nothing. The contradiction ratio is computed over snippet-only rows as contradicting URLs divided by gold-supporting URLs.
-
-\section{Dataset Stratification}
-\label{app:dataset}
-The sample file records dataset \texttt{vtllms/sealqa}, subset \texttt{seal\_hard}, sample size 100, source size 254, seed 20260509, and strata \texttt{freshness}, \texttt{search\_results}, and \texttt{topic}. Marginal counts are: 25 fast-changing, 43 slow-changing, 32 never-changing; 57 conflicting and 43 unhelpful search-result labels; topics are Science \& Technology 27, Sports 22, Entertainment 22, Others 12, Politics 9, and History \& Geography 8. Effective years are 61 before 2024, 16 in 2024, and 23 in 2025. Multi-label question-type tags include 72 advanced reasoning, 61 entity/event disambiguation, 13 temporal tracking, 5 cross-lingual, and 2 false-premise.
-
-\section{Provider Request Configurations}
-\label{app:providers}
-All providers are configured to return web-search results rather than provider-side page extracts. Brave uses its Web Search GET endpoint with count 10, offset 0, US/English settings, moderate safe search, spellcheck enabled, text decorations disabled, and web-only result filtering. Tavily uses its search endpoint with \texttt{search\_depth=basic}, \texttt{topic=general}, \texttt{max\_results=10}, and provider-side answer, image, favicon, and raw-content fields disabled. Firecrawl uses its v2 search endpoint with limit 10, web source only, US country, 60s timeout, and no provider-side markdown scraping. Page text for all provider conditions comes only from the shared Jina Reader backend called through \fetchPage{}.
-
-\section{Judge Prompt and Output Schema}
-\label{app:judge-schema}
-The judge prompt instructs Kimi-K2.6 to use only the supplied document content and to return JSON only. A valid row has the expected schema version, a parsed judgment dictionary, provider/query/retrieval/URL identifiers, and no execution or parse error. Invalid rows are excluded rather than counted as negative evidence. The output schema includes gold-support fields, model-answer support, contradiction, garbage, short evidence spans, and confidence; Section~\ref{sec:metrics} lists the exact JSON field names.
-
-\section{Example Judgments and Semantic Corrections}
-\label{app:examples}
-The semantic audit marks some EM misses as correct when the answer is semantically equivalent. Representative examples are: Brave \emph{Astra Zeneca} vs. \emph{AstraZeneca}; Brave \emph{UnionPay} vs. \emph{China UnionPay}; Tavily \emph{3 players} vs. \emph{3}; Firecrawl \emph{Bohemian Rhapsody} vs. \emph{Bohemian Rhapsody, 9,948,386 viewers}; and Firecrawl \emph{16 years} vs. \emph{16 years old}. The regenerated audit file records the exact TSV rows and judge notes. Per-URL judge examples can be inspected by joining the judge JSONLs with the trace viewer: support-bearing rows have \containsGold{} true and a span; contamination rows have \contraGold{} true; relevant-but-insufficient rows remain false for both support fields.
-
-\Needspace{9\baselineskip}
-\section{Trace Viewer and Qualitative Audit}
-\label{app:trace-viewer}
-The repository includes human-readable trajectory views in \url{results/trace_views/}. The rendering script is \url{scripts/render_trace.py}, and \url{scripts/trace_dashboard.py} provides a local browsing dashboard. These views were used for spot-checking case studies, verifying multi-call turns, and inspecting failures where answer text was present but unused. They are not an independent metric source: the paper numbers come from trace JSONLs, judge JSONLs, the semantic TSV, and provider-comparison summaries.
-
-\Needspace{9\baselineskip}
-
-\section{Additional Diagnostics and Artifact Manifest}
-\label{app:additional}
-The tables below report Wilson intervals for the main decision cells, pairwise provider complementarity, and token/fetch diagnostics.
-
-\begin{center}
-\footnotesize
-\begin{tabular}{ll}
-\toprule
-\rowcolor{TableHead}\textbf{Provider/cell} & \textbf{Correct rate and Wilson 95\% CI} \\
-\midrule
-Brave \smart{} & \BraveSmartCorrect{}/\BraveSmartN{}: \BraveSmartRate{} \BraveSmartCI{} \\
-Brave \missed{} & \BraveMissedCorrect{}/\BraveMissedN{}: \BraveMissedRate{} \BraveMissedCI{} \\
-Brave \blind{} & \BraveBlindCorrect{}/\BraveBlindN{}: \BraveBlindRate{} \BraveBlindCI{} \\
-Tavily \smart{} & \TavilySmartCorrect{}/\TavilySmartN{}: \TavilySmartRate{} \TavilySmartCI{} \\
-Tavily \missed{} & \TavilyMissedCorrect{}/\TavilyMissedN{}: \TavilyMissedRate{} \TavilyMissedCI{} \\
-Tavily \blind{} & \TavilyBlindCorrect{}/\TavilyBlindN{}: \TavilyBlindRate{} \TavilyBlindCI{} \\
-Firecrawl \smart{} & \FirecrawlSmartCorrect{}/\FirecrawlSmartN{}: \FirecrawlSmartRate{} \FirecrawlSmartCI{} \\
-Firecrawl \missed{} & \FirecrawlMissedCorrect{}/\FirecrawlMissedN{}: \FirecrawlMissedRate{} \FirecrawlMissedCI{} \\
-Firecrawl \blind{} & \FirecrawlBlindCorrect{}/\FirecrawlBlindN{}: \FirecrawlBlindRate{} \FirecrawlBlindCI{} \\
-\bottomrule
-\end{tabular}
-\captionof{table}{Wilson 95\% intervals for decision-cell correctness. NO-OP rates are 0\% for all providers in this run.}
-\label{tab:app-wilson}
-\end{center}
-
-\begin{center}
-\footnotesize
-\begin{tabular}{lrrrr}
-\toprule
-\rowcolor{TableHead}\textbf{Pair} & \textbf{both} & \textbf{left only} & \textbf{right only} & \textbf{both wrong} \\
-\midrule
-Brave vs. Firecrawl & 14 & 11 & 12 & 63 \\
-Brave vs. Tavily & 14 & 11 & 11 & 64 \\
-Firecrawl vs. Tavily & 14 & 12 & 11 & 63 \\
-\bottomrule
-\end{tabular}
-\captionof{table}{Pairwise semantic-correct overlap derived from the semantic audit TSV.}
-\label{tab:app-pairwise}
-\end{center}
-
-\begin{center}
-\footnotesize
-\begin{tabular}{lrrr}
-\toprule
-\rowcolor{TableHead}\textbf{Metric} & \textbf{Brave} & \textbf{Tavily} & \textbf{Firecrawl} \\
-\midrule
-Total tokens & \BraveTokensM{}M & \TavilyTokensM{}M & \FirecrawlTokensM{}M \\
-Median/query & \BraveMedianTokens{} & \TavilyMedianTokens{} & \FirecrawlMedianTokens{} \\
-Max/query & \BraveMaxTokens{} & \TavilyMaxTokens{} & \FirecrawlMaxTokens{} \\
-$>$100k queries & \BraveOverHundredK{} & \TavilyOverHundredK{} & \FirecrawlOverHundredK{} \\
-Fetch success/fail & \BraveFetchSuccess{}/\BraveFetchFailed{} & \TavilyFetchSuccess{}/\TavilyFetchFailed{} & \FirecrawlFetchSuccess{}/\FirecrawlFetchFailed{} \\
-\bottomrule
-\end{tabular}
-\captionof{table}{Token and fetch diagnostics from provider summaries.}
-\label{tab:app-token}
-\end{center}
-
-\paragraph{Raw artifacts.} Audit mode consumes the semantic audit TSV, three phase-1 trace JSONLs, three Kimi per-URL judge JSONLs, and the provider-comparison summary artifacts. The script checks for Git LFS pointer files and fails explicitly if raw data has not been pulled.
