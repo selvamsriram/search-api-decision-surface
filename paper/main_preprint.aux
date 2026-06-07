@@ -1,0 +1,130 @@
+\relax 
+\bibstyle{acl_natbib}
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Contributions.}{1}{section*.1}\protected@file@percent }
+\citation{lewis-etal-2020-retrieval,guu2020realm}
+\citation{karpukhin2020dense,izacard-grave-2021-leveraging,izacard2023atlas}
+\citation{jarvelin2002cumulated,manning2008introduction}
+\citation{thakur-etal-2021-beir}
+\citation{nakano2021webgpt,press2022selfask,yao2023react,trivedi2022ircot,schick-etal-2023-toolformer,asai2023selfrag}
+\citation{vu2023freshllms}
+\citation{xie2026oversearching}
+\citation{mialon2023gaia,zhou2023webarena,wei2025browsecomp,pham2025sealqa}
+\citation{es2024ragas,saadfalcon2024ares}
+\citation{liu2023verifiability,yue2023automatic}
+\citation{liu2024lost}
+\citation{zheng2023judging,liu2023geval}
+\citation{bravesearch-docs,tavily-docs,firecrawl-docs,jina-reader}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Related Work}{2}{section.2}\protected@file@percent }
+\newlabel{sec:related}{{2}{2}{Related Work}{section.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{Retrieval-augmented generation and open-domain QA.}{2}{section*.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Information-retrieval evaluation.}{2}{section*.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Tool-using and browsing agents.}{2}{section*.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Hard search benchmarks and evidence evaluation.}{2}{section*.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Attribution, verifiability, and LLM judges.}{2}{section*.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Commercial search APIs.}{2}{section*.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Experimental Protocol}{2}{section.3}\protected@file@percent }
+\newlabel{sec:protocol}{{3}{2}{Experimental Protocol}{section.3}{}}
+\@writefile{toc}{\contentsline {paragraph}{Dataset.}{2}{section*.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Agent and tools.}{2}{section*.10}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Execution and judging pipeline. The provider returns only the pre-fetch decision surface: ranked URLs, snippets, and metadata. The agent may issue multiple \texttt  {search\_web}{} or \texttt  {fetch\_page}{} calls in one turn. Every visible URL is replayed to the Kimi judge in the same representation the answer model saw, yielding per-URL oracle labels.}}{3}{figure.caption.8}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{fig:architecture}{{1}{3}{Execution and judging pipeline. The provider returns only the pre-fetch decision surface: ranked URLs, snippets, and metadata. The agent may issue multiple \searchWeb {} or \fetchPage {} calls in one turn. Every visible URL is replayed to the Kimi judge in the same representation the answer model saw, yielding per-URL oracle labels}{figure.caption.8}{}}
+\@writefile{toc}{\contentsline {paragraph}{Providers and snippet normalization.}{3}{section*.11}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Traces.}{3}{section*.12}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4}Per-URL Oracle and Metrics}{3}{section.4}\protected@file@percent }
+\newlabel{sec:metrics}{{4}{3}{Per-URL Oracle and Metrics}{section.4}{}}
+\@writefile{toc}{\contentsline {paragraph}{Judge input.}{3}{section*.13}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Judge output.}{3}{section*.14}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Visible support.}{3}{section*.15}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Headline metrics. \textsc  {Correct}{} is the audited semantic match.}}{4}{table.caption.19}\protected@file@percent }
+\newlabel{tab:headline}{{1}{4}{Headline metrics. \correctans {} is the audited semantic match}{table.caption.19}{}}
+\@writefile{toc}{\contentsline {paragraph}{Decision partition.}{4}{section*.16}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Answer-independent contamination.}{4}{section*.17}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5}Results}{4}{section.5}\protected@file@percent }
+\newlabel{sec:results}{{5}{4}{Results}{section.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Correctness parity masks different evidence economies}{4}{subsection.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}The visible-support ceiling moves sharply}{4}{subsection.5.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Visible support and surface diagnostics from the per-URL judge. Visible support is a lower bound because only fetched URLs receive page-visible judgments.}}{4}{table.caption.20}\protected@file@percent }
+\newlabel{tab:visible-support}{{2}{4}{Visible support and surface diagnostics from the per-URL judge. Visible support is a lower bound because only fetched URLs receive page-visible judgments}{table.caption.20}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}The same agent enters different decision regimes}{4}{subsection.5.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Aggregate correctness hides complementarity}{4}{subsection.5.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5}Many failures occur despite visible answer text}{4}{subsection.5.5}\protected@file@percent }
+\newlabel{sec:string-proxy}{{5.5}{4}{Many failures occur despite visible answer text}{subsection.5.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Provider profiles under the semantic \textsc  {Correct}{} metric. Similar correctness hides different visible support, rank concentration, contamination, and fetch behavior. Bars are scaled within each metric across providers.}}{5}{figure.caption.18}\protected@file@percent }
+\newlabel{fig:profiles}{{2}{5}{Provider profiles under the semantic \correctans {} metric. Similar correctness hides different visible support, rank concentration, contamination, and fetch behavior. Bars are scaled within each metric across providers}{figure.caption.18}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Four-way decision partition. Each entry is queries / correct answers (semantic match) after joining oracle labels with agent fetch actions.}}{5}{figure.caption.21}\protected@file@percent }
+\newlabel{fig:partition}{{3}{5}{Four-way decision partition. Each entry is queries / correct answers (semantic match) after joining oracle labels with agent fetch actions}{figure.caption.21}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces UpSet-style semantic-correctness overlap across providers. Rows show exact provider combinations that answer each query correctly; an oracle provider router would solve 44{} queries, above the best single provider.}}{5}{figure.caption.22}\protected@file@percent }
+\newlabel{fig:complementarity}{{4}{5}{UpSet-style semantic-correctness overlap across providers. Rows show exact provider combinations that answer each query correctly; an oracle provider router would solve \OneOrMoreCorrect {} queries, above the best single provider}{figure.caption.22}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Discussion}{5}{section.6}\protected@file@percent }
+\newlabel{sec:discussion}{{6}{5}{Discussion}{section.6}{}}
+\@writefile{toc}{\contentsline {paragraph}{Provider choice is a policy choice.}{5}{section*.23}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Top-$k$ relevance is incomplete for agents.}{5}{section*.24}\protected@file@percent }
+\bibdata{refs}
+\bibcite{asai2023selfrag}{{1}{2024}{{Asai et~al.}}{{Asai, Wu, Wang, Sil, and Hajishirzi}}}
+\bibcite{bravesearch-docs}{{2}{2026}{{Brave Software}}{{}}}
+\bibcite{es2024ragas}{{3}{2024}{{Es et~al.}}{{Es, James, Espinosa-Anke, and Schockaert}}}
+\bibcite{firecrawl-docs}{{4}{2026}{{Firecrawl}}{{}}}
+\bibcite{guu2020realm}{{5}{2020}{{Guu et~al.}}{{Guu, Lee, Tung, Pasupat, and Chang}}}
+\@writefile{toc}{\contentsline {paragraph}{What providers could optimize.}{6}{section*.25}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{What practitioners can use now.}{6}{section*.26}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7}Limitations}{6}{section.7}\protected@file@percent }
+\newlabel{sec:limitations}{{7}{6}{Limitations}{section.7}{}}
+\@writefile{toc}{\contentsline {paragraph}{Single agent and judge.}{6}{section*.27}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Lower-bound support.}{6}{section*.28}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Snippet-surface asymmetry.}{6}{section*.29}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Observational policy analysis.}{6}{section*.30}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Scale and provider coverage.}{6}{section*.31}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {8}Conclusion}{6}{section.8}\protected@file@percent }
+\bibcite{izacard2023atlas}{{6}{2023}{{Izacard et~al.}}{{Izacard, Caron, Hosseini, Riedel, Bojanowski, Joulin, and Grave}}}
+\bibcite{izacard-grave-2021-leveraging}{{7}{2021}{{Izacard and Grave}}{{}}}
+\bibcite{jarvelin2002cumulated}{{8}{2002}{{J{"a}rvelin and Kek{"a}l{"a}inen}}{{}}}
+\bibcite{jina-reader}{{9}{2026}{{Jina AI}}{{}}}
+\bibcite{karpukhin2020dense}{{10}{2020}{{Karpukhin et~al.}}{{Karpukhin, Oguz, Min, Lewis, Wu, Edunov, Chen, and Yih}}}
+\bibcite{lewis-etal-2020-retrieval}{{11}{2020}{{Lewis et~al.}}{{Lewis, Perez, Piktus, Petroni, Karpukhin, Goyal, Kuttler, Lewis, Yih, Rocktaschel, Riedel, and Kiela}}}
+\bibcite{liu2024lost}{{12}{2024}{{Liu et~al.}}{{Liu, Lin, Hewitt, Paranjape, Bevilacqua, Petroni, and Liang}}}
+\bibcite{liu2023verifiability}{{13}{2023{a}}{{Liu et~al.}}{{Liu, Zhang, and Liang}}}
+\bibcite{liu2023geval}{{14}{2023{b}}{{Liu et~al.}}{{Liu, Iter, Xu, Wang, Xu, and Zhu}}}
+\bibcite{manning2008introduction}{{15}{2008}{{Manning et~al.}}{{Manning, Raghavan, and Sch{"u}tze}}}
+\bibcite{mialon2023gaia}{{16}{2024}{{Mialon et~al.}}{{Mialon, Fourrier, Swift, Wolf, LeCun, and Scialom}}}
+\bibcite{nakano2021webgpt}{{17}{2021}{{Nakano et~al.}}{{Nakano, Hilton, Balaji, Wu, Ouyang, Kim, Hesse, Jain, Kosaraju, Saunders, Jiang, Cobbe, Eloundou et~al.}}}
+\bibcite{pham2025sealqa}{{18}{2025}{{Pham et~al.}}{{Pham, Nguyen, Zunjare, Chen, Tseng, and Vu}}}
+\bibcite{press2022selfask}{{19}{2022}{{Press et~al.}}{{Press, Zhang, Min, Schmidt, Smith, and Lewis}}}
+\bibcite{saadfalcon2024ares}{{20}{2024}{{Saad-Falcon et~al.}}{{Saad-Falcon, Khattab, Potts, and Zaharia}}}
+\bibcite{schick-etal-2023-toolformer}{{21}{2023}{{Schick et~al.}}{{Schick, Dwivedi-Yu, Dess{\`i}, Raileanu, Lomeli, Hambro, Zettlemoyer, Cancedda, and Scialom}}}
+\bibcite{tavily-docs}{{22}{2026}{{Tavily}}{{}}}
+\bibcite{thakur-etal-2021-beir}{{23}{2021}{{Thakur et~al.}}{{Thakur, Reimers, Ruckl{\'e}, Srivastava, and Gurevych}}}
+\bibcite{trivedi2022ircot}{{24}{2022}{{Trivedi et~al.}}{{Trivedi, Balasubramanian, Khot, and Sabharwal}}}
+\bibcite{vu2023freshllms}{{25}{2023}{{Vu et~al.}}{{Vu, Iyyer, Wang, Constant, Wei, Wei, Tar, Sung, Zhou, Le, and Luong}}}
+\bibcite{wei2025browsecomp}{{26}{2025}{{Wei et~al.}}{{Wei, Sun, Papay, McKinney, Han, Fulford, Chung, Passos, Fedus, and Glaese}}}
+\bibcite{xie2026oversearching}{{27}{2026}{{Xie et~al.}}{{Xie, Gopinath, Qiu, Lin, Sun, Potdar, and Dhingra}}}
+\bibcite{yao2023react}{{28}{2023}{{Yao et~al.}}{{Yao, Zhao, Yu, Du, Shafran, Narasimhan, and Cao}}}
+\bibcite{yue2023automatic}{{29}{2023}{{Yue et~al.}}{{Yue, Wang, Chen, Zhang, Su, and Sun}}}
+\bibcite{zheng2023judging}{{30}{2023}{{Zheng et~al.}}{{Zheng, Chiang, Sheng, Zhuang, Wu, Zhuang, Lin, Li, Xing, Gonzalez, Stoica, and Zhang}}}
+\bibcite{zhou2023webarena}{{31}{2024}{{Zhou et~al.}}{{Zhou, Xu, Zhu, Zhou, Lo, Sridhar, Cheng, Ou, Bisk, Fried, Alon, and Neubig}}}
+\@writefile{toc}{\contentsline {section}{\numberline {A}Formal Metric Definitions}{9}{appendix.A}\protected@file@percent }
+\newlabel{app:metrics}{{A}{9}{Formal Metric Definitions}{appendix.A}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {B}Dataset Stratification}{9}{appendix.B}\protected@file@percent }
+\newlabel{app:dataset}{{B}{9}{Dataset Stratification}{appendix.B}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {C}Provider Request Configurations}{9}{appendix.C}\protected@file@percent }
+\newlabel{app:providers}{{C}{9}{Provider Request Configurations}{appendix.C}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {D}Judge Prompt and Output Schema}{9}{appendix.D}\protected@file@percent }
+\newlabel{app:judge-schema}{{D}{9}{Judge Prompt and Output Schema}{appendix.D}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {E}Example Judgments and Semantic Corrections}{9}{appendix.E}\protected@file@percent }
+\newlabel{app:examples}{{E}{9}{Example Judgments and Semantic Corrections}{appendix.E}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {F}Trace Viewer and Qualitative Audit}{9}{appendix.F}\protected@file@percent }
+\newlabel{app:trace-viewer}{{F}{9}{Trace Viewer and Qualitative Audit}{appendix.F}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {G}Additional Diagnostics and Artifact Manifest}{9}{appendix.G}\protected@file@percent }
+\newlabel{app:additional}{{G}{9}{Additional Diagnostics and Artifact Manifest}{appendix.G}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Wilson 95\% intervals for decision-cell correctness. NO-OP rates are 0\% for all providers in this run.}}{9}{table.3}\protected@file@percent }
+\newlabel{tab:app-wilson}{{3}{9}{Wilson 95\% intervals for decision-cell correctness. NO-OP rates are 0\% for all providers in this run}{table.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Pairwise semantic-correct overlap derived from the semantic audit TSV.}}{10}{table.4}\protected@file@percent }
+\newlabel{tab:app-pairwise}{{4}{10}{Pairwise semantic-correct overlap derived from the semantic audit TSV}{table.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Token and fetch diagnostics from provider summaries.}}{10}{table.5}\protected@file@percent }
+\newlabel{tab:app-token}{{5}{10}{Token and fetch diagnostics from provider summaries}{table.5}{}}
+\@writefile{toc}{\contentsline {paragraph}{Raw artifacts.}{10}{section*.35}\protected@file@percent }
+\gdef \@abspage@last{10}
