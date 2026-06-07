@@ -8,4 +8,11 @@ data/page_cache/
 .claude/
 *.egg-info/
 results/llm_judge/*.lock
-paper/build/
+paper/*.aux
+paper/*.blg
+paper/*.fdb_latexmk
+paper/*.fls
+paper/*.log
+paper/*.out
+paper/*.synctex.gz
+paper/build/arxiv/
