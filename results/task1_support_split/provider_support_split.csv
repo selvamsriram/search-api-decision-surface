@@ -1,0 +1,4 @@
+provider,query_count,pre_fetch_surface_support_q,post_fetch_discovered_support_q,trajectory_visible_support_q,no_pre_fetch_surface_support_q,legacy_visible_support_q,snippet_only_valid_rows,page_visible_valid_rows,pre_fetch_support_rows,page_visible_pre_fetch_support_rows,snippet_contains_gold_rows,snippet_gold_in_snippets_rows,page_extracted_gold_rows,post_fetch_discovered_support_rows,judge_total_rows,judge_valid_rows,judge_invalid_rows
+brave,100,30,3,33,70,33,2095,101,101,4,97,88,6,3,2202,2196,6
+tavily,100,16,8,24,84,24,2339,125,34,3,31,24,9,9,2481,2464,17
+firecrawl,100,16,3,19,84,19,2085,124,30,3,27,24,5,3,2226,2209,17

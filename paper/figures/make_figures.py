@@ -13,7 +13,6 @@ import csv
 import json
 import math
 import subprocess
-from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
@@ -56,10 +55,13 @@ FALLBACK = {
             "gold_source_family_hit": 61, "snippet_surface_hit": 71,
             "answer_in_page": 52, "answer_available": 78,
             "wrong_with_answer_text_available": 57, "wrong_without_answer_text_available": 22,
-            "support_visible_q": 33, "no_support_q": 67, "snippet_rows": 2095,
+            "pre_fetch_support_q": 30, "post_fetch_discovered_q": 3,
+            "trajectory_visible_support_q": 33, "no_pre_fetch_support_q": 70,
+            "support_visible_q": 33, "no_support_q": 70, "snippet_rows": 2095,
             "page_rows": 101, "gold_rows": 97, "contra_rows": 89,
-            "contra_ratio": 0.92, "rank1_count": 12, "rank1_pct": 12,
-            "bucket": {"smart": [8, 3], "missed": [25, 9], "blind": [51, 9], "noop": [16, 0]},
+            "pre_fetch_support_rows": 101, "post_fetch_discovered_rows": 3,
+            "contra_ratio": 0.92, "rank1_count": 13, "rank1_pct": 13,
+            "bucket": {"smart": [3, 3], "missed": [27, 11], "blind": [54, 11], "noop": [16, 0]},
         },
         "tavily": {
             "em": 21, "correct": 25, "correct_gain": 4, "f1": 0.261,
@@ -71,10 +73,13 @@ FALLBACK = {
             "gold_source_family_hit": 60, "snippet_surface_hit": 60,
             "answer_in_page": 57, "answer_available": 75,
             "wrong_with_answer_text_available": 56, "wrong_without_answer_text_available": 23,
-            "support_visible_q": 24, "no_support_q": 76, "snippet_rows": 2339,
+            "pre_fetch_support_q": 16, "post_fetch_discovered_q": 8,
+            "trajectory_visible_support_q": 24, "no_pre_fetch_support_q": 84,
+            "support_visible_q": 24, "no_support_q": 84, "snippet_rows": 2339,
             "page_rows": 125, "gold_rows": 31, "contra_rows": 58,
-            "contra_ratio": 1.87, "rank1_count": 15, "rank1_pct": 48,
-            "bucket": {"smart": [11, 7], "missed": [13, 5], "blind": [55, 9], "noop": [21, 0]},
+            "pre_fetch_support_rows": 34, "post_fetch_discovered_rows": 9,
+            "contra_ratio": 1.87, "rank1_count": 17, "rank1_pct": 50,
+            "bucket": {"smart": [3, 1], "missed": [13, 7], "blind": [63, 16], "noop": [21, 1]},
         },
         "firecrawl": {
             "em": 23, "correct": 26, "correct_gain": 3, "f1": 0.282,
@@ -86,10 +91,13 @@ FALLBACK = {
             "gold_source_family_hit": 64, "snippet_surface_hit": 54,
             "answer_in_page": 61, "answer_available": 76,
             "wrong_with_answer_text_available": 53, "wrong_without_answer_text_available": 24,
-            "support_visible_q": 19, "no_support_q": 81, "snippet_rows": 2085,
+            "pre_fetch_support_q": 16, "post_fetch_discovered_q": 3,
+            "trajectory_visible_support_q": 19, "no_pre_fetch_support_q": 84,
+            "support_visible_q": 19, "no_support_q": 84, "snippet_rows": 2085,
             "page_rows": 124, "gold_rows": 27, "contra_rows": 70,
-            "contra_ratio": 2.59, "rank1_count": 3, "rank1_pct": 11,
-            "bucket": {"smart": [7, 2], "missed": [12, 5], "blind": [67, 16], "noop": [14, 0]},
+            "pre_fetch_support_rows": 30, "post_fetch_discovered_rows": 3,
+            "contra_ratio": 2.59, "rank1_count": 4, "rank1_pct": 13,
+            "bucket": {"smart": [3, 1], "missed": [13, 7], "blind": [70, 18], "noop": [14, 0]},
         },
     },
     "pairwise": {
@@ -218,6 +226,7 @@ def compute_from_judge(data: dict[str, Any], sem: dict[tuple[str, str], bool]) -
         return False
     total = valid_total = snippet_total = page_total = 0
     for p in PROVIDERS:
+        provider_qids = sorted(q for provider, q in sem if provider == p)
         rows_all = load_jsonl(JUDGE_PATHS[p])
         rows = [r for r in rows_all if valid_judge_row(r)]
         snip = [r for r in rows if r.get("judge_surface_class") == "snippet_only"]
@@ -225,43 +234,78 @@ def compute_from_judge(data: dict[str, Any], sem: dict[tuple[str, str], bool]) -
         total += len(rows_all); valid_total += len(rows); snippet_total += len(snip); page_total += len(page)
         gold_rows = sum(1 for r in snip if r["judgment"].get("contains_gold_answer"))
         contra_rows = sum(1 for r in snip if r["judgment"].get("contradicts_gold_answer"))
-        rank1 = sum(1 for r in snip if r["judgment"].get("contains_gold_answer") and int(r.get("rank") or 0) == 1)
-        qstate: dict[str, dict[str, set[str]]] = defaultdict(lambda: {"gold": set(), "fetched": set(), "fetched_gold": set()})
+        rank1 = 0
+        pre_fetch_support_rows = 0
+        qstate: dict[str, dict[str, set[str]]] = {
+            q: {"pre": set(), "page": set(), "fetched": set(), "legacy": set()}
+            for q in provider_qids
+        }
         for r in rows:
             q = r.get("query_id")
             u = r.get("normalized_url") or r.get("url")
-            if not q or not u:
+            if not q or not u or q not in qstate:
                 continue
             j = r.get("judgment") or {}
-            if r.get("judge_surface_class") == "snippet_only":
-                if j.get("contains_gold_answer"):
-                    qstate[q]["gold"].add(u)
-                if r.get("model_fetched_document"):
-                    qstate[q]["fetched"].add(u)
-            else:
+            surface = r.get("judge_surface_class")
+            if j.get("contains_gold_answer"):
+                qstate[q]["legacy"].add(u)
+            # Fetched URLs are represented by page-visible rows rather than
+            # duplicate snippet-only rows. The gold_answer_in_snippets field is
+            # still snippet-only, so it is valid pre-fetch evidence even on a
+            # page-visible judge row.
+            pre_fetch_support = bool(j.get("gold_answer_in_snippets")) or (
+                surface == "snippet_only" and bool(j.get("contains_gold_answer"))
+            )
+            if pre_fetch_support:
+                qstate[q]["pre"].add(u)
+                pre_fetch_support_rows += 1
+                if int(r.get("rank") or 0) == 1:
+                    rank1 += 1
+            if surface == "page_visible":
                 qstate[q]["fetched"].add(u)
-                if j.get("contains_gold_answer"):
-                    qstate[q]["gold"].add(u)
-                    qstate[q]["fetched_gold"].add(u)
+                if j.get("gold_answer_in_extracted_page"):
+                    qstate[q]["page"].add(u)
+            elif r.get("model_fetched_document"):
+                qstate[q]["fetched"].add(u)
         buckets = {"smart": [0, 0], "missed": [0, 0], "blind": [0, 0], "noop": [0, 0]}
-        support = 0
-        for q, st in qstate.items():
+        pre_fetch_support_q = post_fetch_discovered_q = trajectory_visible_support_q = 0
+        post_fetch_discovered_rows = 0
+        for q in provider_qids:
+            st = qstate[q]
             correct = int(sem.get((p, q), False))
-            gold = bool(st["gold"]); fetched = bool(st["fetched"]); fetched_gold = bool(st["fetched_gold"])
-            if gold: support += 1
-            if gold and fetched_gold: b = "smart"
-            elif gold and not fetched_gold: b = "missed"
-            elif (not gold) and fetched: b = "blind"
+            pre = bool(st["pre"])
+            post = (not pre) and bool(st["page"])
+            trajectory = pre or post
+            fetched = bool(st["fetched"])
+            fetched_pre = bool(st["pre"] & st["fetched"])
+            if pre:
+                pre_fetch_support_q += 1
+            if post:
+                post_fetch_discovered_q += 1
+                post_fetch_discovered_rows += len(st["page"])
+            if trajectory:
+                trajectory_visible_support_q += 1
+            if pre and fetched_pre: b = "smart"
+            elif pre and not fetched_pre: b = "missed"
+            elif (not pre) and fetched: b = "blind"
             else: b = "noop"
             buckets[b][0] += 1
             buckets[b][1] += correct
         d = data["providers"][p]
         d.update({
-            "support_visible_q": support, "no_support_q": 100 - support,
+            "pre_fetch_support_q": pre_fetch_support_q,
+            "post_fetch_discovered_q": post_fetch_discovered_q,
+            "trajectory_visible_support_q": trajectory_visible_support_q,
+            "no_pre_fetch_support_q": 100 - pre_fetch_support_q,
+            "support_visible_q": trajectory_visible_support_q,
+            "no_support_q": 100 - pre_fetch_support_q,
             "snippet_rows": len(snip), "page_rows": len(page),
             "gold_rows": gold_rows, "contra_rows": contra_rows,
+            "pre_fetch_support_rows": pre_fetch_support_rows,
+            "post_fetch_discovered_rows": post_fetch_discovered_rows,
             "contra_ratio": round(contra_rows / gold_rows, 2) if gold_rows else float("nan"),
-            "rank1_count": rank1, "rank1_pct": round(100 * rank1 / gold_rows) if gold_rows else 0,
+            "rank1_count": rank1,
+            "rank1_pct": round(100 * rank1 / pre_fetch_support_rows) if pre_fetch_support_rows else 0,
             "bucket": buckets,
         })
     data["meta"].update({
@@ -364,9 +408,15 @@ def write_numbers(data: dict[str, Any], stats: dict[str, dict[str, int]], exampl
             "AnswerPage": d["answer_in_page"], "AnswerAvailable": d["answer_available"],
             "WrongWithAnswer": d["wrong_with_answer_text_available"],
             "WrongWithoutAnswer": d["wrong_without_answer_text_available"],
-            "SupportVisibleQ": d["support_visible_q"], "NoSupportQ": d["no_support_q"],
+            "PreFetchSupportQ": d["pre_fetch_support_q"],
+            "PostFetchDiscoveredSupportQ": d["post_fetch_discovered_q"],
+            "TrajectoryVisibleSupportQ": d["trajectory_visible_support_q"],
+            "NoPreFetchSupportQ": d["no_pre_fetch_support_q"],
+            "SupportVisibleQ": d["trajectory_visible_support_q"], "NoSupportQ": d["no_support_q"],
             "SnippetRows": f"{d['snippet_rows']:,}", "PageRows": d["page_rows"],
-            "GoldRows": d["gold_rows"], "ContraRows": d["contra_rows"],
+            "GoldRows": d["gold_rows"], "PreFetchSupportRows": d["pre_fetch_support_rows"],
+            "PostFetchDiscoveredRows": d["post_fetch_discovered_rows"],
+            "ContraRows": d["contra_rows"],
             "ContraRatio": f"{d['contra_ratio']:.2f}", "RankOneGold": d["rank1_count"],
             "RankOnePct": f"{d['rank1_pct']}\\%",
         }
@@ -401,7 +451,10 @@ def write_numbers(data: dict[str, Any], stats: dict[str, dict[str, int]], exampl
 def render_dot(name: str, dot: str) -> None:
     dot_path = HERE / f"{name}.dot"
     dot_path.write_text(dot, encoding="utf-8")
-    for fmt in ["pdf", "svg"]:
+    formats = ["pdf", "svg"]
+    if name == "fig1_architecture":
+        formats.append("png")
+    for fmt in formats:
         subprocess.run(["dot", f"-T{fmt}", str(dot_path), "-o", str(HERE / f"{name}.{fmt}")], check=True)
 
 
@@ -422,9 +475,9 @@ def make_architecture() -> str:
   obs    [label=< <B>Tool observations</B><BR/><FONT POINT-SIZE="10">search results or page evidence<BR/>returned to the agent</FONT> >, fillcolor="#F8FAFC", color="#475569"];
   ans    [label=< <B>Final answer</B><BR/><FONT POINT-SIZE="10">short answer or abstention</FONT> >, fillcolor="#E2E8F0", color="#475569"];
   trace  [label=< <B>Trajectory JSONL</B><BR/><FONT POINT-SIZE="10">all searches, visible URLs,<BR/>fetches, tokens, final + gold answer</FONT> >, fillcolor="#F8FAFC", color="#475569"];
-  records [label=< <B>Judge records</B><BR/><FONT POINT-SIZE="10">snippet-only for every visible URL<BR/>page-visible for fetched URLs</FONT> >, fillcolor="#FFE4E6", color="#E11D48"];
+  records [label=< <B>Judge records</B><BR/><FONT POINT-SIZE="10">one row per visible URL<BR/>page-visible rows include snippet fields</FONT> >, fillcolor="#FFE4E6", color="#E11D48"];
   kimi    [label=< <B>Kimi-K2.6 judge</B><BR/><FONT POINT-SIZE="10">gold support, contradiction,<BR/>model-answer support, spans,<BR/>garbage, confidence</FONT> >, fillcolor="#FDF2F8", color="#BE185D"];
-  metrics [label=< <B>Decision-surface metrics</B><BR/><FONT POINT-SIZE="10">visible support, SMART/MISSED/<BR/>BLIND/NO-OP, blind fetch,<BR/>contradict:gold, semantic-correct</FONT> >, fillcolor="#FFFBEB", color="#D97706"];
+  metrics [label=< <B>Decision-surface metrics</B><BR/><FONT POINT-SIZE="10">pre-fetch / post-fetch support,<BR/>SMART/MISSED/BLIND/NO-OP,<BR/>surface c:g, semantic-correct</FONT> >, fillcolor="#FFFBEB", color="#D97706"];
 
   q -> agent -> step;
   step -> search [color="#0284C7"];
@@ -470,15 +523,19 @@ def make_profiles(data: dict[str, Any], stats: dict[str, dict[str, int]]) -> str
   </TR>'''
 
     cards = []
+    support_max = max(data["providers"][provider]["pre_fetch_support_q"] for provider in PROVIDERS)
+    rank_max = max(data["providers"][provider]["rank1_pct"] for provider in PROVIDERS)
+    contra_max = max(data["providers"][provider]["contra_ratio"] for provider in PROVIDERS)
+    fetch_max = max(data["providers"][provider]["fetched_pct"] for provider in PROVIDERS)
     for p in PROVIDERS:
         d = data["providers"][p]
         s = stats[p]
         color = accents[p]
         rows = [
-            metric_row("Support", d["support_visible_q"], f'{d["support_visible_q"]}', 33, color),
-            metric_row("Rank-1", d["rank1_pct"], f'{d["rank1_pct"]}%', 48, color),
-            metric_row("Contra", d["contra_ratio"], f'{d["contra_ratio"]:.2f}', 2.59, color),
-            metric_row("Fetch", d["fetched_pct"], f'{d["fetched_pct"]}%', 81, color),
+            metric_row("Pre-fetch", d["pre_fetch_support_q"], f'{d["pre_fetch_support_q"]}', support_max, color),
+            metric_row("Rank-1", d["rank1_pct"], f'{d["rank1_pct"]}%', rank_max, color),
+            metric_row("Contra", d["contra_ratio"], f'{d["contra_ratio"]:.2f}', contra_max, color),
+            metric_row("Fetch", d["fetched_pct"], f'{d["fetched_pct"]}%', fetch_max, color),
         ]
         cards.append(f'''  {p} [label=<
 <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="6">
@@ -511,7 +568,7 @@ def make_partition(data: dict[str, Any]) -> str:
   node [shape=plain, fontname="Helvetica"];
   part [label=<
   <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="10" COLOR="#CBD5E1">
-    <TR><TD BGCOLOR="#111827"><FONT COLOR="white"><B>Provider</B></FONT></TD><TD BGCOLOR="#166534"><FONT COLOR="white"><B>SMART</B><BR/><FONT POINT-SIZE="11">support visible + fetched support</FONT></FONT></TD><TD BGCOLOR="#A16207"><FONT COLOR="white"><B>MISSED</B><BR/><FONT POINT-SIZE="11">support visible + did not fetch it</FONT></FONT></TD><TD BGCOLOR="#C2410C"><FONT COLOR="white"><B>BLIND</B><BR/><FONT POINT-SIZE="11">no visible support + fetched</FONT></FONT></TD><TD BGCOLOR="#374151"><FONT COLOR="white"><B>NO-OP</B><BR/><FONT POINT-SIZE="11">no visible support + no fetch</FONT></FONT></TD></TR>
+    <TR><TD BGCOLOR="#111827"><FONT COLOR="white"><B>Provider</B></FONT></TD><TD BGCOLOR="#166534"><FONT COLOR="white"><B>SMART</B><BR/><FONT POINT-SIZE="11">pre-fetch support + fetched it</FONT></FONT></TD><TD BGCOLOR="#A16207"><FONT COLOR="white"><B>MISSED</B><BR/><FONT POINT-SIZE="11">pre-fetch support + did not fetch it</FONT></FONT></TD><TD BGCOLOR="#C2410C"><FONT COLOR="white"><B>BLIND</B><BR/><FONT POINT-SIZE="11">no pre-fetch support + fetched</FONT></FONT></TD><TD BGCOLOR="#374151"><FONT COLOR="white"><B>NO-OP</B><BR/><FONT POINT-SIZE="11">no pre-fetch support + no fetch</FONT></FONT></TD></TR>
     {''.join(rows)}
   </TABLE>>];
 }}
@@ -571,13 +628,13 @@ def write_audit_md(data: dict[str, Any], stats: dict[str, dict[str, int]], examp
     lines = [
         "# Decision-surface audit", "",
         f"Source mode: `{mode}`.", "",
-        "Correctness is `semantic_match` from `results/em_vs_semantic_audit.tsv`; exact match is retained as an audit column.", "",
-        "| Provider | Correct | EM | Gain | Visible support | SMART | MISSED | BLIND | NO-OP | c:g |",
-        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+        "Correctness is `semantic_match` from `results/em_vs_semantic_audit.tsv`; exact match and normalized token F1 are retained as deterministic answer-overlap diagnostics.", "",
+        "| Provider | Correct | EM | Gain | Pre-fetch support | Post-fetch discovered | Trajectory-visible | SMART | MISSED | BLIND | NO-OP | c:g |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for p in PROVIDERS:
         d = data["providers"][p]; b = d["bucket"]; s = stats[p]
-        lines.append(f"| {PLABEL[p]} | {s['correct']} | {s['em']} | +{s['delta']} | {d['support_visible_q']} | {b['smart'][0]}/{b['smart'][1]} | {b['missed'][0]}/{b['missed'][1]} | {b['blind'][0]}/{b['blind'][1]} | {b['noop'][0]}/{b['noop'][1]} | {d['contra_ratio']:.2f} |")
+        lines.append(f"| {PLABEL[p]} | {s['correct']} | {s['em']} | +{s['delta']} | {d['pre_fetch_support_q']} | {d['post_fetch_discovered_q']} | {d['trajectory_visible_support_q']} | {b['smart'][0]}/{b['smart'][1]} | {b['missed'][0]}/{b['missed'][1]} | {b['blind'][0]}/{b['blind'][1]} | {b['noop'][0]}/{b['noop'][1]} | {d['contra_ratio']:.2f} |")
     lines += ["", "## Semantic EM-miss examples", ""]
     for p in PROVIDERS:
         lines.append(f"### {PLABEL[p]}")

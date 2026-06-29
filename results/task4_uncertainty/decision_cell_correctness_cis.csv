@@ -1,0 +1,13 @@
+provider,provider_label,cell,query_count,correct_count,estimate,ci_low,ci_high,unit,digits,formatted
+brave,Brave,SMART,3,3,100.0,100.0,100.0,percent,0,"3/3 (100% [100, 100])"
+brave,Brave,MISSED,27,11,40.74074074074074,22.22222222222222,60.0,percent,0,"11/27 (41% [22, 60])"
+brave,Brave,BLIND,54,11,20.37037037037037,10.204081632653061,32.0,percent,0,"11/54 (20% [10, 32])"
+brave,Brave,NOOP,16,0,0.0,0.0,0.0,percent,0,"0/16 (0% [0, 0])"
+tavily,Tavily,SMART,3,1,33.33333333333333,0.0,100.0,percent,0,"1/3 (33% [0, 100])"
+tavily,Tavily,MISSED,13,7,53.84615384615385,25.0,81.81818181818183,percent,0,"7/13 (54% [25, 82])"
+tavily,Tavily,BLIND,63,16,25.396825396825395,14.925373134328357,36.84210526315789,percent,0,"16/63 (25% [15, 37])"
+tavily,Tavily,NOOP,21,1,4.761904761904762,0.0,15.789473684210526,percent,0,"1/21 (5% [0, 16])"
+firecrawl,Firecrawl,SMART,3,1,33.33333333333333,0.0,100.0,percent,0,"1/3 (33% [0, 100])"
+firecrawl,Firecrawl,MISSED,13,7,53.84615384615385,25.0,81.81818181818183,percent,0,"7/13 (54% [25, 82])"
+firecrawl,Firecrawl,BLIND,70,18,25.71428571428571,15.789473684210526,36.231884057971016,percent,0,"18/70 (26% [16, 36])"
+firecrawl,Firecrawl,NOOP,14,0,0.0,0.0,0.0,percent,0,"0/14 (0% [0, 0])"

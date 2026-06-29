@@ -1,0 +1,13 @@
+provider,cell,query_count,semantic_correct_count,semantic_correct_rate
+brave,SMART,3,3,1.0
+brave,MISSED,27,11,0.4074
+brave,BLIND,54,11,0.2037
+brave,NOOP,16,0,0.0
+tavily,SMART,3,1,0.3333
+tavily,MISSED,13,7,0.5385
+tavily,BLIND,63,16,0.254
+tavily,NOOP,21,1,0.0476
+firecrawl,SMART,3,1,0.3333
+firecrawl,MISSED,13,7,0.5385
+firecrawl,BLIND,70,18,0.2571
+firecrawl,NOOP,14,0,0.0

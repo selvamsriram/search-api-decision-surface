@@ -2,13 +2,13 @@
 
 Source mode: `raw_judge+semantic_tsv`.
 
-Correctness is `semantic_match` from `results/em_vs_semantic_audit.tsv`; exact match is retained as an audit column.
+Correctness is `semantic_match` from `results/em_vs_semantic_audit.tsv`; exact match and normalized token F1 are retained as deterministic answer-overlap diagnostics.
 
-| Provider | Correct | EM | Gain | Visible support | SMART | MISSED | BLIND | NO-OP | c:g |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| Brave | 25 | 21 | +4 | 33 | 8/4 | 25/11 | 51/10 | 0/0 | 0.92 |
-| Tavily | 25 | 21 | +4 | 24 | 11/7 | 13/7 | 55/10 | 0/0 | 1.87 |
-| Firecrawl | 26 | 23 | +3 | 19 | 7/2 | 12/6 | 67/18 | 0/0 | 2.59 |
+| Provider | Correct | EM | Gain | Pre-fetch support | Post-fetch discovered | Trajectory-visible | SMART | MISSED | BLIND | NO-OP | c:g |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Brave | 25 | 21 | +4 | 30 | 3 | 33 | 3/3 | 27/11 | 54/11 | 16/0 | 0.92 |
+| Tavily | 25 | 21 | +4 | 16 | 8 | 24 | 3/1 | 13/7 | 63/16 | 21/1 | 1.87 |
+| Firecrawl | 26 | 23 | +3 | 16 | 3 | 19 | 3/1 | 13/7 | 70/18 | 14/0 | 2.59 |
 
 ## Semantic EM-miss examples
 

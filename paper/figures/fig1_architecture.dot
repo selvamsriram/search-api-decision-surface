@@ -13,9 +13,9 @@ digraph G {
   obs    [label=< <B>Tool observations</B><BR/><FONT POINT-SIZE="10">search results or page evidence<BR/>returned to the agent</FONT> >, fillcolor="#F8FAFC", color="#475569"];
   ans    [label=< <B>Final answer</B><BR/><FONT POINT-SIZE="10">short answer or abstention</FONT> >, fillcolor="#E2E8F0", color="#475569"];
   trace  [label=< <B>Trajectory JSONL</B><BR/><FONT POINT-SIZE="10">all searches, visible URLs,<BR/>fetches, tokens, final + gold answer</FONT> >, fillcolor="#F8FAFC", color="#475569"];
-  records [label=< <B>Judge records</B><BR/><FONT POINT-SIZE="10">snippet-only for every visible URL<BR/>page-visible for fetched URLs</FONT> >, fillcolor="#FFE4E6", color="#E11D48"];
+  records [label=< <B>Judge records</B><BR/><FONT POINT-SIZE="10">one row per visible URL<BR/>page-visible rows include snippet fields</FONT> >, fillcolor="#FFE4E6", color="#E11D48"];
   kimi    [label=< <B>Kimi-K2.6 judge</B><BR/><FONT POINT-SIZE="10">gold support, contradiction,<BR/>model-answer support, spans,<BR/>garbage, confidence</FONT> >, fillcolor="#FDF2F8", color="#BE185D"];
-  metrics [label=< <B>Decision-surface metrics</B><BR/><FONT POINT-SIZE="10">visible support, SMART/MISSED/<BR/>BLIND/NO-OP, blind fetch,<BR/>contradict:gold, semantic-correct</FONT> >, fillcolor="#FFFBEB", color="#D97706"];
+  metrics [label=< <B>Decision-surface metrics</B><BR/><FONT POINT-SIZE="10">pre-fetch / post-fetch support,<BR/>SMART/MISSED/BLIND/NO-OP,<BR/>surface c:g, semantic-correct</FONT> >, fillcolor="#FFFBEB", color="#D97706"];
 
   q -> agent -> step;
   step -> search [color="#0284C7"];

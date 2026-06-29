@@ -1,6 +1,8 @@
 \section{Formal Metric Definitions}
 \label{app:metrics}
-For a provider $p$ and query $q$, let $U_{p,q}$ denote the valid judged URLs visible in the trajectory. Each URL can have a snippet-only judgment and, if the agent opened it, a page-visible judgment. Let $G(u)$ be true when any valid judgment for $u$ marks \containsGold{} true, and let $F(u)$ be true when the trace contains a \fetchPage{} call for $u$.
+For a provider $p$ and query $q$, let $U_{p,q}$ denote the valid judged URLs visible in the trajectory. Unfetched URLs have snippet-only judgments; fetched URLs have page-visible judgments that include both the pre-fetch snippet fields and the fetched page block. Let $G_{\mathrm{pre}}(u)$ be true when the pre-fetch surface supports the gold answer: either \goldSnip{} is true, or a snippet-only judgment marks \containsGold{} true. Let $G_{\mathrm{page}}(u)$ be true when a page-visible judgment marks \goldPage{} true. Let $F(u)$ be true when the trace contains a \fetchPage{} call for $u$.
+
+For each provider-query pair, pre-fetch support is $\exists u:G_{\mathrm{pre}}(u)$. Post-fetch discovered support is $\neg\exists u:G_{\mathrm{pre}}(u)$ and $\exists u:G_{\mathrm{page}}(u)$. Trajectory-visible support is their union.
 
 \begin{center}
 \footnotesize
@@ -8,18 +10,21 @@ For a provider $p$ and query $q$, let $U_{p,q}$ denote the valid judged URLs vis
 \toprule
 \rowcolor{TableHead}\textbf{Cell} & \textbf{Condition} & \textbf{Interpretation} \\
 \midrule
-\smart{} & $\exists u:G(u)$ and $\exists u:G(u)\wedge F(u)$ & The surface exposed support and the agent opened support. \\
-\missed{} & $\exists u:G(u)$ and $\neg\exists u:G(u)\wedge F(u)$ & Support was visible but not fetched. \\
-\blind{} & $\neg\exists u:G(u)$ and $\exists u:F(u)$ & The agent spent fetch budget without visible support. \\
-\noop{} & $\neg\exists u:G(u)$ and $\neg\exists u:F(u)$ & No judged support and no fetch. \\
+\smart{} & $\exists u:G_{\mathrm{pre}}(u)$ and $\exists u:G_{\mathrm{pre}}(u)\wedge F(u)$ & The pre-fetch surface exposed support and the agent opened it. \\
+\missed{} & $\exists u:G_{\mathrm{pre}}(u)$ and $\neg\exists u:G_{\mathrm{pre}}(u)\wedge F(u)$ & Pre-fetch support was visible but not fetched. \\
+\blind{} & $\neg\exists u:G_{\mathrm{pre}}(u)$ and $\exists u:F(u)$ & The agent spent fetch budget without pre-fetch support. \\
+\noop{} & $\neg\exists u:G_{\mathrm{pre}}(u)$ and $\neg\exists u:F(u)$ & No pre-fetch support and no fetch. \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-The partition is computed per provider-query pair after joining judge rows to trace actions by normalized URL and retrieval provenance. It is descriptive: a \missed{} query can still be answered correctly from snippets, and a \blind{} query can still succeed if a fetched page reveals evidence not present in snippets. The answer-independent contradiction ratio is computed only over snippet-only rows:
+The partition is computed per provider-query pair after joining judge rows to trace actions by normalized URL and retrieval provenance. It is descriptive: a \missed{} query can still be answered correctly from snippets, and a \blind{} query can still succeed if a fetched page reveals evidence not present in snippets. The surface contradiction-to-gold ratio is computed only over snippet-only rows:
 \[
  r_{c:g}=\frac{|\{u:\contraGold(u)\}|}{|\{u:\containsGold(u)\}|}.
 \]
+It is independent of the model's final answer, but not independent of the gold answer.
+
+For answer-level scoring, exact match and token F1 use the same deterministic normalizer: lowercasing, removing articles and punctuation, and mapping simple number words to digits. Token F1 is the token-overlap F1 between the normalized final answer and normalized gold answer, macro-averaged over the \NQueries{} queries. The semantic \correctans{} metric is separate and comes from the audited \semanticMatch{} TSV.
 
 \section{Dataset Stratification}
 \label{app:dataset}
@@ -112,6 +117,49 @@ The figure script regenerates all paper macros and figures from four artifact fa
 The repository includes human-readable trajectory views in \url{results/trace_views/}. The rendering script is \url{scripts/render_trace.py}, and \url{scripts/trace_dashboard.py} provides a local browsing dashboard. These views were used for spot-checking case studies, verifying multi-call turns, and inspecting failures where answer text was present but unused. They are not an independent metric source: the paper numbers come from trace JSONLs, judge JSONLs, the semantic TSV, and provider-comparison summaries.
 
 \Needspace{9\baselineskip}
+\section{Paired Bootstrap Uncertainty}
+\label{app:uncertainty}
+We resample question IDs with replacement, preserving the matched Brave/Tavily/Firecrawl rows for each question. The tables use 10,000 percentile-bootstrap replicates with seed 20260628. Count metrics are reported per 100 sampled questions; pairwise differences are left minus right in the row's native units.
+
+\begin{center}
+\footnotesize
+\begin{tabular}{lrrr}
+\toprule
+\rowcolor{TableHead}\textbf{Metric} & \textbf{Brave} & \textbf{Tavily} & \textbf{Firecrawl} \\
+\midrule
+\correctans{} /100 & 25 [17, 34] & 25 [17, 34] & 26 [18, 35] \\
+Pre-fetch support /100 & 30 [21, 39] & 16 [9, 23] & 16 [9, 23] \\
+Rank-1 pre-fetch & 12.9 [7.1, 19.4] & 50.0 [31.2, 78.9] & 13.3 [4.2, 26.3] \\
+$r_{c:g}$ & 0.92 [0.49, 1.73] & 1.87 [0.83, 4.47] & 2.59 [1.11, 8.00] \\
+Fetched queries /100 & 65 [56, 74] & 76 [67, 84] & 81 [73, 89] \\
+Avg. fetch calls & 1.02 [0.81, 1.25] & 1.30 [1.06, 1.55] & 1.28 [1.08, 1.50] \\
+Tokens/query & 59,627 [47,706, 72,908] & 54,156 [44,304, 64,991] & 57,979 [44,635, 72,878] \\
+\bottomrule
+\end{tabular}
+\captionof{table}{Provider-level paired-bootstrap 95\% intervals.}
+\label{tab:app-bootstrap-provider}
+\end{center}
+
+\begin{center}
+\scriptsize
+\begin{tabular}{lrrr}
+\toprule
+\rowcolor{TableHead}\textbf{Metric} & \textbf{Brave--Tavily} & \textbf{Brave--Firecrawl} & \textbf{Tavily--Firecrawl} \\
+\midrule
+\correctans{} /100 & 0 [$-9$, 9] & $-1$ [$-10$, 8] & $-1$ [$-10$, 8] \\
+Pre-fetch support /100 & 14 [4, 24] & 14 [6, 22] & 0 [$-8$, 8] \\
+Rank-1 pre-fetch & $-37.1$ [$-67.3$, $-16.8$] & $-0.5$ [$-13.3$, 10.1] & 36.7 [18.8, 66.4] \\
+$r_{c:g}$ & $-0.95$ [$-3.22$, 0.00] & $-1.68$ [$-6.78$, $-0.36$] & $-0.72$ [$-4.86$, 0.53] \\
+Fetched queries /100 & $-11$ [$-19$, $-3$] & $-16$ [$-25$, $-7$] & $-5$ [$-12$, 1] \\
+Avg. fetch calls & $-0.28$ [$-0.55$, $-0.02$] & $-0.26$ [$-0.51$, $-0.02$] & 0.02 [$-0.23$, 0.27] \\
+Tokens/query & 5,471 [$-4{,}591$, 16,176] & 1,648 [$-11{,}834$, 13,959] & $-3{,}823$ [$-18{,}019$, 9,064] \\
+\bottomrule
+\end{tabular}
+\captionof{table}{Paired provider differences with bootstrap 95\% intervals. Differences are left minus right.}
+\label{tab:app-bootstrap-diff}
+\end{center}
+
+\Needspace{9\baselineskip}
 \section{Additional Diagnostics and Artifact Manifest}
 \label{app:additional}
 The tables below report selected diagnostics that support the main claims without changing the headline conclusions.
@@ -144,15 +192,18 @@ Wrong despite answer text & \BraveWrongWithAnswer{} & \TavilyWrongWithAnswer{} &
 Brave \smart{} & \BraveSmartCorrect{}/\BraveSmartN{}: \BraveSmartRate{} \BraveSmartCI{} \\
 Brave \missed{} & \BraveMissedCorrect{}/\BraveMissedN{}: \BraveMissedRate{} \BraveMissedCI{} \\
 Brave \blind{} & \BraveBlindCorrect{}/\BraveBlindN{}: \BraveBlindRate{} \BraveBlindCI{} \\
+Brave \noop{} & \BraveNoopCorrect{}/\BraveNoopN{}: \BraveNoopRate{} \BraveNoopCI{} \\
 Tavily \smart{} & \TavilySmartCorrect{}/\TavilySmartN{}: \TavilySmartRate{} \TavilySmartCI{} \\
 Tavily \missed{} & \TavilyMissedCorrect{}/\TavilyMissedN{}: \TavilyMissedRate{} \TavilyMissedCI{} \\
 Tavily \blind{} & \TavilyBlindCorrect{}/\TavilyBlindN{}: \TavilyBlindRate{} \TavilyBlindCI{} \\
+Tavily \noop{} & \TavilyNoopCorrect{}/\TavilyNoopN{}: \TavilyNoopRate{} \TavilyNoopCI{} \\
 Firecrawl \smart{} & \FirecrawlSmartCorrect{}/\FirecrawlSmartN{}: \FirecrawlSmartRate{} \FirecrawlSmartCI{} \\
 Firecrawl \missed{} & \FirecrawlMissedCorrect{}/\FirecrawlMissedN{}: \FirecrawlMissedRate{} \FirecrawlMissedCI{} \\
 Firecrawl \blind{} & \FirecrawlBlindCorrect{}/\FirecrawlBlindN{}: \FirecrawlBlindRate{} \FirecrawlBlindCI{} \\
+Firecrawl \noop{} & \FirecrawlNoopCorrect{}/\FirecrawlNoopN{}: \FirecrawlNoopRate{} \FirecrawlNoopCI{} \\
 \bottomrule
 \end{tabular}
-\captionof{table}{Wilson 95\% intervals for decision-cell correctness. NO-OP rates are 0\% for all providers in this run.}
+\captionof{table}{Wilson 95\% intervals for decision-cell correctness under the pre-fetch decision partition.}
 \label{tab:app-wilson}
 \end{center}
 

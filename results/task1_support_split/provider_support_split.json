@@ -1,0 +1,150 @@
+{
+  "definitions": {
+    "blind": "No pre-fetch support exists and at least one URL was fetched.",
+    "missed": "Pre-fetch support exists and no pre-fetch-support-bearing URL was fetched.",
+    "noop": "No pre-fetch support exists and no URL was fetched.",
+    "post_fetch_discovered_support": "Provider-query has no pre-fetch support and has a valid page_visible row with gold_answer_in_extracted_page true.",
+    "pre_fetch_surface_support": "Provider-query has a valid snippet_only row with contains_gold_answer or gold_answer_in_snippets true, or a valid page_visible row with gold_answer_in_snippets true. Page-visible rows are included for gold_answer_in_snippets because fetched documents are not duplicated as separate snippet-only records.",
+    "smart": "Pre-fetch support exists and a pre-fetch-support-bearing URL was fetched.",
+    "trajectory_visible_support": "Union of pre_fetch_surface_support and post_fetch_discovered_support."
+  },
+  "inputs": {
+    "judge_jsonls": {
+      "brave": "results/llm_judge/kimi_document_judge_surface_v3_brave_100_all_visible.jsonl",
+      "firecrawl": "results/llm_judge/kimi_document_judge_surface_v3_firecrawl_100_all_visible.jsonl",
+      "tavily": "results/llm_judge/kimi_document_judge_surface_v3_tavily_100_all_visible.jsonl"
+    },
+    "semantic_tsv": "results/em_vs_semantic_audit.tsv"
+  },
+  "providers": {
+    "brave": {
+      "decision_partition": {
+        "blind": {
+          "query_count": 54,
+          "semantic_correct_count": 11,
+          "semantic_correct_rate": 0.2037
+        },
+        "missed": {
+          "query_count": 27,
+          "semantic_correct_count": 11,
+          "semantic_correct_rate": 0.4074
+        },
+        "noop": {
+          "query_count": 16,
+          "semantic_correct_count": 0,
+          "semantic_correct_rate": 0.0
+        },
+        "smart": {
+          "query_count": 3,
+          "semantic_correct_count": 3,
+          "semantic_correct_rate": 1.0
+        }
+      },
+      "judge_invalid_rows": 6,
+      "judge_total_rows": 2202,
+      "judge_valid_rows": 2196,
+      "legacy_visible_support_q": 33,
+      "no_pre_fetch_surface_support_q": 70,
+      "page_extracted_gold_rows": 6,
+      "page_visible_pre_fetch_support_rows": 4,
+      "page_visible_valid_rows": 101,
+      "post_fetch_discovered_support_q": 3,
+      "post_fetch_discovered_support_rows": 3,
+      "pre_fetch_support_rows": 101,
+      "pre_fetch_surface_support_q": 30,
+      "provider": "brave",
+      "provider_label": "Brave",
+      "query_count": 100,
+      "snippet_contains_gold_rows": 97,
+      "snippet_gold_in_snippets_rows": 88,
+      "snippet_only_valid_rows": 2095,
+      "trajectory_visible_support_q": 33
+    },
+    "firecrawl": {
+      "decision_partition": {
+        "blind": {
+          "query_count": 70,
+          "semantic_correct_count": 18,
+          "semantic_correct_rate": 0.2571
+        },
+        "missed": {
+          "query_count": 13,
+          "semantic_correct_count": 7,
+          "semantic_correct_rate": 0.5385
+        },
+        "noop": {
+          "query_count": 14,
+          "semantic_correct_count": 0,
+          "semantic_correct_rate": 0.0
+        },
+        "smart": {
+          "query_count": 3,
+          "semantic_correct_count": 1,
+          "semantic_correct_rate": 0.3333
+        }
+      },
+      "judge_invalid_rows": 17,
+      "judge_total_rows": 2226,
+      "judge_valid_rows": 2209,
+      "legacy_visible_support_q": 19,
+      "no_pre_fetch_surface_support_q": 84,
+      "page_extracted_gold_rows": 5,
+      "page_visible_pre_fetch_support_rows": 3,
+      "page_visible_valid_rows": 124,
+      "post_fetch_discovered_support_q": 3,
+      "post_fetch_discovered_support_rows": 3,
+      "pre_fetch_support_rows": 30,
+      "pre_fetch_surface_support_q": 16,
+      "provider": "firecrawl",
+      "provider_label": "Firecrawl",
+      "query_count": 100,
+      "snippet_contains_gold_rows": 27,
+      "snippet_gold_in_snippets_rows": 24,
+      "snippet_only_valid_rows": 2085,
+      "trajectory_visible_support_q": 19
+    },
+    "tavily": {
+      "decision_partition": {
+        "blind": {
+          "query_count": 63,
+          "semantic_correct_count": 16,
+          "semantic_correct_rate": 0.254
+        },
+        "missed": {
+          "query_count": 13,
+          "semantic_correct_count": 7,
+          "semantic_correct_rate": 0.5385
+        },
+        "noop": {
+          "query_count": 21,
+          "semantic_correct_count": 1,
+          "semantic_correct_rate": 0.0476
+        },
+        "smart": {
+          "query_count": 3,
+          "semantic_correct_count": 1,
+          "semantic_correct_rate": 0.3333
+        }
+      },
+      "judge_invalid_rows": 17,
+      "judge_total_rows": 2481,
+      "judge_valid_rows": 2464,
+      "legacy_visible_support_q": 24,
+      "no_pre_fetch_surface_support_q": 84,
+      "page_extracted_gold_rows": 9,
+      "page_visible_pre_fetch_support_rows": 3,
+      "page_visible_valid_rows": 125,
+      "post_fetch_discovered_support_q": 8,
+      "post_fetch_discovered_support_rows": 9,
+      "pre_fetch_support_rows": 34,
+      "pre_fetch_surface_support_q": 16,
+      "provider": "tavily",
+      "provider_label": "Tavily",
+      "query_count": 100,
+      "snippet_contains_gold_rows": 31,
+      "snippet_gold_in_snippets_rows": 24,
+      "snippet_only_valid_rows": 2339,
+      "trajectory_visible_support_q": 24
+    }
+  }
+}

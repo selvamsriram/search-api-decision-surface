@@ -16,8 +16,8 @@
 </g>
 <g id="clust3" class="cluster">
 <title>cluster_oracle</title>
-<path fill="white" stroke="#cbd5e1" d="M232,-8C232,-8 584,-8 584,-8 590,-8 596,-14 596,-20 596,-20 596,-225.99 596,-225.99 596,-231.99 590,-237.99 584,-237.99 584,-237.99 232,-237.99 232,-237.99 226,-237.99 220,-231.99 220,-225.99 220,-225.99 220,-20 220,-20 220,-14 226,-8 232,-8"/>
-<text xml:space="preserve" text-anchor="middle" x="408" y="-219.74" font-family="Helvetica,sans-Serif" font-size="15.00">Oracle lane: replay visible evidence one URL at a time</text>
+<path fill="white" stroke="#cbd5e1" d="M229,-8C229,-8 581,-8 581,-8 587,-8 593,-14 593,-20 593,-20 593,-225.99 593,-225.99 593,-231.99 587,-237.99 581,-237.99 581,-237.99 229,-237.99 229,-237.99 223,-237.99 217,-231.99 217,-225.99 217,-225.99 217,-20 217,-20 217,-14 223,-8 229,-8"/>
+<text xml:space="preserve" text-anchor="middle" x="405" y="-219.74" font-family="Helvetica,sans-Serif" font-size="15.00">Oracle lane: replay visible evidence one URL at a time</text>
 </g>
 <!-- q -->
 <g id="node1" class="node">
@@ -185,12 +185,12 @@
 <!-- records -->
 <g id="node11" class="node">
 <title>records</title>
-<path fill="#ffe4e6" stroke="#e11d48" stroke-width="1.35" d="M401.51,-214.24C401.51,-214.24 260.49,-214.24 260.49,-214.24 254.49,-214.24 248.49,-208.24 248.49,-202.24 248.49,-202.24 248.49,-180.16 248.49,-180.16 248.49,-174.16 254.49,-168.16 260.49,-168.16 260.49,-168.16 401.51,-168.16 401.51,-168.16 407.51,-168.16 413.51,-174.16 413.51,-180.16 413.51,-180.16 413.51,-202.24 413.51,-202.24 413.51,-208.24 407.51,-214.24 401.51,-214.24"/>
+<path fill="#ffe4e6" stroke="#e11d48" stroke-width="1.35" d="M414.64,-214.24C414.64,-214.24 247.36,-214.24 247.36,-214.24 241.36,-214.24 235.36,-208.24 235.36,-202.24 235.36,-202.24 235.36,-180.16 235.36,-180.16 235.36,-174.16 241.36,-168.16 247.36,-168.16 247.36,-168.16 414.64,-168.16 414.64,-168.16 420.64,-168.16 426.64,-174.16 426.64,-180.16 426.64,-180.16 426.64,-202.24 426.64,-202.24 426.64,-208.24 420.64,-214.24 414.64,-214.24"/>
 <text xml:space="preserve" text-anchor="start" x="282.62" y="-197.85" font-family="Helvetica,sans-Serif" font-size="13.00" fill="#0f172a"> </text>
 <text xml:space="preserve" text-anchor="start" x="286.38" y="-197.85" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="13.00" fill="#0f172a">Judge records</text>
-<text xml:space="preserve" text-anchor="start" x="257.12" y="-187.7" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#0f172a">snippet&#45;only for every visible URL</text>
-<text xml:space="preserve" text-anchor="start" x="264.25" y="-174.85" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#0f172a">page&#45;visible for fetched URLs</text>
-<text xml:space="preserve" text-anchor="start" x="394" y="-174.85" font-family="Helvetica,sans-Serif" font-size="13.00" fill="#0f172a"> </text>
+<text xml:space="preserve" text-anchor="start" x="278.5" y="-187.7" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#0f172a">one row per visible URL</text>
+<text xml:space="preserve" text-anchor="start" x="244" y="-174.85" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#0f172a">page&#45;visible rows include snippet fields</text>
+<text xml:space="preserve" text-anchor="start" x="414.25" y="-174.85" font-family="Helvetica,sans-Serif" font-size="13.00" fill="#0f172a"> </text>
 </g>
 <!-- trace&#45;&gt;records -->
 <g id="edge12" class="edge">
@@ -221,10 +221,10 @@
 <path fill="#fffbeb" stroke="#d97706" stroke-width="1.35" d="M409.39,-64.08C409.39,-64.08 252.61,-64.08 252.61,-64.08 246.61,-64.08 240.61,-58.08 240.61,-52.08 240.61,-52.08 240.61,-20 240.61,-20 240.61,-14 246.61,-8 252.61,-8 252.61,-8 409.39,-8 409.39,-8 415.39,-8 421.39,-14 421.39,-20 421.39,-20 421.39,-52.08 421.39,-52.08 421.39,-58.08 415.39,-64.08 409.39,-64.08"/>
 <text xml:space="preserve" text-anchor="start" x="249.25" y="-47.69" font-family="Helvetica,sans-Serif" font-size="13.00" fill="#0f172a"> </text>
 <text xml:space="preserve" text-anchor="start" x="253" y="-47.69" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="13.00" fill="#0f172a">Decision&#45;surface metrics</text>
-<text xml:space="preserve" text-anchor="start" x="256.38" y="-37.54" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#0f172a">visible support, SMART/MISSED/</text>
-<text xml:space="preserve" text-anchor="start" x="272.12" y="-27.54" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#0f172a">BLIND/NO&#45;OP, blind fetch,</text>
-<text xml:space="preserve" text-anchor="start" x="257.88" y="-14.69" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#0f172a">contradict:gold, semantic&#45;correct</text>
-<text xml:space="preserve" text-anchor="start" x="400.38" y="-14.69" font-family="Helvetica,sans-Serif" font-size="13.00" fill="#0f172a"> </text>
+<text xml:space="preserve" text-anchor="start" x="266.5" y="-37.54" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#0f172a">pre&#45;fetch / post&#45;fetch support,</text>
+<text xml:space="preserve" text-anchor="start" x="257.5" y="-27.54" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#0f172a">SMART/MISSED/BLIND/NO&#45;OP,</text>
+<text xml:space="preserve" text-anchor="start" x="265.38" y="-14.69" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#0f172a">surface c:g, semantic&#45;correct</text>
+<text xml:space="preserve" text-anchor="start" x="392.88" y="-14.69" font-family="Helvetica,sans-Serif" font-size="13.00" fill="#0f172a"> </text>
 </g>
 <!-- kimi&#45;&gt;metrics -->
 <g id="edge14" class="edge">

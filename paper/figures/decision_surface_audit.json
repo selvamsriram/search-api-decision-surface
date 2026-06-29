@@ -57,20 +57,20 @@
       "avg_tokens": 59627,
       "bucket": {
         "blind": [
-          51,
-          10
+          54,
+          11
         ],
         "missed": [
-          25,
+          27,
           11
         ],
         "noop": [
-          0,
+          16,
           0
         ],
         "smart": [
-          8,
-          4
+          3,
+          3
         ]
       },
       "contra_ratio": 0.92,
@@ -89,15 +89,21 @@
       "gold_url_prefix_hit": 63,
       "max_tokens": 303462,
       "median_tokens": 40638.5,
-      "no_support_q": 67,
+      "no_pre_fetch_support_q": 70,
+      "no_support_q": 70,
       "page_rows": 101,
+      "post_fetch_discovered_q": 3,
+      "post_fetch_discovered_rows": 3,
+      "pre_fetch_support_q": 30,
+      "pre_fetch_support_rows": 101,
       "queries_over_100k": 19,
-      "rank1_count": 12,
-      "rank1_pct": 12,
+      "rank1_count": 13,
+      "rank1_pct": 13,
       "snippet_rows": 2095,
       "snippet_surface_hit": 71,
       "support_visible_q": 33,
       "tokens_m": 5.96,
+      "trajectory_visible_support_q": 33,
       "wrong_with_answer_text_available": 57,
       "wrong_without_answer_text_available": 22
     },
@@ -111,20 +117,20 @@
       "avg_tokens": 57979,
       "bucket": {
         "blind": [
-          67,
+          70,
           18
         ],
         "missed": [
-          12,
-          6
+          13,
+          7
         ],
         "noop": [
-          0,
+          14,
           0
         ],
         "smart": [
-          7,
-          2
+          3,
+          1
         ]
       },
       "contra_ratio": 2.59,
@@ -143,15 +149,21 @@
       "gold_url_prefix_hit": 63,
       "max_tokens": 380646,
       "median_tokens": 34383.5,
-      "no_support_q": 81,
+      "no_pre_fetch_support_q": 84,
+      "no_support_q": 84,
       "page_rows": 124,
+      "post_fetch_discovered_q": 3,
+      "post_fetch_discovered_rows": 3,
+      "pre_fetch_support_q": 16,
+      "pre_fetch_support_rows": 30,
       "queries_over_100k": 16,
-      "rank1_count": 3,
-      "rank1_pct": 11,
+      "rank1_count": 4,
+      "rank1_pct": 13,
       "snippet_rows": 2085,
       "snippet_surface_hit": 54,
       "support_visible_q": 19,
       "tokens_m": 5.8,
+      "trajectory_visible_support_q": 19,
       "wrong_with_answer_text_available": 53,
       "wrong_without_answer_text_available": 24
     },
@@ -165,20 +177,20 @@
       "avg_tokens": 54156,
       "bucket": {
         "blind": [
-          55,
-          10
+          63,
+          16
         ],
         "missed": [
           13,
           7
         ],
         "noop": [
-          0,
-          0
+          21,
+          1
         ],
         "smart": [
-          11,
-          7
+          3,
+          1
         ]
       },
       "contra_ratio": 1.87,
@@ -197,15 +209,21 @@
       "gold_url_prefix_hit": 62,
       "max_tokens": 305474,
       "median_tokens": 36867.5,
-      "no_support_q": 76,
+      "no_pre_fetch_support_q": 84,
+      "no_support_q": 84,
       "page_rows": 125,
+      "post_fetch_discovered_q": 8,
+      "post_fetch_discovered_rows": 9,
+      "pre_fetch_support_q": 16,
+      "pre_fetch_support_rows": 34,
       "queries_over_100k": 16,
-      "rank1_count": 15,
-      "rank1_pct": 48,
+      "rank1_count": 17,
+      "rank1_pct": 50,
       "snippet_rows": 2339,
       "snippet_surface_hit": 60,
       "support_visible_q": 24,
       "tokens_m": 5.42,
+      "trajectory_visible_support_q": 24,
       "wrong_with_answer_text_available": 56,
       "wrong_without_answer_text_available": 23
     }
