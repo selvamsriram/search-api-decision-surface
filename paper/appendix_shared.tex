@@ -6,16 +6,16 @@ For each provider-query pair, pre-fetch support is $\exists u:G_{\mathrm{pre}}(u
 
 \begin{center}
 \footnotesize
-\begin{tabular}{lll}
+\begin{tabularx}{\linewidth}{@{}L{0.12\linewidth}L{0.42\linewidth}Z@{}}
 \toprule
-\rowcolor{TableHead}\textbf{Cell} & \textbf{Condition} & \textbf{Interpretation} \\
+\textbf{Cell} & \textbf{Condition} & \textbf{Interpretation} \\
 \midrule
 \smart{} & $\exists u:G_{\mathrm{pre}}(u)$ and $\exists u:G_{\mathrm{pre}}(u)\wedge F(u)$ & The pre-fetch surface exposed support and the agent opened it. \\
 \missed{} & $\exists u:G_{\mathrm{pre}}(u)$ and $\neg\exists u:G_{\mathrm{pre}}(u)\wedge F(u)$ & Pre-fetch support was visible but not fetched. \\
 \blind{} & $\neg\exists u:G_{\mathrm{pre}}(u)$ and $\exists u:F(u)$ & The agent spent fetch budget without pre-fetch support. \\
 \noop{} & $\neg\exists u:G_{\mathrm{pre}}(u)$ and $\neg\exists u:F(u)$ & No pre-fetch support and no fetch. \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{center}
 
 The partition is computed per provider-query pair after joining judge rows to trace actions by normalized URL and retrieval provenance. It is descriptive: a \missed{} query can still be answered correctly from snippets, and a \blind{} query can still succeed if a fetched page reveals evidence not present in snippets. The surface contradiction-to-gold ratio is computed only over snippet-only rows:
@@ -37,9 +37,9 @@ The answer model, prompt, tools, and loop budget are fixed across providers. The
 
 \begin{center}
 \footnotesize
-\begin{tabular}{L{0.20\linewidth}L{0.70\linewidth}}
+\begin{tabularx}{\linewidth}{@{}L{0.20\linewidth}Z@{}}
 \toprule
-\rowcolor{TableHead}\textbf{Component} & \textbf{Fixed value} \\
+\textbf{Component} & \textbf{Fixed value} \\
 \midrule
 Answer model & GPT-5.4 Azure deployment, temperature 0 \\
 Loop budget & 10 iterations, up to 10 results per search call \\
@@ -50,7 +50,7 @@ Fetch observation & Source provenance, fetch metadata, and extracted markdown/te
 Final answer rule & Response must begin with \texttt{FINAL ANSWER:} and contain only the short factual answer \\
 Hidden fields & Gold answers and gold URLs are retained in traces for offline grading, never sent to the answer model \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{center}
 
 In fetch-tool mode, \searchWeb{} observations are snippet-only. Page text enters the model context only after the model chooses a prior \texttt{document\_id}. This makes fetch behavior observable and prevents provider comparisons from being driven by automatic page inclusion.
@@ -61,15 +61,15 @@ All providers are configured to return web-search results rather than provider-s
 
 \begin{center}
 \footnotesize
-\begin{tabular}{L{0.10\linewidth}L{0.31\linewidth}L{0.28\linewidth}L{0.20\linewidth}}
+\begin{tabularx}{\linewidth}{@{}L{0.12\linewidth}L{0.34\linewidth}L{0.30\linewidth}Z@{}}
 \toprule
-\rowcolor{TableHead}\textbf{Provider} & \textbf{Request settings} & \textbf{Snippet field} & \textbf{Disabled content} \\
+\textbf{Provider} & \textbf{Request settings} & \textbf{Snippet field} & \textbf{Disabled content} \\
 \midrule
 Brave & GET, count 10, offset 0, US/en, moderate safe search, web-only & \texttt{description} plus \texttt{extra\_snippets} & Text decorations \\
 Tavily & POST, \texttt{search\_depth=basic}, \texttt{topic=general}, max 10 & \texttt{content} & Answer, images, favicon, raw content \\
 Firecrawl & v2 search, limit 10, web source only, US, 60s timeout & \texttt{description} / metadata description & Provider-side markdown scraping \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{center}
 
 The normalized result fields are \texttt{rank}, \texttt{title}, \texttt{url}, \texttt{domain}, \texttt{snippet}, and \texttt{provider\_metadata}. URL normalization removes fragments and common tracking parameters. Brave's additional snippet blocks are rendered as \texttt{<extra\_snippet>} elements because they were visible to the agent as part of the provider surface; we do not reclassify them as fetched-page evidence.
@@ -84,9 +84,9 @@ The Kimi-K2.6 judge is run one URL at a time. The judge receives the question, g
 
 \begin{center}
 \footnotesize
-\begin{tabular}{L{0.20\linewidth}L{0.70\linewidth}}
+\begin{tabularx}{\linewidth}{@{}L{0.20\linewidth}Z@{}}
 \toprule
-\rowcolor{TableHead}\textbf{Judge guardrail} & \textbf{Implementation} \\
+\textbf{Judge guardrail} & \textbf{Implementation} \\
 \midrule
 No external knowledge & Prompt restricts the judge to supplied document content \\
 Strict output & JSON-only schema with support, contradiction, garbage, spans, and confidence \\
@@ -95,7 +95,7 @@ Garbage handling & Deterministic precheck flags failed, unsupported, empty, or m
 Duplicate control & Exact prompt-cache reuse; optional query-URL reuse separates snippet-only from page-visible surfaces \\
 Error policy & Invalid judge rows are excluded, not converted into negative evidence \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{center}
 
 The schema fields used in the paper are \containsGold{}, \goldSnip{}, \goldPage{}, \texttt{supports\_model\_answer}, \contraGold{}, \texttt{is\_garbage}, evidence spans, and confidence. Across the main artifacts, \NJudgeValid{} of \NJudgeTotal{} rows are valid, split into \NJudgeSnippetValid{} snippet-only and \NJudgePageValid{} page-visible rows.
@@ -123,9 +123,9 @@ We resample question IDs with replacement, preserving the matched Brave/Tavily/F
 
 \begin{center}
 \footnotesize
-\begin{tabular}{lrrr}
+\begin{tabularx}{\linewidth}{@{}lYYY@{}}
 \toprule
-\rowcolor{TableHead}\textbf{Metric} & \textbf{Brave} & \textbf{Tavily} & \textbf{Firecrawl} \\
+\textbf{Metric} & \textbf{Brave} & \textbf{Tavily} & \textbf{Firecrawl} \\
 \midrule
 \correctans{} /100 & 25 [17, 34] & 25 [17, 34] & 26 [18, 35] \\
 Pre-fetch support /100 & 30 [21, 39] & 16 [9, 23] & 16 [9, 23] \\
@@ -135,16 +135,16 @@ Fetched queries /100 & 65 [56, 74] & 76 [67, 84] & 81 [73, 89] \\
 Avg. fetch calls & 1.02 [0.81, 1.25] & 1.30 [1.06, 1.55] & 1.28 [1.08, 1.50] \\
 Tokens/query & 59,627 [47,706, 72,908] & 54,156 [44,304, 64,991] & 57,979 [44,635, 72,878] \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \captionof{table}{Provider-level paired-bootstrap 95\% intervals.}
 \label{tab:app-bootstrap-provider}
 \end{center}
 
 \begin{center}
 \scriptsize
-\begin{tabular}{lrrr}
+\begin{tabularx}{\linewidth}{@{}lYYY@{}}
 \toprule
-\rowcolor{TableHead}\textbf{Metric} & \textbf{Brave--Tavily} & \textbf{Brave--Firecrawl} & \textbf{Tavily--Firecrawl} \\
+\textbf{Metric} & \textbf{Brave--Tavily} & \textbf{Brave--Firecrawl} & \textbf{Tavily--Firecrawl} \\
 \midrule
 \correctans{} /100 & 0 [$-9$, 9] & $-1$ [$-10$, 8] & $-1$ [$-10$, 8] \\
 Pre-fetch support /100 & 14 [4, 24] & 14 [6, 22] & 0 [$-8$, 8] \\
@@ -154,7 +154,7 @@ Fetched queries /100 & $-11$ [$-19$, $-3$] & $-16$ [$-25$, $-7$] & $-5$ [$-12$, 
 Avg. fetch calls & $-0.28$ [$-0.55$, $-0.02$] & $-0.26$ [$-0.51$, $-0.02$] & 0.02 [$-0.23$, 0.27] \\
 Tokens/query & 5,471 [$-4{,}591$, 16,176] & 1,648 [$-11{,}834$, 13,959] & $-3{,}823$ [$-18{,}019$, 9,064] \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \captionof{table}{Paired provider differences with bootstrap 95\% intervals. Differences are left minus right.}
 \label{tab:app-bootstrap-diff}
 \end{center}
@@ -166,9 +166,9 @@ The tables below report selected diagnostics that support the main claims withou
 
 \begin{center}
 \footnotesize
-\begin{tabular}{lrrr}
+\begin{tabularx}{\linewidth}{@{}lYYY@{}}
 \toprule
-\rowcolor{TableHead}\textbf{Metric} & \textbf{Brave} & \textbf{Tavily} & \textbf{Firecrawl} \\
+\textbf{Metric} & \textbf{Brave} & \textbf{Tavily} & \textbf{Firecrawl} \\
 \midrule
 Gold URL exact hit & \BraveGoldURLExact{} & \TavilyGoldURLExact{} & \FirecrawlGoldURLExact{} \\
 Gold domain hit & \BraveGoldDomain{} & \TavilyGoldDomain{} & \FirecrawlGoldDomain{} \\
@@ -178,16 +178,16 @@ Answer in fetched page & \BraveAnswerPage{} & \TavilyAnswerPage{} & \FirecrawlAn
 Answer in any retrieved text & \BraveAnswerAvailable{} & \TavilyAnswerAvailable{} & \FirecrawlAnswerAvailable{} \\
 Wrong despite answer text & \BraveWrongWithAnswer{} & \TavilyWrongWithAnswer{} & \FirecrawlWrongWithAnswer{} \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \captionof{table}{Deterministic retrieval diagnostics from trace-derived provider summaries. These string and URL proxies are separate from the Kimi per-URL support labels.}
 \label{tab:app-retrieval-diagnostics}
 \end{center}
 
 \begin{center}
 \footnotesize
-\begin{tabular}{ll}
+\begin{tabularx}{\linewidth}{@{}L{0.25\linewidth}Z@{}}
 \toprule
-\rowcolor{TableHead}\textbf{Provider/cell} & \textbf{Correct rate and Wilson 95\% CI} \\
+\textbf{Provider/cell} & \textbf{Correct rate and Wilson 95\% CI} \\
 \midrule
 Brave \smart{} & \BraveSmartCorrect{}/\BraveSmartN{}: \BraveSmartRate{} \BraveSmartCI{} \\
 Brave \missed{} & \BraveMissedCorrect{}/\BraveMissedN{}: \BraveMissedRate{} \BraveMissedCI{} \\
@@ -202,31 +202,31 @@ Firecrawl \missed{} & \FirecrawlMissedCorrect{}/\FirecrawlMissedN{}: \FirecrawlM
 Firecrawl \blind{} & \FirecrawlBlindCorrect{}/\FirecrawlBlindN{}: \FirecrawlBlindRate{} \FirecrawlBlindCI{} \\
 Firecrawl \noop{} & \FirecrawlNoopCorrect{}/\FirecrawlNoopN{}: \FirecrawlNoopRate{} \FirecrawlNoopCI{} \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \captionof{table}{Wilson 95\% intervals for decision-cell correctness under the pre-fetch decision partition.}
 \label{tab:app-wilson}
 \end{center}
 
 \begin{center}
 \footnotesize
-\begin{tabular}{lrrrr}
+\begin{tabularx}{\linewidth}{@{}lYYYY@{}}
 \toprule
-\rowcolor{TableHead}\textbf{Pair} & \textbf{both} & \textbf{left only} & \textbf{right only} & \textbf{both wrong} \\
+\textbf{Pair} & \textbf{both} & \textbf{left only} & \textbf{right only} & \textbf{both wrong} \\
 \midrule
 Brave vs. Firecrawl & 14 & 11 & 12 & 63 \\
 Brave vs. Tavily & 14 & 11 & 11 & 64 \\
 Firecrawl vs. Tavily & 14 & 12 & 11 & 63 \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \captionof{table}{Pairwise semantic-correct overlap derived from the semantic audit TSV.}
 \label{tab:app-pairwise}
 \end{center}
 
 \begin{center}
 \footnotesize
-\begin{tabular}{lrrr}
+\begin{tabularx}{\linewidth}{@{}lYYY@{}}
 \toprule
-\rowcolor{TableHead}\textbf{Metric} & \textbf{Brave} & \textbf{Tavily} & \textbf{Firecrawl} \\
+\textbf{Metric} & \textbf{Brave} & \textbf{Tavily} & \textbf{Firecrawl} \\
 \midrule
 Total tokens & \BraveTokensM{}M & \TavilyTokensM{}M & \FirecrawlTokensM{}M \\
 Median/query & \BraveMedianTokens{} & \TavilyMedianTokens{} & \FirecrawlMedianTokens{} \\
@@ -234,7 +234,7 @@ Max/query & \BraveMaxTokens{} & \TavilyMaxTokens{} & \FirecrawlMaxTokens{} \\
 $>$100k queries & \BraveOverHundredK{} & \TavilyOverHundredK{} & \FirecrawlOverHundredK{} \\
 Fetch success/fail & \BraveFetchSuccess{}/\BraveFetchFailed{} & \TavilyFetchSuccess{}/\TavilyFetchFailed{} & \FirecrawlFetchSuccess{}/\FirecrawlFetchFailed{} \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \captionof{table}{Token and fetch diagnostics from provider summaries.}
 \label{tab:app-token}
 \end{center}

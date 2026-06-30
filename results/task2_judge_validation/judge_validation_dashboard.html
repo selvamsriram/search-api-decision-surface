@@ -1,0 +1,795 @@
+<!doctype html>
+<html lang="en" class="dark">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Kimi judge validation</title>
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('judge_validation_theme')||'fluent';}catch(e){document.documentElement.dataset.theme='fluent';}</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  const V=(n)=>`rgb(var(--c-${n}) / <alpha-value>)`;
+  const scale=(name,keys)=>Object.fromEntries(keys.map(k=>[k,V(name+'-'+k)]));
+  tailwind.config={darkMode:'class',theme:{extend:{
+    fontFamily:{sans:['Inter','Segoe UI','system-ui','-apple-system','BlinkMacSystemFont','Helvetica Neue','Arial','sans-serif'],
+      mono:['JetBrains Mono','ui-monospace','SFMono-Regular','Menlo','monospace']},
+    colors:{ink:scale('ink',[950,900,850,800,700,600,500]),zinc:scale('zinc',[100,200,300,400,500,600]),
+      emerald:scale('emerald',[200,300,400,500,600]),sky:scale('sky',[300,500]),
+      amber:scale('amber',[300,400,500,600]),rose:scale('rose',[300,400,500]),
+      teal:scale('teal',[300,500]),indigo:scale('indigo',[300,500])}}}}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root,[data-theme="fluent"]{
+    --c-ink-950:20 26 40; --c-ink-900:14 16 28; --c-ink-850:19 25 41; --c-ink-800:26 33 51; --c-ink-700:44 50 69; --c-ink-600:51 58 77; --c-ink-500:84 92 112;
+    --c-zinc-100:229 235 251; --c-zinc-200:207 214 232; --c-zinc-300:173 180 198; --c-zinc-400:142 150 170; --c-zinc-500:115 123 144; --c-zinc-600:84 92 112;
+    --c-emerald-200:214 222 240; --c-emerald-300:174 185 214; --c-emerald-400:134 147 181; --c-emerald-500:91 103 136; --c-emerald-600:74 83 112;
+    --c-sky-300:156 196 224; --c-sky-500:91 143 181; --c-amber-300:232 201 138; --c-amber-400:217 179 106; --c-amber-500:199 154 74; --c-amber-600:176 131 42;
+    --c-rose-300:232 163 176; --c-rose-400:217 128 144; --c-rose-500:199 91 110; --c-teal-300:134 194 187; --c-teal-500:74 144 136; --c-indigo-300:168 176 216; --c-indigo-500:102 112 168;
+    --sb-thumb:#2c3245; --sb-thumb-h:#39415a; --row-hover:rgba(255,255,255,.03);
+  }
+  [data-theme="slate"]{
+    --c-ink-950:15 23 42; --c-ink-900:19 28 47; --c-ink-850:25 35 56; --c-ink-800:30 41 59; --c-ink-700:51 65 85; --c-ink-600:71 85 105; --c-ink-500:100 116 139;
+    --c-zinc-100:248 250 252; --c-zinc-200:241 245 249; --c-zinc-300:223 230 240; --c-zinc-400:193 204 219; --c-zinc-500:166 178 197; --c-zinc-600:130 144 163;
+    --c-emerald-200:167 243 208; --c-emerald-300:110 231 183; --c-emerald-400:52 211 153; --c-emerald-500:16 185 129; --c-emerald-600:5 150 105;
+    --c-sky-300:125 211 252; --c-sky-500:14 165 233; --c-amber-300:252 211 77; --c-amber-400:251 191 36; --c-amber-500:245 158 11; --c-amber-600:217 119 6;
+    --c-rose-300:253 164 175; --c-rose-400:251 113 133; --c-rose-500:244 63 94; --c-teal-300:94 234 212; --c-teal-500:20 184 166; --c-indigo-300:165 180 252; --c-indigo-500:99 102 241;
+    --sb-thumb:#334155; --sb-thumb-h:#475569; --row-hover:rgba(255,255,255,.03);
+  }
+  [data-theme="paper"]{
+    --c-ink-950:241 245 249; --c-ink-900:255 255 255; --c-ink-850:255 255 255; --c-ink-800:241 245 249; --c-ink-700:203 213 225; --c-ink-600:148 163 184; --c-ink-500:100 116 139;
+    --c-zinc-100:15 23 42; --c-zinc-200:23 33 54; --c-zinc-300:38 50 71; --c-zinc-400:51 65 85; --c-zinc-500:71 85 105; --c-zinc-600:100 116 139;
+    --c-emerald-200:4 120 87; --c-emerald-300:5 150 105; --c-emerald-400:5 150 105; --c-emerald-500:16 185 129; --c-emerald-600:4 120 87;
+    --c-sky-300:2 132 199; --c-sky-500:14 165 233; --c-amber-300:146 64 14; --c-amber-400:217 119 6; --c-amber-500:217 119 6; --c-amber-600:180 83 9;
+    --c-rose-300:190 18 60; --c-rose-400:225 29 72; --c-rose-500:244 63 94; --c-teal-300:15 118 110; --c-teal-500:20 184 166; --c-indigo-300:67 56 202; --c-indigo-500:99 102 241;
+    --sb-thumb:#cbd5e1; --sb-thumb-h:#94a3b8; --row-hover:rgba(2,6,23,.04);
+  }
+  ::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:var(--sb-thumb);border-radius:6px;border:2px solid rgb(var(--c-ink-950))}::-webkit-scrollbar-thumb:hover{background:var(--sb-thumb-h)}
+  .record-row{transition:background-color 80ms ease}.record-row:hover{background-color:var(--row-hover)}
+  .record-row.active{background-color:rgb(var(--c-emerald-500)/.14);border-left-color:rgb(var(--c-emerald-500)) !important}
+  .clamp-2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .reader-card{border:1px solid rgb(var(--c-ink-700));background:rgb(var(--c-ink-850)/.44);border-radius:10px}
+  .soft-card{border:1px solid rgb(var(--c-ink-700));background:rgb(var(--c-ink-900)/.50);border-radius:8px}
+  .tab-btn{border:1px solid rgb(var(--c-ink-700));background:rgb(var(--c-ink-800));color:rgb(var(--c-zinc-400));border-radius:999px;padding:7px 12px;font-size:13px}
+  .tab-btn.active{border-color:rgb(var(--c-emerald-500)/.55);background:rgb(var(--c-emerald-500)/.14);color:rgb(var(--c-emerald-200))}
+  .evidence-text{font-size:15px;line-height:1.75;color:rgb(var(--c-zinc-200))}
+  .muted-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:rgb(var(--c-zinc-500));font-weight:600}
+  pre.wrap{white-space:pre-wrap;word-break:break-word}
+  table.sum{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:10px}
+  table.sum th,table.sum td{border:1px solid rgb(var(--c-ink-700));padding:5px 7px;text-align:left}
+  table.sum th{color:rgb(var(--c-zinc-500));background:rgb(var(--c-ink-800))}
+</style>
+</head>
+<body class="bg-ink-950 text-zinc-100 font-sans antialiased h-screen overflow-hidden">
+
+<div id="offline" class="hidden px-4 py-2 text-xs bg-amber-500/10 text-amber-300 border-b border-amber-500/30"></div>
+
+<header class="h-12 flex items-center px-4 border-b border-ink-700 bg-ink-900/80 backdrop-blur-sm">
+  <button id="btnToggleList" class="mr-3 bg-ink-800 border border-ink-700 rounded-md px-2 py-1 text-zinc-300 hover:border-emerald-500 text-xs">menu</button>
+  <div class="flex items-center gap-2 font-semibold tracking-tight">
+    <span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span>
+    Kimi judge validation <span class="text-zinc-500">/</span> <span class="text-zinc-400 font-normal">per-URL oracle</span>
+  </div>
+  <span class="ml-3 text-[11px] font-mono text-zinc-500 border border-ink-700 rounded px-1.5 py-0.5">Task 2</span>
+  <div class="ml-auto flex items-center gap-4 text-xs text-zinc-400">
+    <div class="flex items-center gap-2">
+      <div class="w-40 h-1.5 bg-ink-800 rounded-full overflow-hidden border border-ink-700"><i id="barfill" class="block h-full bg-emerald-500 transition-all"></i></div>
+      <span id="pcount" class="font-mono tabular-nums text-zinc-300">0 / 0</span>
+    </div>
+    <span class="flex items-center gap-1.5"><span id="savedot" class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span><span id="savetext">saved</span></span>
+    <select id="themeSel" class="bg-ink-800 border border-ink-700 rounded-md px-2 py-1 text-zinc-300 text-xs focus:outline-none focus:border-emerald-500">
+      <option value="fluent">Fluent</option>
+      <option value="slate">Slate</option>
+      <option value="paper">Paper</option>
+    </select>
+    <button id="btnSummary" class="bg-ink-800 border border-ink-700 rounded-md px-2.5 py-1 text-zinc-300 hover:border-emerald-500">Summary</button>
+    <button id="btnExport" class="bg-ink-800 border border-ink-700 rounded-md px-2.5 py-1 text-zinc-300 hover:border-emerald-500">Export</button>
+  </div>
+</header>
+
+<main class="flex h-[calc(100vh-3rem)]">
+  <aside id="listpane" class="w-80 border-r border-ink-700 flex flex-col bg-ink-900/40 shrink-0">
+    <div class="p-3 border-b border-ink-700 space-y-2">
+      <input id="search" type="text" placeholder="search question / URL / notes"
+             class="w-full bg-ink-800 border border-ink-700 rounded-md px-2.5 py-1.5 text-sm focus:outline-none focus:border-emerald-500 placeholder:text-zinc-500" />
+      <div id="quotaBox" class="rounded-lg border border-ink-700 bg-ink-850/50 p-3">
+        <div class="flex items-center gap-2">
+          <div class="text-[11px] uppercase tracking-wide text-zinc-500 font-semibold">quota</div>
+          <div id="quotaText" class="ml-auto text-[11px] font-mono text-zinc-400">0 / 0</div>
+        </div>
+        <div class="mt-2 h-1.5 bg-ink-800 rounded-full overflow-hidden border border-ink-700"><i id="quotaFill" class="block h-full bg-emerald-500 transition-all"></i></div>
+        <div id="quotaSubtext" class="mt-2 text-[11px] text-zinc-500">provider-balanced full quota</div>
+      </div>
+      <div class="text-[11px] uppercase tracking-wide text-zinc-500">provider</div>
+      <div id="providerChips" class="flex flex-wrap gap-1.5"></div>
+      <div class="text-[11px] uppercase tracking-wide text-zinc-500">label</div>
+      <div id="labelChips" class="flex flex-wrap gap-1.5"></div>
+      <div class="text-[11px] uppercase tracking-wide text-zinc-500">surface</div>
+      <div id="surfaceChips" class="flex flex-wrap gap-1.5"></div>
+      <div class="text-[11px] uppercase tracking-wide text-zinc-500">status</div>
+      <div id="statusChips" class="flex flex-wrap gap-1.5"></div>
+      <div class="text-[11px] uppercase tracking-wide text-zinc-500">Kimi value</div>
+      <div id="valueChips" class="flex flex-wrap gap-1.5"></div>
+      <div class="text-[11px] uppercase tracking-wide text-zinc-500">core quota slices</div>
+      <div id="coreSliceChips" class="flex flex-wrap gap-1.5"></div>
+      <div class="text-[11px] uppercase tracking-wide text-zinc-500">provider leaf slices</div>
+      <div id="leafSliceChips" class="max-h-44 overflow-y-auto pr-1 flex flex-wrap gap-1.5"></div>
+    </div>
+    <div id="list" class="flex-1 overflow-y-auto"></div>
+  </aside>
+
+  <section class="flex-1 flex flex-col min-w-0">
+    <div id="casebar" class="h-11 flex items-center px-4 border-b border-ink-700 bg-ink-900/50 gap-2 text-sm text-zinc-500 shrink-0">select a case</div>
+    <div id="detail" class="flex-1 overflow-y-auto p-4 lg:p-6"></div>
+  </section>
+
+  <aside id="judgepane" class="w-[420px] shrink-0 border-l border-ink-700 flex flex-col bg-ink-900/40">
+    <div id="jhead" class="px-4 h-11 flex items-center gap-2 border-b border-ink-700 shrink-0 text-sm text-zinc-400">Human validation</div>
+    <div id="jbody" class="flex-1 overflow-y-auto p-4"><div class="text-zinc-500 text-sm">select a case to begin</div></div>
+    <div id="jnav" class="shrink-0 border-t border-ink-700 p-3 flex gap-2">
+      <button id="navPrev" class="flex-1 bg-ink-800 border border-ink-700 rounded-md py-2 text-sm text-zinc-300 hover:border-emerald-500">Prev</button>
+      <button id="navNext" class="flex-1 bg-ink-800 border border-ink-700 rounded-md py-2 text-sm text-zinc-300 hover:border-emerald-500">Next</button>
+      <button id="navDone" class="flex-[1.4] bg-emerald-600 hover:bg-emerald-500 border border-emerald-500 rounded-md py-2 text-sm font-medium text-white">Next pending</button>
+    </div>
+  </aside>
+</main>
+
+<div id="modalRoot"></div>
+
+<script>
+const PROVIDERS=["brave","tavily","firecrawl"];
+const LABELS=["contains_gold_answer","contradicts_gold_answer","is_garbage"];
+const SURFACES=["snippet_only","page_visible"];
+const KIMI_VALUES=[true,false];
+const LEAF_QUOTA_TARGET=5;
+const STATUSES=[{k:"all",label:"All"},{k:"pending",label:"Pending"},{k:"done",label:"Done"}];
+const VALUES=[{k:"all",label:"All"},{k:"true",label:"Kimi true"},{k:"false",label:"Kimi false"}];
+const PATTERNS=[
+  ["","none / not needed"],
+  ["alias_or_formatting","alias / formatting"],
+  ["partial_relation_insufficient","partial relation insufficient"],
+  ["outdated_or_conflicting_page","outdated / conflicting page"],
+  ["garbage_boundary","garbage boundary"],
+  ["span_missing_or_broad","span missing / broad"],
+  ["judge_too_strict","judge too strict"],
+  ["judge_too_lenient","judge too lenient"],
+  ["other","other"]
+];
+const CARD="border border-ink-700 bg-ink-850/40 rounded-xl p-4 mb-4 shadow-[0_2px_10px_rgba(0,0,0,0.20)]";
+const SECH="text-[12px] uppercase tracking-wide text-zinc-500 mb-2.5 font-medium";
+
+let CASES=[], PROGRESS={}, META={}, SEL=null, ACTIVE_TAB="brief", FILT={provider:"all",label:"all",surface:"all",status:"pending",value:"all",q:""};
+let saveTimer=null;
+const $=s=>document.querySelector(s);
+
+function esc(s){return String(s ?? "").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]));}
+function api(path,opts){return fetch(path,opts).then(r=>{if(!r.ok)throw new Error(r.status);return r.json();});}
+function boolText(v){return v===true?"true":v===false?"false":"null";}
+function humanBool(v){return v==="true"?true:v==="false"?false:null;}
+function isDone(id){return !!(PROGRESS[id]||{}).human_value;}
+function isPartial(id){const p=PROGRESS[id]||{};return !isDone(id)&&!!(p.human_disagreement_pattern||p.human_notes);}
+function agrees(c){const hv=humanBool((PROGRESS[c.case_id]||{}).human_value);return hv===null?null:(hv===c.kimi_value);}
+function chipClass(active){return active?"bg-emerald-500/10 text-emerald-200 border-emerald-500/40":"bg-ink-800 text-zinc-400 border-ink-700 hover:border-ink-600";}
+function badge(text,cls){return `<span class="px-2 py-0.5 rounded-md text-[11px] font-mono border ${cls}">${esc(text)}</span>`;}
+function boolBadge(v,label){const cls=v===true?"bg-emerald-500/15 text-emerald-300 border-emerald-500/30":v===false?"bg-rose-500/15 text-rose-300 border-rose-500/30":"bg-ink-800 text-zinc-500 border-ink-700";return badge(`${label}: ${boolText(v)}`,cls);}
+function labelShort(x){return x.replace("contains_gold_answer","contains_gold").replace("contradicts_gold_answer","contradicts_gold");}
+function dotClass(id){return isDone(id)?"bg-emerald-400":isPartial(id)?"bg-amber-400":"bg-zinc-600";}
+function providerCls(p){return p==="brave"?"bg-rose-500/15 text-rose-300 border-rose-500/30":p==="tavily"?"bg-sky-500/15 text-sky-300 border-sky-500/30":"bg-emerald-500/15 text-emerald-300 border-emerald-500/30";}
+function valueCls(v){return v?"bg-emerald-500/15 text-emerald-300 border-emerald-500/30":"bg-rose-500/15 text-rose-300 border-rose-500/30";}
+function valueFilter(v){return v===true?"true":"false";}
+function reviewedWhere(pred){return CASES.filter(c=>pred(c)&&isDone(c.case_id)).length;}
+function targetWhere(pred){return CASES.filter(pred).length;}
+function quotaClass(reviewed,target,active){
+  if(active)return "bg-emerald-500/15 text-emerald-200 border-emerald-500/50";
+  if(target&&reviewed>=target)return "bg-emerald-500/10 text-emerald-300 border-emerald-500/30";
+  if(reviewed>0)return "bg-amber-500/10 text-amber-300 border-amber-500/30";
+  return "bg-ink-800 text-zinc-400 border-ink-700 hover:border-ink-600";
+}
+function quotaChip(label,reviewed,target,active,on){
+  const div=document.createElement("button");
+  div.className=`px-2 py-1 rounded-md text-[11px] border cursor-pointer transition flex items-center gap-1 ${quotaClass(reviewed,target,active)}`;
+  div.innerHTML=`<span>${esc(label)}</span><span class="font-mono opacity-80">${reviewed}/${target}</span>`;
+  div.onclick=on;
+  return div;
+}
+function applyFilter(next){
+  FILT={...FILT,...next};
+  rerenderFilters();
+}
+function resetFilters(){
+  FILT={provider:"all",label:"all",surface:"all",status:"pending",value:"all",q:FILT.q};
+  rerenderFilters();
+}
+
+async function load(){
+  try{
+    const d=await api("/api/queue");
+    CASES=d.cases; PROGRESS=d.progress||{}; META=d.meta||{};
+  }catch(e){
+    $("#offline").classList.remove("hidden");
+    $("#offline").innerHTML='Server not detected. Run <code>python scripts/judge_validation_app.py</code>.';
+    return;
+  }
+  renderChips(); renderList(); updateProgress();
+  const first=filtered()[0]||CASES[0];
+  if(first) select(first.case_id);
+}
+
+function chip(label,n,active,on){
+  const div=document.createElement("button");
+  div.className=`px-2.5 py-1 rounded-full text-[12px] border cursor-pointer transition flex items-center gap-1.5 ${chipClass(active)}`;
+  div.innerHTML=`<span>${esc(label)}</span>${n==null?"":`<span class="font-mono text-zinc-500">${n}</span>`}`;
+  div.onclick=on; return div;
+}
+function countWhere(pred){return CASES.filter(pred).length;}
+function quotaTotals(){
+  const target=CASES.length;
+  const reviewed=CASES.filter(c=>isDone(c.case_id)).length;
+  return {target,reviewed,remaining:Math.max(0,target-reviewed),pct:target?reviewed/target:0};
+}
+function renderQuotaBox(){
+  const q=quotaTotals();
+  const qt=$("#quotaText"), qf=$("#quotaFill"), qs=$("#quotaSubtext");
+  if(!qt||!qf||!qs)return;
+  qt.textContent=`${q.reviewed} / ${q.target}`;
+  qf.style.width=`${q.pct*100}%`;
+  qs.textContent=`${q.remaining} remaining; target ${LEAF_QUOTA_TARGET} per provider leaf slice`;
+}
+function selectCoreSlice(label,surface,kimiValue){
+  applyFilter({provider:"all",label,surface,value:valueFilter(kimiValue),status:"pending"});
+}
+function selectLeafSlice(provider,label,surface,kimiValue){
+  applyFilter({provider,label,surface,value:valueFilter(kimiValue),status:"pending"});
+}
+function renderSliceChips(){
+  const core=$("#coreSliceChips");
+  if(core){
+    core.innerHTML="";
+    core.append(quotaChip("All slices",quotaTotals().reviewed,quotaTotals().target,FILT.provider==="all"&&FILT.label==="all"&&FILT.surface==="all"&&FILT.value==="all",resetFilters));
+    LABELS.forEach(label=>{
+      SURFACES.forEach(surface=>{
+        KIMI_VALUES.forEach(kimiValue=>{
+          const pred=c=>c.label===label&&c.surface===surface&&c.kimi_value===kimiValue;
+          const reviewed=reviewedWhere(pred);
+          const target=targetWhere(pred);
+          const active=FILT.provider==="all"&&FILT.label===label&&FILT.surface===surface&&FILT.value===valueFilter(kimiValue);
+          const labelText=`${labelShort(label)} / ${surface.replace("_","-")} / ${yesNo(kimiValue)}`;
+          core.append(quotaChip(labelText,reviewed,target,active,()=>selectCoreSlice(label,surface,kimiValue)));
+        });
+      });
+    });
+  }
+  const leaf=$("#leafSliceChips");
+  if(leaf){
+    leaf.innerHTML="";
+    PROVIDERS.forEach(provider=>{
+      LABELS.forEach(label=>{
+        SURFACES.forEach(surface=>{
+          KIMI_VALUES.forEach(kimiValue=>{
+            const pred=c=>c.provider_id===provider&&c.label===label&&c.surface===surface&&c.kimi_value===kimiValue;
+            const reviewed=reviewedWhere(pred);
+            const target=targetWhere(pred);
+            const active=FILT.provider===provider&&FILT.label===label&&FILT.surface===surface&&FILT.value===valueFilter(kimiValue);
+            const providerMark=provider==="firecrawl"?"fire":provider;
+            const labelText=`${providerMark} / ${labelShort(label)} / ${surface==="snippet_only"?"snip":"page"} / ${yesNo(kimiValue)}`;
+            leaf.append(quotaChip(labelText,reviewed,target,active,()=>selectLeafSlice(provider,label,surface,kimiValue)));
+          });
+        });
+      });
+    });
+  }
+}
+function renderChips(){
+  renderQuotaBox();
+  const pc=$("#providerChips"); pc.innerHTML=""; pc.append(chip("All",CASES.length,FILT.provider==="all",()=>applyFilter({provider:"all"})));
+  PROVIDERS.forEach(p=>pc.append(chip(p,countWhere(c=>c.provider_id===p),FILT.provider===p,()=>applyFilter({provider:p}))));
+  const lc=$("#labelChips"); lc.innerHTML=""; lc.append(chip("All",null,FILT.label==="all",()=>applyFilter({label:"all"})));
+  LABELS.forEach(l=>lc.append(chip(labelShort(l),countWhere(c=>c.label===l),FILT.label===l,()=>applyFilter({label:l}))));
+  const sc=$("#surfaceChips"); sc.innerHTML=""; sc.append(chip("All",null,FILT.surface==="all",()=>applyFilter({surface:"all"})));
+  SURFACES.forEach(s=>sc.append(chip(s.replace("_","-"),countWhere(c=>c.surface===s),FILT.surface===s,()=>applyFilter({surface:s}))));
+  const st=$("#statusChips"); st.innerHTML=""; STATUSES.forEach(s=>st.append(chip(s.label,null,FILT.status===s.k,()=>applyFilter({status:s.k}))));
+  const vc=$("#valueChips"); vc.innerHTML=""; VALUES.forEach(v=>vc.append(chip(v.label,null,FILT.value===v.k,()=>applyFilter({value:v.k}))));
+  renderSliceChips();
+}
+function rerenderFilters(){
+  const rows=filtered();
+  const shouldMove=rows.length && !rows.some(c=>c.case_id===SEL);
+  if(shouldMove)SEL=rows[0].case_id;
+  renderChips();renderList();
+  if(shouldMove)renderDetail();
+}
+function filtered(){
+  const q=FILT.q.trim().toLowerCase();
+  return CASES.filter(c=>{
+    if(FILT.provider!=="all"&&c.provider_id!==FILT.provider)return false;
+    if(FILT.label!=="all"&&c.label!==FILT.label)return false;
+    if(FILT.surface!=="all"&&c.surface!==FILT.surface)return false;
+    if(FILT.status==="pending"&&isDone(c.case_id))return false;
+    if(FILT.status==="done"&&!isDone(c.case_id))return false;
+    if(FILT.value==="true"&&c.kimi_value!==true)return false;
+    if(FILT.value==="false"&&c.kimi_value!==false)return false;
+    if(q){
+      const p=PROGRESS[c.case_id]||{};
+      const hay=[c.case_id,c.question,c.gold_answer,c.model_final_answer,c.title,c.url,c.domain,c.search_query,p.human_notes].join(" ").toLowerCase();
+      if(!hay.includes(q))return false;
+    }
+    return true;
+  });
+}
+function renderList(){
+  const list=$("#list"); const keep=list.scrollTop; const rows=filtered();
+  if(!rows.length){list.innerHTML='<div class="p-8 text-center text-sm text-zinc-500">No cases match.</div>';return;}
+  list.innerHTML=rows.map(c=>`
+    <div class="record-row ${SEL===c.case_id?"active ":""}px-3 py-2.5 border-b border-ink-700/60 border-l-2 border-l-transparent cursor-pointer" data-id="${esc(c.case_id)}">
+      <div class="flex items-center gap-2">
+        <span class="inline-block w-1.5 h-1.5 rounded-full flex-none ${dotClass(c.case_id)}"></span>
+        ${badge(c.provider_id,providerCls(c.provider_id))}
+        ${badge(c.surface.replace("_","-"),"bg-ink-800 text-zinc-400 border-ink-700")}
+        <span class="ml-auto">${badge(boolText(c.kimi_value),valueCls(c.kimi_value))}</span>
+      </div>
+      <div class="mt-1 text-[12px] font-mono text-zinc-500 truncate">${esc(labelShort(c.label))}</div>
+      <div class="mt-1 text-sm text-zinc-200 line-clamp-2">${esc(c.question||"(no question)")}</div>
+      <div class="mt-1 text-[11px] text-zinc-500 truncate">${esc(c.domain||"")} ${c.rank?"/ rank "+esc(c.rank):""}</div>
+    </div>`).join("");
+  list.querySelectorAll("[data-id]").forEach(el=>el.onclick=()=>select(el.dataset.id));
+  list.scrollTop=keep;
+}
+function caseById(id){return CASES.find(c=>c.case_id===id);}
+
+function card(title,body){return `<section class="${CARD}"><div class="${SECH}">${esc(title)}</div>${body}</section>`;}
+function kv(k,v){return `<div><div class="text-[11px] uppercase tracking-wide text-zinc-500">${esc(k)}</div><div class="text-sm text-zinc-200 break-words">${v}</div></div>`;}
+function pre(text,maxh="max-h-[420px]"){return `<pre class="wrap ${maxh} overflow-auto bg-ink-900 border border-ink-700 rounded-md p-3 text-[12.5px] leading-relaxed text-zinc-300">${esc(text||"")}</pre>`;}
+function jsonBlock(value,maxh="max-h-[520px]"){
+  let text="";
+  try{text=JSON.stringify(value||{},null,2);}catch(e){text=String(value||"");}
+  return pre(text,maxh);
+}
+function promptDocument(text){
+  const m=String(text||"").match(/<retrieved_document>[\s\S]*?<\/retrieved_document>/i);
+  return m?m[0]:"";
+}
+function responseReasoning(llm){
+  const choices=(llm&&llm.raw_response&&llm.raw_response.choices)||[];
+  const msg=(choices[0]&&choices[0].message)||{};
+  return msg.reasoning_content || "";
+}
+function responseModel(llm){
+  return (llm&&llm.raw_response&&(llm.raw_response.model || llm.raw_response.id)) || "";
+}
+function renderJudgment(c){
+  const j=c.judgment||{};
+  const keys=["contains_gold_answer","gold_answer_in_snippets","gold_answer_in_extracted_page","supports_model_answer","contradicts_gold_answer","is_garbage"];
+  return `<div class="flex flex-wrap gap-1.5">${keys.map(k=>boolBadge(j[k],labelShort(k))).join("")}</div>
+    <div class="grid grid-cols-3 gap-3 mt-4">
+      ${kv("confidence",esc(j.confidence))}
+      ${kv("garbage reason",esc(j.garbage_reason||""))}
+      ${kv("label under audit",badge(labelShort(c.label),"bg-indigo-500/15 text-indigo-300 border-indigo-500/30")+" "+badge(boolText(c.kimi_value),valueCls(c.kimi_value)))}
+    </div>`;
+}
+function renderDetail(){
+  const c=caseById(SEL); if(!c)return;
+  $("#casebar").innerHTML=`
+    ${badge(c.provider_id,providerCls(c.provider_id))}
+    ${badge(c.surface.replace("_","-"),"bg-ink-800 text-zinc-400 border-ink-700")}
+    ${badge(labelShort(c.label),"bg-indigo-500/15 text-indigo-300 border-indigo-500/30")}
+    ${badge("Kimi "+boolText(c.kimi_value),valueCls(c.kimi_value))}
+    <span class="text-zinc-600">/</span>
+    <span class="font-mono text-[12px] text-zinc-500 truncate">${esc(c.case_id)}</span>`;
+  const page=c.page_excerpt||{};
+  const extra=(c.extra_snippets||[]).map((x,i)=>`<div class="mb-2">${badge("extra "+(i+1),"bg-ink-800 text-zinc-400 border-ink-700")}<div class="mt-1 text-sm text-zinc-300">${esc(x)}</div></div>`).join("");
+  const spans=[
+    ["answer span",(c.judgment||{}).answer_span],
+    ["gold snippet span",(c.judgment||{}).gold_snippet_span],
+    ["gold page span",(c.judgment||{}).gold_extracted_page_span]
+  ].filter(x=>x[1]).map(x=>`<div class="mb-2">${badge(x[0],"bg-emerald-500/15 text-emerald-300 border-emerald-500/30")}<div class="mt-1 text-sm text-zinc-300">${esc(x[1])}</div></div>`).join("") || '<div class="text-sm text-zinc-500">No judge spans recorded.</div>';
+  $("#detail").innerHTML=
+    card("Task",`<div class="text-sm leading-relaxed text-zinc-300">Validate the Kimi value for <span class="font-mono text-indigo-300">${esc(c.label)}</span>. Kimi says this label is <span class="font-mono ${c.kimi_value?"text-emerald-300":"text-rose-300"}">${boolText(c.kimi_value)}</span> for this URL-level evidence item.</div>`) +
+    card("Question and answers",`<div class="grid grid-cols-3 gap-3">
+      ${kv("question",esc(c.question))}
+      ${kv("gold answer",`<span class="font-semibold text-emerald-300">${esc(c.gold_answer)}</span>`)}
+      ${kv("model final answer",`<span class="font-semibold text-sky-300">${esc(c.model_final_answer)}</span>`)}
+    </div>`) +
+    card("URL evidence",`<div class="grid grid-cols-2 gap-3">
+      ${kv("title",esc(c.title))}
+      ${kv("domain / rank",`${esc(c.domain)} / ${esc(c.rank)}`)}
+      ${kv("url",`<a class="text-sky-300 underline decoration-sky-500/40" href="${esc(c.url)}" target="_blank" rel="noreferrer">${esc(c.url)}</a>`)}
+      ${kv("search query",esc(c.search_query))}
+    </div>`) +
+    card("Kimi judgment",renderJudgment(c)) +
+    card("Judge spans",spans) +
+    card("Snippet surface",`<div class="mb-3">${badge("snippet","bg-ink-800 text-zinc-400 border-ink-700")}<div class="mt-1 text-sm leading-relaxed text-zinc-300">${esc(c.snippet||"")}</div></div>${extra||'<div class="text-sm text-zinc-500">No extra snippets.</div>'}`) +
+    card("Fetched page excerpt", page.text ? `<div class="mb-2 text-xs text-zinc-500">chars ${esc(page.start)}-${esc(page.end)} of ${esc(page.total_chars)}${page.truncated?" / excerpted":""}</div>${pre(page.text,"max-h-[560px]")}` : '<div class="text-sm text-zinc-500">No fetched-page text in this judged item.</div>');
+  renderJudgePane();
+}
+function renderJudgePane(){
+  const c=caseById(SEL); if(!c)return;
+  const p=PROGRESS[c.case_id]||{};
+  const option=(value,label,cls)=>`<button data-human-value="${value}" class="human-value w-full rounded-md border px-3 py-2 text-left text-sm ${p.human_value===value?cls:"bg-ink-800 border-ink-700 text-zinc-300 hover:border-ink-600"}">${label}</button>`;
+  $("#jhead").innerHTML=`Human validation ${isDone(c.case_id)?badge("done","bg-emerald-500/15 text-emerald-300 border-emerald-500/30"):""}`;
+  $("#jbody").innerHTML=`
+    <div class="${CARD}">
+      <div class="${SECH}">Human value for ${esc(labelShort(c.label))}</div>
+      <div class="space-y-2">
+        ${option("true","True: the label should be true","bg-emerald-500/15 text-emerald-200 border-emerald-500/40")}
+        ${option("false","False: the label should be false","bg-rose-500/15 text-rose-200 border-rose-500/40")}
+        ${option("unclear","Unclear / cannot decide","bg-amber-500/15 text-amber-200 border-amber-500/40")}
+      </div>
+      <div class="mt-3 text-xs text-zinc-500">Kimi value: <span class="font-mono ${c.kimi_value?"text-emerald-300":"text-rose-300"}">${boolText(c.kimi_value)}</span></div>
+      <div class="mt-1 text-xs text-zinc-500">Agreement: <span class="font-mono">${agrees(c)===null?"not clear":agrees(c)?"yes":"no"}</span></div>
+    </div>
+    <div class="${CARD}">
+      <div class="${SECH}">Disagreement pattern</div>
+      <select id="pattern" class="w-full bg-ink-800 border border-ink-700 rounded-md px-2.5 py-2 text-sm text-zinc-200 focus:outline-none focus:border-emerald-500">
+        ${PATTERNS.map(([v,l])=>`<option value="${esc(v)}" ${p.human_disagreement_pattern===v?"selected":""}>${esc(l)}</option>`).join("")}
+      </select>
+      <div class="mt-2 text-xs text-zinc-500">Use this mainly when human value disagrees with Kimi, or when the case is unclear.</div>
+    </div>
+    <div class="${CARD}">
+      <div class="${SECH}">Notes</div>
+      <textarea id="notes" rows="8" class="w-full bg-ink-900 border border-ink-700 rounded-md p-2.5 text-sm text-zinc-200 focus:outline-none focus:border-emerald-500" placeholder="What did you see?">${esc(p.human_notes||"")}</textarea>
+    </div>`;
+  document.querySelectorAll("[data-human-value]").forEach(b=>b.onclick=()=>{setProgress({human_value:b.dataset.humanValue});});
+  $("#pattern").onchange=e=>setProgress({human_disagreement_pattern:e.target.value});
+  $("#notes").oninput=e=>{clearTimeout(saveTimer); saveTimer=setTimeout(()=>setProgress({human_notes:e.target.value}),250);};
+}
+async function setProgress(delta,opts={}){
+  const c=caseById(SEL); if(!c)return;
+  PROGRESS[c.case_id]={...(PROGRESS[c.case_id]||{}),...delta};
+  markSaving();
+  renderChips(); renderList(); updateProgress(); renderJudgePane();
+  try{
+    const d=await api("/api/save",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({case_id:c.case_id,labels:PROGRESS[c.case_id]})});
+    PROGRESS=d.progress||PROGRESS; markSaved(); renderChips(); updateProgress();
+    if(opts.advance) movePending();
+  }catch(e){markError();}
+}
+function markSaving(){$("#savedot").className="inline-block w-2 h-2 rounded-full bg-amber-400";$("#savetext").textContent="saving";}
+function markSaved(){$("#savedot").className="inline-block w-2 h-2 rounded-full bg-emerald-400";$("#savetext").textContent="saved";}
+function markError(){$("#savedot").className="inline-block w-2 h-2 rounded-full bg-rose-400";$("#savetext").textContent="save failed";}
+function updateProgress(){
+  const reviewed=CASES.filter(c=>isDone(c.case_id)).length;
+  $("#pcount").textContent=`${reviewed} / ${CASES.length}`;
+  $("#barfill").style.width=CASES.length?`${reviewed*100/CASES.length}%`:"0%";
+  renderQuotaBox();
+}
+function move(step){
+  const rows=filtered(); if(!rows.length)return;
+  let i=rows.findIndex(c=>c.case_id===SEL); if(i<0)i=0;
+  i=(i+step+rows.length)%rows.length; select(rows[i].case_id);
+}
+function movePending(){
+  const rows=filtered(); if(!rows.length)return;
+  let i=rows.findIndex(c=>c.case_id===SEL);
+  if(i<0){select(rows[0].case_id); return;}
+  for(let offset=1; offset<=rows.length; offset++){
+    const next=rows[(i+offset)%rows.length];
+    if(!isDone(next.case_id)){select(next.case_id); return;}
+  }
+  move(1);
+}
+async function exportNow(){
+  markSaving();
+  try{await api("/api/export",{method:"POST"}); markSaved(); showSummary();}catch(e){markError();}
+}
+async function showSummary(){
+  const d=await api("/api/summary");
+  const quota=d.quota||{};
+  const coreRows=(quota.core_rows||[]).map(r=>`<tr><td><code>${esc(labelShort(r.label))}</code></td><td><code>${esc(r.surface)}</code></td><td>${yesNo(r.kimi_value)}</td><td>${r.target}</td><td>${r.reviewed}</td><td>${r.remaining}</td></tr>`).join("");
+  const leafRows=(quota.leaf_rows||[]).map(r=>`<tr><td>${esc(r.provider)}</td><td><code>${esc(labelShort(r.label))}</code></td><td><code>${esc(r.surface)}</code></td><td>${yesNo(r.kimi_value)}</td><td>${r.target}</td><td>${r.reviewed}</td><td>${r.remaining}</td></tr>`).join("");
+  const labelRows=d.label_rows.map(r=>`<tr><td><code>${esc(r.name)}</code></td><td>${r.sampled}</td><td>${r.reviewed}</td><td>${r.clear}</td><td>${r.unclear}</td><td>${r.agree}</td><td>${r.disagree}</td><td>${esc(r.agreement_pct||"")}</td><td>${esc(r.top_disagreement_pattern||"")}</td></tr>`).join("");
+  const providerRows=d.provider_rows.map(r=>`<tr><td>${esc(r.name)}</td><td>${r.sampled}</td><td>${r.reviewed}</td><td>${r.clear}</td><td>${r.agree}</td><td>${r.disagree}</td><td>${esc(r.agreement_pct||"")}</td></tr>`).join("");
+  $("#modalRoot").innerHTML=`<div class="fixed inset-0 bg-black/60 z-50 flex items-start justify-center p-8" onclick="if(event.target===this)this.remove()">
+    <div class="w-[1120px] max-h-[86vh] overflow-auto bg-ink-900 border border-ink-700 rounded-xl p-5 shadow-2xl">
+      <div class="flex items-center mb-3"><div class="font-semibold">Validation summary</div><button class="ml-auto text-zinc-400 hover:text-zinc-100" onclick="document.getElementById('modalRoot').innerHTML=''">close</button></div>
+      <div class="text-sm text-zinc-400 mb-4">Reviewed ${d.reviewed} / ${d.total_cases}; clear agreement ${esc(d.agreement_pct||"")}.</div>
+      <div class="grid grid-cols-3 gap-3 text-sm mb-5">
+        <div class="soft-card p-3"><div class="muted-label mb-1">Quota progress</div><div class="text-zinc-100 font-semibold">${quota.reviewed_to_quota||0} / ${quota.target_total||0} ${quota.pct?`(${esc(quota.pct)})`:""}</div></div>
+        <div class="soft-card p-3"><div class="muted-label mb-1">Remaining</div><div class="text-zinc-100 font-semibold">${quota.remaining_total||0}</div></div>
+        <div class="soft-card p-3"><div class="muted-label mb-1">Slices complete</div><div class="text-zinc-100 font-semibold">${quota.core_complete||0}/${quota.core_total||0} core; ${quota.leaf_complete||0}/${quota.leaf_total||0} leaf</div></div>
+      </div>
+      <table class="sum"><thead><tr><th>Core label</th><th>Surface</th><th>Kimi</th><th>Target</th><th>Reviewed</th><th>Remaining</th></tr></thead><tbody>${coreRows}</tbody></table>
+      <table class="sum mt-5"><thead><tr><th>Provider</th><th>Label</th><th>Surface</th><th>Kimi</th><th>Target</th><th>Reviewed</th><th>Remaining</th></tr></thead><tbody>${leafRows}</tbody></table>
+      <table class="sum"><thead><tr><th>Label</th><th>Sampled</th><th>Reviewed</th><th>Clear</th><th>Unclear</th><th>Agree</th><th>Disagree</th><th>Agreement</th><th>Main disagreement</th></tr></thead><tbody>${labelRows}</tbody></table>
+      <table class="sum mt-5"><thead><tr><th>Provider</th><th>Sampled</th><th>Reviewed</th><th>Clear</th><th>Agree</th><th>Disagree</th><th>Agreement</th></tr></thead><tbody>${providerRows}</tbody></table>
+    </div>
+  </div>`;
+}
+
+function labelQuestion(c){
+  if(c.label==="contains_gold_answer")return "Does this URL evidence contain the gold answer?";
+  if(c.label==="contradicts_gold_answer")return "Does this URL evidence contradict the gold answer?";
+  if(c.label==="is_garbage")return "Is this URL evidence unusable or garbage?";
+  return `Should ${labelShort(c.label)} be true for this URL evidence?`;
+}
+function yesNo(v){return v===true?"Yes":v===false?"No":"Null";}
+function humanText(v){return v==="true"?"Yes":v==="false"?"No":v==="unclear"?"Unclear":"Pending";}
+function clipText(text,n=1200){
+  const s=String(text||"").trim();
+  return s.length>n?s.slice(0,n).trim()+" ...":s;
+}
+function miniValue(c){
+  return `<span class="inline-flex items-center gap-1 rounded-lg border px-2.5 py-1 text-sm ${valueCls(c.kimi_value)}"><span class="text-zinc-400">Kimi</span><span class="font-semibold">${yesNo(c.kimi_value)}</span></span>`;
+}
+function fieldBlock(label,value,extra=""){
+  return `<div class="soft-card p-3 ${extra}"><div class="muted-label mb-1.5">${esc(label)}</div><div class="text-[15px] leading-relaxed text-zinc-200 break-words">${value}</div></div>`;
+}
+function evidenceBlock(label,text,empty="Not available."){
+  const body=text?`<div class="evidence-text">${esc(text)}</div>`:`<div class="text-sm text-zinc-500">${esc(empty)}</div>`;
+  return `<section class="reader-card p-4"><div class="muted-label mb-2">${esc(label)}</div>${body}</section>`;
+}
+function tabButton(id,label){
+  return `<button class="tab-btn ${ACTIVE_TAB===id?"active":""}" data-tab="${id}">${esc(label)}</button>`;
+}
+function focusEvidence(c){
+  const page=(c.page_excerpt||{}).text;
+  if(c.surface==="page_visible"&&page)return {label:"Page excerpt",text:clipText(page,1500)};
+  if(c.snippet)return {label:"Snippet",text:c.snippet};
+  if(page)return {label:"Page excerpt",text:clipText(page,1500)};
+  return {label:"Evidence",text:""};
+}
+function renderList(){
+  const list=$("#list"); const keep=list.scrollTop; const rows=filtered();
+  if(!rows.length){list.innerHTML='<div class="p-8 text-center text-sm text-zinc-500">No cases match.</div>';return;}
+  list.innerHTML=rows.map(c=>{
+    const p=PROGRESS[c.case_id]||{};
+    return `<button class="record-row block w-full text-left ${SEL===c.case_id?"active ":""}px-3 py-3 border-b border-ink-700/60 border-l-2 border-l-transparent" data-id="${esc(c.case_id)}">
+      <div class="flex items-center gap-2">
+        <span class="inline-block w-2 h-2 rounded-full flex-none ${dotClass(c.case_id)}"></span>
+        ${badge(c.provider_id,providerCls(c.provider_id))}
+        ${badge(c.surface.replace("_","-"),"bg-ink-800 text-zinc-400 border-ink-700")}
+        <span class="ml-auto">${badge("Kimi "+yesNo(c.kimi_value),valueCls(c.kimi_value))}</span>
+      </div>
+      <div class="mt-2 text-[13px] font-medium text-zinc-200 clamp-2">${esc(labelQuestion(c))}</div>
+      <div class="mt-1 text-[12px] text-zinc-500 clamp-2">${esc(c.question||"(no question)")}</div>
+      <div class="mt-2 flex items-center gap-2 text-[11px] text-zinc-500">
+        <span class="truncate">${esc(c.domain||"unknown domain")}</span>
+        ${p.human_value?`<span class="ml-auto font-mono">${esc(humanText(p.human_value))}</span>`:""}
+      </div>
+    </button>`;
+  }).join("");
+  list.querySelectorAll("[data-id]").forEach(el=>el.onclick=()=>select(el.dataset.id));
+  list.scrollTop=keep;
+}
+function renderDetail(){
+  const c=caseById(SEL); if(!c)return;
+  $("#casebar").innerHTML=`
+    ${badge(c.provider_id,providerCls(c.provider_id))}
+    ${badge(c.surface.replace("_","-"),"bg-ink-800 text-zinc-400 border-ink-700")}
+    ${badge(labelShort(c.label),"bg-indigo-500/15 text-indigo-300 border-indigo-500/30")}
+    <span class="text-zinc-600">/</span>
+    <span class="font-mono text-[12px] text-zinc-500 truncate">${esc(c.case_id)}</span>`;
+  const p=PROGRESS[c.case_id]||{};
+  $("#detail").innerHTML=`
+    <section class="reader-card p-5 mb-4">
+      <div class="flex items-start gap-4">
+        <div class="min-w-0 flex-1">
+          <div class="muted-label mb-2">Decision target</div>
+          <h1 class="text-2xl leading-snug font-semibold text-zinc-100">${esc(labelQuestion(c))}</h1>
+          <div class="mt-3 flex flex-wrap items-center gap-2">
+            ${miniValue(c)}
+            ${badge(labelShort(c.label),"bg-indigo-500/15 text-indigo-300 border-indigo-500/30")}
+            ${p.human_value?badge("Human "+humanText(p.human_value),p.human_value==="true"?"bg-emerald-500/15 text-emerald-300 border-emerald-500/30":p.human_value==="false"?"bg-rose-500/15 text-rose-300 border-rose-500/30":"bg-amber-500/15 text-amber-300 border-amber-500/30"):""}
+          </div>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 xl:grid-cols-3 gap-3 mt-5">
+        ${fieldBlock("Question",esc(c.question))}
+        ${fieldBlock("Gold answer",`<span class="font-semibold text-emerald-300">${esc(c.gold_answer)}</span>`)}
+        ${fieldBlock("Model final answer",`<span class="font-semibold text-sky-300">${esc(c.model_final_answer)}</span>`)}
+      </div>
+    </section>
+    <div class="flex flex-wrap gap-2 mb-4" id="tabbar">
+      ${tabButton("brief","Brief")}
+      ${tabButton("evidence","Search evidence")}
+      ${tabButton("page","Fetched page")}
+      ${tabButton("kimi","Kimi details")}
+      ${tabButton("prompt","Kimi prompt")}
+      ${tabButton("response","Provider response")}
+    </div>
+    <div id="tabContent"></div>`;
+  $("#tabbar").querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{ACTIVE_TAB=b.dataset.tab; renderDetail();});
+  renderTabContent(c);
+  renderJudgePane();
+}
+function renderTabContent(c){
+  const page=c.page_excerpt||{};
+  const content=$("#tabContent");
+  if(!content)return;
+  if(ACTIVE_TAB==="brief"){
+    const focus=focusEvidence(c);
+    const span=(c.judgment||{}).gold_page_span || (c.judgment||{}).gold_snippet_span || (c.judgment||{}).answer_span;
+    content.innerHTML=`
+      <div class="grid grid-cols-1 2xl:grid-cols-[minmax(0,1.35fr)_minmax(360px,.65fr)] gap-4">
+        <div class="space-y-4">
+          ${evidenceBlock(focus.label,focus.text)}
+          ${span?evidenceBlock("Kimi span",span):""}
+        </div>
+        <div class="space-y-4">
+          ${fieldBlock("Title",esc(c.title||""))}
+          ${fieldBlock("URL",`<a class="text-sky-300 underline decoration-sky-500/40" href="${esc(c.url)}" target="_blank" rel="noreferrer">${esc(c.url)}</a>`)}
+          ${fieldBlock("Search query",esc(c.search_query||""))}
+          ${fieldBlock("Domain / rank",`${esc(c.domain||"")} / ${esc(c.rank||"")}`)}
+        </div>
+      </div>`;
+    return;
+  }
+  if(ACTIVE_TAB==="evidence"){
+    const extra=(c.extra_snippets||[]).map((x,i)=>evidenceBlock(`Extra snippet ${i+1}`,x)).join("");
+    const rawSnippet=c.raw_snippet||"";
+    const rawExtra=(c.raw_extra_snippets||[]).map((x,i)=>`
+      <div class="mb-3">
+        <div class="muted-label mb-1">Raw extra snippet ${i+1}</div>
+        ${pre(x,"max-h-[220px]")}
+      </div>`).join("");
+    const rawSnippetBlock=rawSnippet?`
+      <section class="reader-card p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <div class="muted-label">Snippet exactly as sent in Kimi prompt</div>
+          <span class="ml-auto text-xs text-zinc-500">${esc(rawSnippet.length)} chars</span>
+        </div>
+        ${pre(rawSnippet,"max-h-[260px]")}
+      </section>`:"";
+    content.innerHTML=`
+      <div class="space-y-4">
+        ${fieldBlock("Title",esc(c.title||""))}
+        ${fieldBlock("URL",`<a class="text-sky-300 underline decoration-sky-500/40" href="${esc(c.url)}" target="_blank" rel="noreferrer">${esc(c.url)}</a>`)}
+        ${evidenceBlock("Snippet decoded for reading",c.snippet)}
+        ${rawSnippetBlock}
+        ${extra||evidenceBlock("Extra snippets","")}
+        ${rawExtra?`<section class="reader-card p-4"><div class="muted-label mb-3">Raw extra snippets exactly as sent</div>${rawExtra}</section>`:""}
+      </div>`;
+    return;
+  }
+  if(ACTIVE_TAB==="page"){
+    content.innerHTML=page.text?`
+      <section class="reader-card p-4">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="muted-label">Fetched page excerpt</div>
+          <span class="ml-auto text-xs text-zinc-500">chars ${esc(page.start)}-${esc(page.end)} of ${esc(page.total_chars)}${page.truncated?" / excerpted":""}</span>
+        </div>
+        ${pre(page.text,"max-h-[calc(100vh-250px)]")}
+      </section>`:evidenceBlock("Fetched page excerpt","");
+    return;
+  }
+  if(ACTIVE_TAB==="prompt"){
+    const messages=c.judge_messages||[];
+    const prompt=c.judge_prompt||c.judge_prompt_excerpt||"";
+    const doc=promptDocument(prompt);
+    const messageBlocks=messages.length?messages.map((m,i)=>`
+      <section class="reader-card p-4">
+        <div class="flex items-center gap-2 mb-2">
+          ${badge(`message ${i+1}`,"bg-ink-800 text-zinc-400 border-ink-700")}
+          ${badge(m.role||"role unknown","bg-indigo-500/15 text-indigo-300 border-indigo-500/30")}
+          <span class="ml-auto text-xs text-zinc-500">${esc((m.content||"").length)} chars</span>
+        </div>
+        ${pre(m.content||"","max-h-[520px]")}
+      </section>`).join(""):`
+      <section class="reader-card p-4">
+        <div class="muted-label mb-2">Prompt</div>
+        ${pre(prompt,"max-h-[720px]")}
+      </section>`;
+    content.innerHTML=`
+      <div class="space-y-4">
+        <section class="reader-card p-4">
+          <div class="muted-label mb-2">Prompt audit note</div>
+          <div class="text-sm leading-relaxed text-zinc-300">This is the exact chat payload preserved in the Kimi judge JSONL for this URL-level judgment. The retrieved-document block below is the evidence Kimi was asked to judge.</div>
+        </section>
+        ${doc?`<section class="reader-card p-4">
+          <div class="flex items-center gap-2 mb-2">
+            <div class="muted-label">Retrieved document block</div>
+            <span class="ml-auto text-xs text-zinc-500">${esc(doc.length)} chars</span>
+          </div>
+          ${pre(doc,"max-h-[620px]")}
+        </section>`:""}
+        ${messageBlocks}
+      </div>`;
+    return;
+  }
+  if(ACTIVE_TAB==="response"){
+    const llm=c.llm_response||{};
+    const raw=llm.raw_response||{};
+    const reasoning=responseReasoning(llm);
+    content.innerHTML=`
+      <div class="space-y-4">
+        <section class="reader-card p-4">
+          <div class="grid grid-cols-1 xl:grid-cols-4 gap-3">
+            ${fieldBlock("Provider model / id",esc(responseModel(llm)||""))}
+            ${fieldBlock("Latency",esc(llm.latency_ms?`${Math.round(llm.latency_ms)} ms`:""))}
+            ${fieldBlock("Usage",jsonBlock(llm.usage||raw.usage||{},"max-h-[160px]"))}
+            ${fieldBlock("Finish reason",esc(((raw.choices||[])[0]||{}).finish_reason||""))}
+          </div>
+        </section>
+        <section class="reader-card p-4">
+          <div class="muted-label mb-2">Parsed provider content</div>
+          ${pre(llm.content||"","max-h-[420px]")}
+        </section>
+        ${reasoning?`<section class="reader-card p-4">
+          <div class="muted-label mb-2">Provider reasoning content</div>
+          ${pre(reasoning,"max-h-[520px]")}
+        </section>`:""}
+        <section class="reader-card p-4">
+          <div class="muted-label mb-2">Raw provider response JSON</div>
+          ${jsonBlock(raw,"max-h-[720px]")}
+        </section>
+      </div>`;
+    return;
+  }
+  const j=c.judgment||{};
+  const spans=[
+    ["Answer span",j.answer_span],
+    ["Gold snippet span",j.gold_snippet_span],
+    ["Gold page span",j.gold_extracted_page_span]
+  ].filter(x=>x[1]).map(x=>evidenceBlock(x[0],x[1])).join("");
+  content.innerHTML=`
+    <div class="space-y-4">
+      <section class="reader-card p-4">
+        <div class="muted-label mb-3">Kimi booleans</div>
+        ${renderJudgment(c)}
+      </section>
+      ${spans||evidenceBlock("Judge spans","")}
+      ${fieldBlock("Prompt excerpt",pre(c.prompt_excerpt||"","max-h-[260px]"))}
+    </div>`;
+}
+function renderJudgePane(){
+  const c=caseById(SEL); if(!c)return;
+  const p=PROGRESS[c.case_id]||{};
+  const agreement=agrees(c);
+  const option=(value,label,cls)=>`<button data-human-value="${value}" class="human-value w-full rounded-lg border px-4 py-3 text-left ${p.human_value===value?cls:"bg-ink-800 border-ink-700 text-zinc-300 hover:border-ink-600"}">
+      <div class="text-base font-semibold">${label}</div>
+      <div class="mt-0.5 text-xs opacity-75">Human value: ${esc(value)}</div>
+    </button>`;
+  const needsPattern=p.human_value==="unclear" || agreement===false || p.human_disagreement_pattern;
+  $("#jhead").innerHTML=`Human validation ${isDone(c.case_id)?badge("done","bg-emerald-500/15 text-emerald-300 border-emerald-500/30"):""}`;
+  $("#jbody").innerHTML=`
+    <section class="reader-card p-4 mb-4">
+      <div class="muted-label mb-2">Your call</div>
+      <div class="text-lg leading-snug font-semibold text-zinc-100 mb-4">${esc(labelQuestion(c))}</div>
+      <div class="space-y-2">
+        ${option("true","Yes","bg-emerald-500/15 text-emerald-300 border-emerald-500/50")}
+        ${option("false","No","bg-rose-500/15 text-rose-300 border-rose-500/50")}
+        ${option("unclear","Unclear","bg-amber-500/15 text-amber-300 border-amber-500/50")}
+      </div>
+      <div class="mt-4 grid grid-cols-2 gap-2 text-sm">
+        <div class="soft-card p-3"><div class="muted-label mb-1">Kimi</div><div class="font-semibold ${c.kimi_value?"text-emerald-300":"text-rose-300"}">${yesNo(c.kimi_value)}</div></div>
+        <div class="soft-card p-3"><div class="muted-label mb-1">Agreement</div><div class="font-semibold ${agreement===true?"text-emerald-300":agreement===false?"text-rose-300":"text-zinc-400"}">${agreement===null?"Pending":agreement?"Yes":"No"}</div></div>
+      </div>
+    </section>
+    <section class="reader-card p-4 mb-4 ${needsPattern?"":"hidden"}">
+      <div class="muted-label mb-2">Disagreement pattern</div>
+      <select id="pattern" class="w-full bg-ink-800 border border-ink-700 rounded-md px-2.5 py-2 text-sm text-zinc-200 focus:outline-none focus:border-emerald-500">
+        ${PATTERNS.map(([v,l])=>`<option value="${esc(v)}" ${p.human_disagreement_pattern===v?"selected":""}>${esc(l)}</option>`).join("")}
+      </select>
+    </section>
+    <section class="reader-card p-4">
+      <div class="muted-label mb-2">Notes</div>
+      <textarea id="notes" rows="8" class="w-full bg-ink-900 border border-ink-700 rounded-md p-3 text-[15px] leading-relaxed text-zinc-200 focus:outline-none focus:border-emerald-500" placeholder="Reason, uncertainty, useful quote.">${esc(p.human_notes||"")}</textarea>
+    </section>`;
+  document.querySelectorAll("[data-human-value]").forEach(b=>b.onclick=()=>{setProgress({human_value:b.dataset.humanValue},{advance:true});});
+  const pattern=$("#pattern"); if(pattern) pattern.onchange=e=>setProgress({human_disagreement_pattern:e.target.value});
+  $("#notes").oninput=e=>{clearTimeout(saveTimer); saveTimer=setTimeout(()=>setProgress({human_notes:e.target.value}),250);};
+}
+function select(id){SEL=id; renderList(); renderDetail();}
+
+$("#search").oninput=e=>{FILT.q=e.target.value; renderList();};
+$("#btnToggleList").onclick=()=>$("#listpane").classList.toggle("hidden");
+$("#navPrev").onclick=()=>move(-1);
+$("#navNext").onclick=()=>move(1);
+$("#navDone").onclick=movePending;
+$("#btnSummary").onclick=showSummary;
+$("#btnExport").onclick=exportNow;
+$("#themeSel").value=document.documentElement.dataset.theme||"fluent";
+$("#themeSel").onchange=e=>{document.documentElement.dataset.theme=e.target.value; localStorage.setItem("judge_validation_theme",e.target.value);};
+document.addEventListener("keydown",e=>{
+  if(e.target&&["TEXTAREA","INPUT","SELECT"].includes(e.target.tagName))return;
+  if(e.key==="j"||e.key==="ArrowDown")move(1);
+  if(e.key==="k"||e.key==="ArrowUp")move(-1);
+  if(e.key==="1")setProgress({human_value:"true"},{advance:true});
+  if(e.key==="2")setProgress({human_value:"false"},{advance:true});
+  if(e.key==="3")setProgress({human_value:"unclear"},{advance:true});
+});
+load();
+</script>
+</body>
+</html>

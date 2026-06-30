@@ -7,6 +7,7 @@
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{array}
+\usepackage{tabularx}
 \usepackage{multirow}
 \usepackage{xcolor}
 \usepackage{amsmath}
@@ -15,7 +16,6 @@
 \usepackage{url}
 \usepackage{placeins}
 \usepackage{pifont}
-\usepackage{colortbl}
 \usepackage{dblfloatfix}
 \usepackage{needspace}
 \input{figures/numbers.tex}
@@ -43,6 +43,9 @@
 \setlist{itemsep=0.12em, topsep=0.25em, parsep=0pt}
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 \newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
+\newcolumntype{Y}{>{\raggedleft\arraybackslash}X}
+\newcolumntype{Z}{>{\raggedright\arraybackslash}X}
 
 \newcommand{\smart}{\textsc{smart}}
 \newcommand{\missed}{\textsc{missed}}
@@ -81,9 +84,7 @@
 \renewcommand{\dbltopfraction}{0.95}
 \renewcommand{\dblfloatpagefraction}{0.80}
 
-% Subtle shared palette for tables and vector diagrams.
-\definecolor{TableHead}{HTML}{EAF2FF}
-\definecolor{TableSubhead}{HTML}{F8FAFC}
+% Shared accent palette for vector diagrams.
 \definecolor{AccentBlue}{HTML}{2A80B9}
 \definecolor{AccentGreen}{HTML}{2AA876}
 \definecolor{AccentOrange}{HTML}{E76F51}

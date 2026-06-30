@@ -52,7 +52,7 @@ tarball.
 
 ## Layout notes
 
-The main paper stays in ACL two-column layout. The appendix switches to one-column after the bibliography to avoid narrow-column overlap for audit definitions and diagnostic tables. Figures are deterministic Graphviz DOT renderings with committed PDF/SVG outputs.
+The main paper stays in ACL two-column layout. The appendix switches to one-column after the bibliography to avoid narrow-column overlap for audit definitions and diagnostic tables. Figure 1 is a static PNG export from `figures/Pipeline Figure.html`; the remaining figures are deterministic Graphviz DOT renderings with committed PDF/SVG outputs.
 
 ## Generated files
 

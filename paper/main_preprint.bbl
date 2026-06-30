@@ -32,19 +32,20 @@ Kelvin Guu, Kenton Lee, Zora Tung, Panupong Pasupat, and Ming-Wei Chang. 2020.
 \newblock In \emph{Proceedings of the 37th International Conference on Machine
   Learning}.
 
-\bibitem[{Izacard et~al.(2023)Izacard, Caron, Hosseini, Riedel, Bojanowski,
-  Joulin, and Grave}]{izacard2023atlas}
-Gautier Izacard, Mathilde Caron, Lucas Hosseini, Sebastian Riedel, Piotr
-  Bojanowski, Armand Joulin, and Edouard Grave. 2023.
-\newblock {ATLAS}: Few-shot learning with retrieval augmented language models.
-\newblock \emph{Journal of Machine Learning Research}, 24:1--43.
-
 \bibitem[{Izacard and Grave(2021)}]{izacard-grave-2021-leveraging}
 Gautier Izacard and Edouard Grave. 2021.
 \newblock Leveraging passage retrieval with generative models for open domain
   question answering.
 \newblock In \emph{Proceedings of the 16th Conference of the European Chapter
   of the Association for Computational Linguistics}, pages 874--880.
+
+\bibitem[{Izacard et~al.(2023)Izacard, Lewis, Lomeli, Hosseini, Petroni,
+  Schick, Dwivedi-Yu, Joulin, Riedel, and Grave}]{izacard2023atlas}
+Gautier Izacard, Patrick Lewis, Maria Lomeli, Lucas Hosseini, Fabio Petroni,
+  Timo Schick, Jane Dwivedi-Yu, Armand Joulin, Sebastian Riedel, and Edouard
+  Grave. 2023.
+\newblock {ATLAS}: Few-shot learning with retrieval augmented language models.
+\newblock \emph{Journal of Machine Learning Research}, 24(251):1--43.
 
 \bibitem[{J{"a}rvelin and Kek{"a}l{"a}inen(2002)}]{jarvelin2002cumulated}
 Kalervo J{"a}rvelin and Jaana Kek{"a}l{"a}inen. 2002.
@@ -109,10 +110,12 @@ Gregoire Mialon, Clementine Fourrier, Craig Swift, Thomas Wolf, Yann LeCun, and
 \newblock In \emph{International Conference on Learning Representations}.
 
 \bibitem[{Nakano et~al.(2021)Nakano, Hilton, Balaji, Wu, Ouyang, Kim, Hesse,
-  Jain, Kosaraju, Saunders, Jiang, Cobbe, Eloundou et~al.}]{nakano2021webgpt}
+  Jain, Kosaraju, Saunders, Jiang, Cobbe, Eloundou, Krueger, Button, Knight,
+  Chess, and Schulman}]{nakano2021webgpt}
 Reiichiro Nakano, Jacob Hilton, Suchir Balaji, Jeff Wu, Long Ouyang, Christina
   Kim, Christopher Hesse, Shantanu Jain, Vineet Kosaraju, William Saunders,
-  Xu~Jiang, Karl Cobbe, Tyna Eloundou, and 1 others. 2021.
+  Xu~Jiang, Karl Cobbe, Tyna Eloundou, Gretchen Krueger, Kevin Button, Matthew
+  Knight, Benjamin Chess, and John Schulman. 2021.
 \newblock {WebGPT}: Browser-assisted question-answering with human feedback.
 \newblock \emph{arXiv preprint arXiv:2112.09332}.
 
@@ -149,7 +152,8 @@ Timo Schick, Jane Dwivedi-Yu, Roberto Dess{\`i}, Roberta Raileanu, Maria
 \bibitem[{{Tavily}(2026)}]{tavily-docs}
 {Tavily}. 2026.
 \newblock Tavily search api documentation.
-\newblock \url{https://docs.tavily.com/}.
+\newblock
+  \url{https://docs.tavily.com/documentation/api-reference/endpoint/search}.
 
 \bibitem[{Thakur et~al.(2021)Thakur, Reimers, Ruckl{\'e}, Srivastava, and
   Gurevych}]{thakur-etal-2021-beir}
@@ -205,10 +209,10 @@ Xiang Yue, Boshi Wang, Ziru Chen, Kai Zhang, Yu~Su, and Huan Sun. 2023.
 \newblock \emph{arXiv preprint arXiv:2305.06311}.
 
 \bibitem[{Zheng et~al.(2023)Zheng, Chiang, Sheng, Zhuang, Wu, Zhuang, Lin, Li,
-  Xing, Gonzalez, Stoica, and Zhang}]{zheng2023judging}
+  Li, Xing, Zhang, Gonzalez, and Stoica}]{zheng2023judging}
 Lianmin Zheng, Wei-Lin Chiang, Ying Sheng, Siyuan Zhuang, Zhanghao Wu, Yonghao
-  Zhuang, Zi~Lin, Zhuohan Li, Dacheng Xing, Joseph~E. Gonzalez, Ion Stoica, and
-  Hao Zhang. 2023.
+  Zhuang, Zi~Lin, Zhuohan Li, Dacheng Li, Eric~P. Xing, Hao Zhang, Joseph~E.
+  Gonzalez, and Ion Stoica. 2023.
 \newblock Judging {LLM}-as-a-judge with {MT}-bench and chatbot arena.
 \newblock \emph{arXiv preprint arXiv:2306.05685}.
 
