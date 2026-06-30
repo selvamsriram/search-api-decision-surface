@@ -16,6 +16,7 @@ submission: figures $(PAPER_SUBMISSION).tex paper_shared.tex preamble.tex refs.b
 	bibtex $(PAPER_SUBMISSION)
 	pdflatex -interaction=nonstopmode $(PAPER_SUBMISSION).tex
 	pdflatex -interaction=nonstopmode $(PAPER_SUBMISSION).tex
+	pdflatex -interaction=nonstopmode $(PAPER_SUBMISSION).tex
 
 preprint: figures $(PAPER_PREPRINT).tex paper_shared.tex preamble.tex refs.bib
 	pdflatex -interaction=nonstopmode $(PAPER_PREPRINT).tex

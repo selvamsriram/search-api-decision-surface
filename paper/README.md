@@ -52,7 +52,7 @@ tarball.
 
 ## Layout notes
 
-The main paper stays in ACL two-column layout. The appendix switches to one-column after the bibliography to avoid narrow-column overlap for audit definitions and diagnostic tables. Figures 1--4 are static PNG exports from the designer HTML files in `figures/`. The deterministic Graphviz DOT/PDF/SVG outputs remain committed as audit artifacts for the figure-generation script.
+The main paper and appendix stay in ACL two-column layout. The local `acl.sty` and `acl_natbib.bst` files mirror the official ACL style repository linked by the EMNLP/ARR submission instructions: `https://github.com/acl-org/acl-style-files`. The appendix uses compact audit tables, appendix-local line-breaking tolerance, and final-page column balancing to keep the supporting material readable without switching formats. Figures 1--4 are static PNG exports from the designer HTML files in `figures/`. The deterministic Graphviz DOT/PDF/SVG outputs remain committed as audit artifacts for the figure-generation script.
 
 ## Generated files
 

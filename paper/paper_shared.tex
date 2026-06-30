@@ -62,13 +62,13 @@ Figure~\ref{fig:architecture} summarizes the experiment.
 We use a deterministic proportional stratified sample of \NQueries{} questions from the 254-row \textsc{SealQA-Hard} subset. The strata are \texttt{freshness} $\times$ \texttt{search\_results} $\times$ \texttt{topic}. We chose \textsc{SealQA-Hard} because it provides challenging questions that encourage model exploration and are not yet fully resolved by a simple snippet-only search API response. Appendix~\ref{app:dataset} gives the full sampling summary.
 
 \paragraph{Agent and tools.}
-The answer model is GPT-5.4 with a maximum of 10 iterations. It has two tools. \searchWeb{} accepts a query and returns up to ten ranked results, each with a document identifier, rank, title, URL, domain, snippet surface, and provider metadata. \fetchPage{} accepts a document identifier from a prior search result and returns extracted markdown plus fetch metadata. The tool interface allows the agent to issue \emph{multiple} \searchWeb{} calls or \emph{multiple} \fetchPage{} calls in a single turn; the trace records each call separately. The final answer must use the exact prefix \texttt{FINAL ANSWER:} and be grounded in retrieved evidence.
+The answer model is GPT-5.4 with a maximum of 10 iterations. It has two tools. \searchWeb{} accepts a query and returns up to ten ranked results, each with a document identifier, rank, title, URL, domain, snippet surface, and provider metadata. \fetchPage{} accepts a document identifier from a prior search result and returns extracted markdown plus fetch metadata. The tool interface allows the agent to issue \emph{multiple} \searchWeb{} calls or \emph{multiple} \fetchPage{} calls in a single turn; the trace records each call separately. The final answer must use the exact prefix \texttt{FINAL ANSWER:} and be grounded in retrieved evidence. Appendix~\ref{app:generation} gives the fixed prompt contract and trace schema.
 
 \paragraph{Providers and snippet normalization.}
 We compare Brave, Tavily, and Firecrawl Search. Each adapter normalizes provider output into the same result schema. Brave exposes additional provider-native snippet blocks. We aggregate those blocks into the generic \emph{snippet surface} rather than treating them as a separate evidence channel; the agent saw them as snippets, and the judge saw the same text. We still discuss this asymmetry as a limitation because it changes the amount of pre-fetch text Brave returns. Tavily is run with raw content disabled, and Firecrawl is run without provider-side markdown scraping. Page text visible to the agent therefore comes only from the shared Jina Reader backend.
 
 \paragraph{Run and reproducibility controls.}
-The main provider traces were collected on 2026-05-17 UTC, from 06:49--09:02 UTC across the three providers. All providers were asked for up to 10 web results under the fixed configuration in Appendix~\ref{app:providers}: Brave used US/en with moderate safe search, Tavily used basic/general search with raw content disabled, and Firecrawl used web search with provider-side markdown scraping disabled. All full-page text came from the shared Jina Reader \fetchPage{} backend with a 15s timeout, 2MB read limit, concurrency 4, and gzip cache keyed by normalized URL. Because commercial search outputs are time-sensitive, the committed traces, raw provider payloads, fetch cache metadata, and judge rows are the reproducibility artifact rather than the live APIs.
+The main provider traces were collected on 2026-05-17 UTC, from 06:49--09:02 UTC across the three providers. All providers were asked for up to 10 web results under the fixed configuration in Appendix~\ref{app:providers}: Brave used US/en with moderate safe search, Tavily used basic/general search with raw content disabled, and Firecrawl used web search with provider-side markdown scraping disabled. All full-page text came from the shared Jina Reader \fetchPage{} backend with a 15s timeout, 2MB read limit, concurrency 4, and gzip cache keyed by normalized URL. Because commercial search outputs are time-sensitive and raw API results are not ours to redistribute, the released reproducibility package contains code, configuration, sampling logic, trace schemas, evaluation scripts, and aggregate derived outputs; the reported numbers are generated from private run artifacts.
 
 \paragraph{Traces.}
 The experiment produces \NTraces{} provider-query trajectories. A trace records every search call, every returned URL, every fetch decision, fetch status, token usage, latency, final answer, and gold answer. Provider-comparison scripts deterministically derive token, URL-hit, and per-query support fields from these traces. Answer correctness comes from the separate semantic audit TSV.
@@ -278,7 +278,7 @@ Wrong despite answer text & \BraveWrongWithAnswer{} & \TavilyWrongWithAnswer{} &
 Table~\ref{tab:retrieval-proxies} shows why ordinary retrieval proxies are incomplete for agents. Gold URLs and answer strings often appear somewhere in the trajectory, yet the agent still has \BraveWrongWithAnswer{}, \TavilyWrongWithAnswer{}, and \FirecrawlWrongWithAnswer{} wrong answers despite visible answer text. The issue is not only whether evidence exists, but whether the decision surface makes the right evidence noticeable, trusted, and actionable.
 
 \paragraph{Qualitative examples.}
-Two Brave traces show how this happens. In a Blake Shelton query, one snippet listed the five relevant 2015--2023 winning seasons, but nearby snippets repeated his nine lifetime wins; with no fetch, the agent answered \emph{9} rather than \emph{5}. In a border query, rank 1 favored Canada--United States, while lower snippets preserved the key word \emph{continuous} and identified Kazakhstan--Russia; the agent again answered from the generic surface. These cases reinforce the core claim: a search surface shapes whether the model notices, trusts, fetches, and uses the right evidence amid distractors.
+Two Brave traces show how this happens. In a Blake Shelton query, one snippet listed the five relevant 2015--2023 winning seasons, but nearby snippets repeated his nine lifetime wins; with no fetch, the agent answered \emph{9} rather than \emph{5}. In a border query, rank 1 favored Canada--United States, while lower snippets preserved the key word \emph{continuous} and identified Kazakhstan--Russia; the agent again answered from the generic surface. These cases reinforce the core claim: a search surface shapes whether the model notices, trusts, fetches, and uses the right evidence amid distractors. Appendix~\ref{app:generation} shows the trace-level artifact structure used for these audits.
 
 \section{Discussion}
 \label{sec:discussion}
@@ -326,8 +326,8 @@ The reported numbers were generated from the private run artifacts using the rel
 
 \bibliography{refs}
 
-\onecolumn
+\clearpage
 \appendix
-\small
+\setlength{\emergencystretch}{1.5em}
 \input{appendix_shared}
 \endinput
