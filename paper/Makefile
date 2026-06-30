@@ -23,17 +23,17 @@ preprint: figures $(PAPER_PREPRINT).tex paper_shared.tex preamble.tex refs.bib
 	pdflatex -interaction=nonstopmode $(PAPER_PREPRINT).tex
 	pdflatex -interaction=nonstopmode $(PAPER_PREPRINT).tex
 
-arxiv: $(PAPER_PREPRINT).tex $(PAPER_PREPRINT).bbl paper_shared.tex appendix_shared.tex preamble.tex acl.sty acl_natbib.bst refs.bib figures/numbers.tex figures/fig1_pipeline.png figures/fig2_provider_profiles.pdf figures/fig3_decision_partition.pdf figures/fig4_complementarity.pdf
+arxiv: $(PAPER_PREPRINT).tex $(PAPER_PREPRINT).bbl paper_shared.tex appendix_shared.tex preamble.tex acl.sty acl_natbib.bst refs.bib figures/numbers.tex figures/fig1_pipeline.png figures/fig2_provider_profiles.png figures/fig3_decision_partition.png figures/fig4_complementarity.png
 	rm -rf $(ARXIV_BUILD_DIR)
 	mkdir -p $(ARXIV_BUILD_DIR)/figures build
 	cp $(PAPER_PREPRINT).tex $(ARXIV_BUILD_DIR)/main.tex
 	cp $(PAPER_PREPRINT).bbl $(ARXIV_BUILD_DIR)/main.bbl
 	cp paper_shared.tex appendix_shared.tex preamble.tex acl.sty acl_natbib.bst refs.bib $(ARXIV_BUILD_DIR)/
-	cp figures/numbers.tex figures/fig1_pipeline.png figures/fig2_provider_profiles.pdf figures/fig3_decision_partition.pdf figures/fig4_complementarity.pdf $(ARXIV_BUILD_DIR)/figures/
+	cp figures/numbers.tex figures/fig1_pipeline.png figures/fig2_provider_profiles.png figures/fig3_decision_partition.png figures/fig4_complementarity.png $(ARXIV_BUILD_DIR)/figures/
 	cd $(ARXIV_BUILD_DIR) && pdflatex -interaction=nonstopmode main.tex
 	cd $(ARXIV_BUILD_DIR) && pdflatex -interaction=nonstopmode main.tex
 	cd $(ARXIV_BUILD_DIR) && pdflatex -interaction=nonstopmode main.tex
-	tar -C $(ARXIV_BUILD_DIR) -czf $(abspath $(ARXIV_TARBALL)) main.tex main.bbl paper_shared.tex appendix_shared.tex preamble.tex acl.sty acl_natbib.bst refs.bib figures/numbers.tex figures/fig1_pipeline.png figures/fig2_provider_profiles.pdf figures/fig3_decision_partition.pdf figures/fig4_complementarity.pdf
+	tar -C $(ARXIV_BUILD_DIR) -czf $(abspath $(ARXIV_TARBALL)) main.tex main.bbl paper_shared.tex appendix_shared.tex preamble.tex acl.sty acl_natbib.bst refs.bib figures/numbers.tex figures/fig1_pipeline.png figures/fig2_provider_profiles.png figures/fig3_decision_partition.png figures/fig4_complementarity.png
 
 # Layout-only target. Uses semantic TSV if present and last validated bucket constants
 # if raw LFS judge files are unavailable. Do not use this for final numbers.
