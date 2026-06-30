@@ -210,6 +210,25 @@ Table~\ref{tab:visible-support} shows that the per-URL oracle sees a larger prov
 \centering
 \scriptsize
 \setlength{\tabcolsep}{2pt}
+\begin{tabularx}{\linewidth}{@{}L{0.16\linewidth}R{0.13\linewidth}R{0.13\linewidth}R{0.15\linewidth}R{0.16\linewidth}R{0.17\linewidth}@{}}
+\toprule
+\textbf{Provider} & \textbf{Med. surface tok./q} & \textbf{Mean surface tok./q} & \textbf{Gold-support rows} & \textbf{Gold rows/1K tok.} & \textbf{Support q/1K tok.} \\
+\midrule
+Brave & 7,810 & 8,968.1 & 101 & 0.113 & 0.033 \\
+Tavily & 5,911 & 5,928.4 & 34 & 0.057 & 0.027 \\
+Firecrawl & 2,704 & 3,028.1 & 30 & 0.099 & 0.053 \\
+\bottomrule
+\end{tabularx}
+\caption{Snippet-surface length normalization. Token counts use the rendered pre-fetch \searchWeb{} observations sent to the model: query wrapper, document IDs, ranks, URLs, titles, domains, snippets, and provider-native extra snippets, excluding fetched page text and raw provider payloads. Duplicate search observations are counted because they entered the model context.}
+\label{tab:snippet-volume}
+\end{table}
+
+Because Brave exposes more provider-native snippet text, Table~\ref{tab:snippet-volume} normalizes pre-fetch support by the rendered snippet-surface token volume sent to the model. Brave's row-normalized advantage over Tavily persists (0.113 vs. 0.057 gold-supporting rows per 1K tokens), but the contrast with Firecrawl shrinks (0.113 vs. 0.099), and Firecrawl is higher under query-normalized support (0.053 vs. 0.033 support queries per 1K tokens). We therefore interpret Brave's pre-fetch support advantage as partly surface-volume-driven rather than purely higher per-token evidence density.
+
+\begin{table}[!t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{2pt}
 \begin{tabularx}{\linewidth}{@{}L{0.23\linewidth}L{0.18\linewidth}L{0.12\linewidth}L{0.20\linewidth}Z@{}}
 \toprule
 \textbf{Claim} & \textbf{Contrast} & \textbf{Diff.} & \textbf{95\% interval} & \textbf{Takeaway} \\
@@ -305,7 +324,7 @@ The decision partition is induced by one GPT-5.4 agent and one Kimi-K2.6 judge. 
 Pre-fetch support is measured only over URLs actually returned to the agent, and post-fetch support is a lower bound because unfetched URLs are not page-judged. This prevents us from claiming full provider recall.
 
 \paragraph{Snippet-surface asymmetry.}
-Brave returns more provider-native snippet text under our configuration. We aggregate it into the snippet surface to avoid presenting it as special treatment, but it remains a real product-surface difference and a plausible driver of Brave's pre-fetch support ceiling.
+Brave returns more provider-native snippet text under our configuration. We aggregate it into the snippet surface to avoid presenting it as special treatment, but it remains a real product-surface difference and a plausible driver of Brave's pre-fetch support ceiling. The length-normalized check in Table~\ref{tab:snippet-volume} shows that this asymmetry explains part, but not all, of the observed pre-fetch support pattern.
 
 \paragraph{Observational policy analysis.}
 The agent's actions are observed, not randomized. We do not intervene on ranks, snippets, or fetch decisions. Causal replay is future work.
@@ -320,7 +339,7 @@ Evaluating search APIs for tool-using agents requires looking beyond answer accu
 This work evaluates commercial search APIs and LLM agents on public web-search QA data. We do not claim that one provider is universally better. Provider names are reported because they are experimental conditions and because reproduction requires knowing which APIs produced the surfaces. The study may help reduce unnecessary page fetches and improve handling of contradictory evidence. It could also be misread as a provider leaderboard without respecting the stated limitations; we discourage that use.
 
 \section*{Reproducibility Statement}
-We release the experiment code, configuration files, prompts, query-sampling logic, trace schema, evaluation scripts, bootstrap scripts, figure-generation code, paper sources, and aggregate derived artifacts needed to inspect the reported calculations. We do not publicly redistribute raw search-provider responses, rendered trace JSONLs, judge prompts or responses containing provider snippets, or fetched page text. These artifacts contain provider search results and third-party web content subject to API terms and publisher rights, and are therefore not ours to redistribute.
+We release the experiment code, configuration files, prompts, query-sampling logic, trace schema, evaluation scripts, bootstrap scripts, figure-generation code, paper sources, and aggregate derived artifacts needed to inspect the reported calculations at \ReleaseArtifactLink. We do not publicly redistribute raw search-provider responses, rendered trace JSONLs, judge prompts or responses containing provider snippets, or fetched page text. These artifacts contain provider search results and third-party web content subject to API terms and publisher rights, and are therefore not ours to redistribute.
 
 The reported numbers were generated from the private run artifacts using the released pipeline. Researchers can reproduce the protocol by running the same fixed query sample with their own API credentials and then applying the released evaluation scripts. Because commercial search APIs are live, time-varying systems, reruns reproduce the experimental procedure rather than bit-identical provider surfaces. To support auditability without redistributing raw provider content, we release aggregate summaries, row counts, semantic-audit labels, validation summaries, and deterministic scripts that map traces and judge rows to every reported table and figure.
 
