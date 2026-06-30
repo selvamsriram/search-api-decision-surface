@@ -81,7 +81,7 @@ Hidden fields & Gold answers and gold URLs are retained in traces for offline gr
 \end{tabularx}
 \end{center}
 
-In fetch-tool mode, \searchWeb{} observations are snippet-only. Page text enters the model context only after the model chooses a prior \texttt{document\_id}. This makes fetch behavior observable and prevents provider comparisons from being driven by automatic page inclusion.
+In fetch-tool mode, \searchWeb{} observations are snippet-only. Page text enters the model context only after the model chooses a prior \texttt{document\_id}. This makes fetch behavior observable and keeps provider comparisons from reflecting automatic page inclusion.
 
 \subsection{Trace Schema and Prompt Artifacts}
 \label{app:trace-repro}
@@ -198,7 +198,7 @@ The result appendices report uncertainty, decision-cell diagnostics, token and f
 \label{app:uncertainty}
 We resample question IDs with replacement, preserving the matched Brave/Tavily/Firecrawl rows for each question. The tables use 10,000 percentile-bootstrap replicates with seed 20260628. Count metrics are reported per 100 sampled questions; pairwise differences are left minus right in the row's native units.
 
-The first uncertainty table gives provider-level intervals for the main quantities. These intervals show the scale of each provider's measured regime before any pairwise comparison is made.
+The first uncertainty table gives provider-level intervals for the main quantities. These intervals show the scale of each provider's measured regime before any pairwise comparison is made. The rank-1 row uses the same denominator as Table~\ref{tab:visible-support}: gold-supporting pre-fetch rows.
 
 \begin{center}
 \footnotesize
@@ -209,7 +209,7 @@ The first uncertainty table gives provider-level intervals for the main quantiti
 \midrule
 \correctans{} /100 & B 25 [17, 34]; T 25 [17, 34]; F 26 [18, 35] \\
 Pre-fetch support /100 & B 30 [21, 39]; T 16 [9, 23]; F 16 [9, 23] \\
-Rank-1 pre-fetch & B 12.9 [7.1, 19.4]; T 50.0 [31.2, 78.9]; F 13.3 [4.2, 26.3] \\
+Rank-1 among pre-fetch support rows & B 12.9 [7.1, 19.4]; T 50.0 [31.2, 78.9]; F 13.3 [4.2, 26.3] \\
 $r_{c:g}$ & B 0.92 [0.49, 1.73]; T 1.87 [0.83, 4.47]; F 2.59 [1.11, 8.00] \\
 Fetched queries /100 & B 65 [56, 74]; T 76 [67, 84]; F 81 [73, 89] \\
 Avg. fetch calls & B 1.02 [0.81, 1.25]; T 1.30 [1.06, 1.55]; F 1.28 [1.08, 1.50] \\
@@ -231,7 +231,7 @@ The second uncertainty table reports matched pairwise differences. This is the c
 \midrule
 \correctans{} /100 & B--T 0 [$-9$, 9]; B--F $-1$ [$-10$, 8]; T--F $-1$ [$-10$, 8] \\
 Pre-fetch support /100 & B--T 14 [4, 24]; B--F 14 [6, 22]; T--F 0 [$-8$, 8] \\
-Rank-1 pre-fetch & B--T $-37.1$ [$-67.3$, $-16.8$]; B--F $-0.5$ [$-13.3$, 10.1]; T--F 36.7 [18.8, 66.4] \\
+Rank-1 among pre-fetch support rows & B--T $-37.1$ [$-67.3$, $-16.8$]; B--F $-0.5$ [$-13.3$, 10.1]; T--F 36.7 [18.8, 66.4] \\
 $r_{c:g}$ & B--T $-0.95$ [$-3.22$, 0.00]; B--F $-1.68$ [$-6.78$, $-0.36$]; T--F $-0.72$ [$-4.86$, 0.53] \\
 Fetched queries /100 & B--T $-11$ [$-19$, $-3$]; B--F $-16$ [$-25$, $-7$]; T--F $-5$ [$-12$, 1] \\
 Avg. fetch calls & B--T $-0.28$ [$-0.55$, $-0.02$]; B--F $-0.26$ [$-0.51$, $-0.02$]; T--F 0.02 [$-0.23$, 0.27] \\
