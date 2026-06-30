@@ -49,7 +49,7 @@ Brave, Tavily, Firecrawl, and Jina Reader expose different product surfaces \cit
 \begin{figure*}[!t]
 \centering
 \includegraphics[width=0.99\textwidth]{figures/fig1_pipeline.png}
-\caption{Execution and judging pipeline.}
+\caption{Execution and judging pipeline. The agent, prompt, tools, and fetch backend are fixed; only the search provider varies before the Kimi oracle replays every visible URL.}
 \label{fig:architecture}
 \end{figure*}
 
@@ -88,9 +88,9 @@ The judge returns JSON only and is instructed not to use outside knowledge. The 
 \toprule
 \textbf{Field} & \textbf{Meaning} \\
 \midrule
-\path{contains_gold_answer} & Gold answer appears in the judged evidence. \\
-\path{gold_answer_in_snippets} & Gold answer appears in provider-returned snippets. \\
-\path{gold_answer_in_extracted_page} & Gold answer appears in fetched page text. \\
+\path{contains_gold_answer} & Evidence makes the gold answer answerable for the question. \\
+\path{gold_answer_in_snippets} & Provider-returned snippet surface makes the gold answer answerable. \\
+\path{gold_answer_in_extracted_page} & Fetched page text makes the gold answer answerable. \\
 \path{supports_model_answer} & Evidence supports the agent's final answer. \\
 \path{contradicts_gold_answer} & Evidence conflicts with the gold answer. \\
 \path{is_garbage} & URL content is unusable or irrelevant. \\
@@ -151,7 +151,7 @@ The metric depends on the gold answer but is independent of the model's final an
 \begin{figure*}[!t]
 \centering
 \includegraphics[width=0.98\textwidth]{figures/fig2_provider_profiles.png}
-\caption{Provider profiles.}
+\caption{Provider profiles under semantic correctness. Similar final accuracy hides different pre-fetch support, rank concentration, contradiction ratio, and fetch behavior.}
 \label{fig:profiles}
 \end{figure*}
 
@@ -171,11 +171,11 @@ Fetched queries & \BraveFetchedPct{} & \TavilyFetchedPct{} & \FirecrawlFetchedPc
 Tokens/query & \BraveAvgTokens{} & \TavilyAvgTokens{} & \FirecrawlAvgTokens{} \\
 \bottomrule
 \end{tabularx}
-\caption{Headline metrics.}
+\caption{Headline metrics. Semantic correctness is similar across providers, while token use, search/fetch behavior, and evidence exposure differ.}
 \label{tab:headline}
 \end{table}
 
-Table~\ref{tab:headline} and Figure~\ref{fig:profiles} show the headline. Under \correctans{}, the providers remain close: \BraveCorrect{}, \TavilyCorrect{}, and \FirecrawlCorrect{} correct answers out of 100. The semantic audit changes absolute counts, but not the main conclusion: aggregate correctness alone suggests the providers are nearly interchangeable.
+Table~\ref{tab:headline} and Figure~\ref{fig:profiles} show the headline. Under \correctans{}, the providers remain close: \BraveCorrect{}, \TavilyCorrect{}, and \FirecrawlCorrect{} correct answers out of 100. The low absolute accuracy reflects the intentionally hard \textsc{SealQA-Hard} sample; this setting is useful for our diagnostic purpose because it exposes cases where answer-bearing evidence is visible but not operationally used. The semantic audit changes absolute counts, but not the main conclusion: aggregate correctness alone suggests the providers are nearly interchangeable.
 
 The evidence economy says otherwise. Brave exposes pre-fetch support on \BravePreFetchSupportQ{} queries, compared with \TavilyPreFetchSupportQ{} for Tavily and \FirecrawlPreFetchSupportQ{} for Firecrawl. Tavily's pre-fetch support is more concentrated at rank 1: \TavilyRankOneGold{} / \TavilyPreFetchSupportRows{} gold-supporting pre-fetch rows (\TavilyRankOnePct{}), compared with \BraveRankOneGold{} / \BravePreFetchSupportRows{} (\BraveRankOnePct{}) for Brave and \FirecrawlRankOneGold{} / \FirecrawlPreFetchSupportRows{} (\FirecrawlRankOnePct{}) for Firecrawl. Firecrawl is associated with the largest fetched-query share under this fixed agent policy (\FirecrawlFetchedPct{}). We summarize paired-bootstrap uncertainty for these main contrasts after the support split in Table~\ref{tab:claim-uncertainty}.
 
@@ -219,7 +219,7 @@ Tavily & 5,911 & 5,928.4 & 34 & 0.057 & 0.027 \\
 Firecrawl & 2,704 & 3,028.1 & 30 & 0.099 & 0.053 \\
 \bottomrule
 \end{tabularx}
-\caption{Snippet-surface length normalization.}
+\caption{Snippet-surface length normalization. Token counts are computed over rendered pre-fetch search observations visible to the agent and exclude fetched page text.}
 \label{tab:snippet-volume}
 \end{table}
 
@@ -252,7 +252,7 @@ Table~\ref{tab:claim-uncertainty} reports paired-bootstrap intervals over questi
 \begin{figure*}[!t]
 \centering
 \includegraphics[width=0.98\textwidth]{figures/fig3_decision_partition.png}
-\caption{Decision partition by provider.}
+\caption{Decision partition by provider. Each cell reports queries / semantic-correct answers after joining pre-fetch support labels with agent fetch actions.}
 \label{fig:partition}
 \end{figure*}
 
@@ -267,7 +267,7 @@ Only \AllCorrect{} questions are answered correctly by all three providers. \Two
 \begin{figure*}[!t]
 \centering
 \includegraphics[width=0.96\textwidth]{figures/fig4_complementarity.png}
-\caption{Correct-answer overlap across providers.}
+\caption{Correct-answer overlap across providers. Provider choice changes which questions are solved even when aggregate correct-answer counts are nearly tied.}
 \label{fig:complementarity}
 \end{figure*}
 
@@ -290,7 +290,7 @@ Answer in fetched page & \BraveAnswerPage{} & \TavilyAnswerPage{} & \FirecrawlAn
 Wrong despite answer text & \BraveWrongWithAnswer{} & \TavilyWrongWithAnswer{} & \FirecrawlWrongWithAnswer{} \\
 \bottomrule
 \end{tabularx}
-\captionof{table}{Trace-derived retrieval proxies.}
+\captionof{table}{Trace-derived retrieval proxies. These deterministic URL and answer-string checks are not oracle support labels, and visible answer text is not sufficient for correct final answers.}
 \label{tab:retrieval-proxies}
 \end{center}
 
