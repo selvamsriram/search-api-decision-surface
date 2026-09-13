@@ -18,30 +18,8 @@
 \usepackage{pifont}
 \usepackage{dblfloatfix}
 \usepackage{needspace}
-\usepackage{flushend}
 \input{figures/numbers.tex}
 
-% Keep ACL pages densely but cleanly packed. The style file defaults to
-% \flushbottom; this override avoids large white holes when a two-column float
-% cannot be placed exactly at the page break.
-\raggedbottom
-\setcounter{topnumber}{5}
-\setcounter{bottomnumber}{3}
-\setcounter{totalnumber}{8}
-\setcounter{dbltopnumber}{4}
-\renewcommand{\topfraction}{0.96}
-\renewcommand{\bottomfraction}{0.90}
-\renewcommand{\textfraction}{0.04}
-\renewcommand{\floatpagefraction}{0.84}
-\renewcommand{\dbltopfraction}{0.96}
-\renewcommand{\dblfloatpagefraction}{0.84}
-\setlength{\textfloatsep}{8pt plus 2pt minus 2pt}
-\setlength{\dbltextfloatsep}{8pt plus 2pt minus 2pt}
-\setlength{\floatsep}{6pt plus 2pt minus 2pt}
-\setlength{\intextsep}{6pt plus 2pt minus 2pt}
-\setlength{\abovecaptionskip}{4pt}
-\setlength{\belowcaptionskip}{0pt}
-\setlist{itemsep=0.12em, topsep=0.25em, parsep=0pt}
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 \newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
 \newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}}
@@ -61,7 +39,7 @@
 \newcommand{\semanticMatch}{\texttt{semantic\_match}}
 \newcommand{\exactMatch}{\texttt{exact\_match}}
 \newcommand{\correctans}{\textsc{Correct}}
-\newcommand{\tightlist}{\setlength\itemsep{0.12em}\setlength\parskip{0pt}}
+\newcommand{\tightlist}{}
 \newcommand{\yes}{\ding{51}}
 \newcommand{\no}{\ding{55}}
 
@@ -72,18 +50,14 @@
   \end{minipage}\end{center}
 }
 
+\makeatletter
+\ifacl@linenumbers
+  \newenvironment{reviewdisplay}{\begin{nolinenumbers}}{\end{nolinenumbers}}
+\else
+  \newenvironment{reviewdisplay}{}{}
+\fi
+\makeatother
 
-% Compact, stable float behavior for ACL two-column review layout.
-\setcounter{topnumber}{4}
-\setcounter{bottomnumber}{2}
-\setcounter{totalnumber}{6}
-\setcounter{dbltopnumber}{3}
-\renewcommand{\topfraction}{0.95}
-\renewcommand{\bottomfraction}{0.85}
-\renewcommand{\textfraction}{0.06}
-\renewcommand{\floatpagefraction}{0.80}
-\renewcommand{\dbltopfraction}{0.95}
-\renewcommand{\dblfloatpagefraction}{0.80}
 
 % Shared accent palette for vector diagrams.
 \definecolor{AccentBlue}{HTML}{2A80B9}

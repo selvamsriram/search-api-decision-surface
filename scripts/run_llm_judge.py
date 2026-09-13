@@ -27,6 +27,9 @@ from searchapi_eval.models.azure_openai import AzureOpenAIChatClient
 from searchapi_eval.providers.base import normalize_url
 
 
+CACHE_REUSE_POLICY = "identical-request-v1"
+
+
 async def main_async() -> None:
     load_env_file()
     args = parser().parse_args()
@@ -41,8 +44,15 @@ async def main_async() -> None:
     rate_limiter = RateLimiter(requests_per_minute=args.rate_limit_rpm, tokens_per_minute=args.rate_limit_tpm)
     cache = _load_judge_cache(args.cache_jsonl)
     records = [record for trace in traces for record in _records_for_trace(trace, args)]
+    if client:
+        for record in records:
+            record["request_snapshot"] = client.request_snapshot(record["messages"], tools=[])
     completed_records = _load_completed_records(output) if args.resume else []
-    completed_keys = {_record_key(record) for record in completed_records}
+    completed_cache = {_record_key(record): record for record in completed_records}
+    completed_keys = {
+        _record_key(record) for record in records
+        if _matching_cache_record(completed_cache, record) is not None
+    }
     query_url_reuse_cache = _build_query_url_reuse_cache(
         list(cache.values()) + completed_records,
         enabled=args.reuse_query_url_duplicates,
@@ -160,15 +170,15 @@ def parser() -> argparse.ArgumentParser:
         help="Maximum extracted-page characters to include in the judge prompt. 0 means use the full model-visible extracted text.",
     )
     cli.add_argument("--execute", action="store_true", help="Actually call Kimi on Azure. Default only writes prompt records.")
-    cli.add_argument("--resume", action="store_true", help="Append to the output file and skip document IDs already present.")
-    cli.add_argument("--cache-jsonl", action="append", default=[], help="Reuse valid judge rows from this JSONL when provider/query/retrieval/rank/url match. Can be repeated.")
+    cli.add_argument("--resume", action="store_true", help="Append to the output and skip only verified completed records with identical requests.")
+    cli.add_argument("--cache-jsonl", action="append", default=[], help="Reuse verified judge rows only when document keys and the complete request match. Can be repeated; missing request context disables reuse.")
     cli.add_argument(
         "--reuse-query-url-duplicates",
         action=argparse.BooleanOptionalAction,
         default=False,
         help=(
-            "Reuse valid judgments for duplicate normalized URLs within the same SealQA query. "
-            "The key intentionally ignores provider/retrieval/rank and separates snippet-only from page-visible rows."
+            "Reuse judgments for duplicate normalized URLs within a query only when the complete "
+            "messages, evidence surface, and judge request settings match a verified source."
         ),
     )
     cli.add_argument("--concurrency", type=int, default=1, help="Number of judge calls to run in parallel.")
@@ -392,7 +402,7 @@ def _log_run_header(
     )
     if args.reuse_query_url_duplicates and len(provider_counts) > 1:
         print(
-            "  WARNING: query-url duplicate reuse ignores provider_id; this run includes multiple providers.",
+            "  Cross-provider reuse requires identical complete messages and judge request settings.",
             flush=True,
         )
 
@@ -474,7 +484,7 @@ def _load_completed_records(output: Path) -> list[dict[str, Any]]:
                 record = json.loads(line)
             except json.JSONDecodeError:
                 continue
-            if not _valid_judge_record(record):
+            if not _cache_eligible(record):
                 continue
             record = dict(record)
             record["_cache_source"] = str(output)
@@ -502,7 +512,7 @@ def _load_judge_cache(paths: list[str]) -> dict[tuple[str, str, str, int, str], 
                 except json.JSONDecodeError as error:
                     print(f"WARNING skipping malformed cache row {path}:{line_num}: {error}", flush=True)
                     continue
-                if not _valid_judge_record(record):
+                if not _cache_eligible(record):
                     continue
                 record = dict(record)
                 record["_cache_source"] = str(path)
@@ -518,9 +528,9 @@ def _matching_cache_record(
     target_record: dict[str, Any],
 ) -> dict[str, Any] | None:
     candidate = cache.get(_record_key(target_record))
-    if not candidate:
+    if not candidate or not _cache_eligible(candidate):
         return None
-    if _prompt_content(candidate) != _prompt_content(target_record):
+    if _request_fingerprint(candidate) != _request_fingerprint(target_record):
         return None
     return candidate
 
@@ -544,7 +554,7 @@ def _register_query_url_reuse_record(
     *,
     enabled: bool,
 ) -> None:
-    if not enabled or not _valid_judge_record(record):
+    if not enabled or not _cache_eligible(record):
         return
     key = _query_url_reuse_key(record)
     if not key:
@@ -559,7 +569,8 @@ def _matching_query_url_reuse_record(
     key = _query_url_reuse_key(target_record)
     if not key:
         return None
-    return reuse_cache.get(key)
+    candidate = reuse_cache.get(key)
+    return candidate if candidate and _cache_eligible(candidate) and _query_url_reuse_key(candidate) == key else None
 
 
 def _estimate_reuse_counts(
@@ -595,6 +606,7 @@ def _estimate_reuse_counts(
         if use_query_url_duplicates:
             placeholder = dict(record)
             placeholder["judgment"] = {}
+            placeholder["llm_response"] = {}
             _register_query_url_reuse_record(simulated_query_url_cache, placeholder, enabled=True)
     return {
         "exact_cache_hits": exact_cache_hits,
@@ -629,17 +641,48 @@ def _record_key(record: dict[str, Any]) -> tuple[str, str, str, int, str]:
 def _query_url_reuse_key(record: dict[str, Any]) -> tuple[str, str, str] | None:
     query_id = str(record.get("query_id") or "")
     normalized = _record_normalized_url(record)
-    if not query_id or not normalized:
+    fingerprint = _request_fingerprint(record)
+    if not query_id or not normalized or not fingerprint:
         return None
-    surface_class = str(record.get("judge_surface_class") or _infer_judge_surface_class(record))
-    if surface_class == "page_visible":
-        page_signature = str(record.get("judge_page_fetch_signature") or _page_signature_from_prompt(record) or "")
-        if not page_signature:
-            return None
-        surface_key = f"{surface_class}:{page_signature}"
-    else:
-        surface_key = surface_class
-    return (query_id, normalized, surface_key)
+    return (query_id, normalized, fingerprint)
+
+
+def _request_fingerprint(record: dict[str, Any]) -> str | None:
+    """Bind reuse to all messages and the recorded judge configuration.
+
+    Missing context is a cache miss. Checking only the last user message or a
+    page hash misses changed system instructions, snippets, and model settings.
+    """
+    snapshot = record.get("request_snapshot") or {}
+    required = ("provider", "model_id", "deployment", "api_version", "temperature", "max_tokens_field", "max_tokens")
+    if any(snapshot.get(key) is None for key in required):
+        return None
+    messages = record.get("messages")
+    if not messages or snapshot.get("messages") != messages:
+        return None
+    return _hash_json({
+        "schema_version": record.get("schema_version"),
+        "judge_type": record.get("judge_type"),
+        "surface_class": record.get("judge_surface_class") or _infer_judge_surface_class(record),
+        "request": snapshot,
+    })
+
+
+def _cache_eligible(record: dict[str, Any]) -> bool:
+    if not _valid_judge_record(record) or not isinstance(record.get("llm_response"), dict):
+        return False
+    fingerprint = _request_fingerprint(record)
+    if fingerprint is None:
+        return False
+    reused = bool(record.get("cache_reused") or record.get("duplicate_reused")) or record.get("reuse_type") in {"exact_cache", "query_url_duplicate"}
+    if reused:
+        # Legacy copied rows may have an apparently exact target prompt but
+        # inherited labels from different content. Never promote those rows.
+        return (
+            record.get("cache_reuse_policy") == CACHE_REUSE_POLICY
+            and record.get("judgment_origin_fingerprint") == fingerprint
+        )
+    return True
 
 
 def _record_normalized_url(record: dict[str, Any]) -> str:
@@ -678,6 +721,9 @@ def _query_url_duplicate_output_record(source_record: dict[str, Any], target_rec
 
 
 def _reused_output_record(source_record: dict[str, Any], target_record: dict[str, Any], *, reuse_type: str) -> dict[str, Any]:
+    fingerprint = _request_fingerprint(target_record)
+    if not _cache_eligible(source_record) or not fingerprint or fingerprint != _request_fingerprint(source_record):
+        raise ValueError("Cannot reuse a judgment without a verified identical request")
     output = deepcopy(target_record)
     output["judgment"] = deepcopy(source_record.get("judgment"))
     if source_record.get("llm_response") is not None:
@@ -689,6 +735,8 @@ def _reused_output_record(source_record: dict[str, Any], target_record: dict[str
     output["cache_reused"] = True
     output["duplicate_reused"] = reuse_type == "query_url_duplicate"
     output["reuse_type"] = reuse_type
+    output["cache_reuse_policy"] = CACHE_REUSE_POLICY
+    output["judgment_origin_fingerprint"] = fingerprint
     output["cache_source"] = source_record.get("_cache_source") or source_record.get("cache_source")
     output["cache_source_line_num"] = source_record.get("_cache_source_line_num") or source_record.get("cache_source_line_num")
     output["cache_key"] = {

@@ -1,5 +1,5 @@
 \begin{abstract}
-Search APIs are the fundamental retrieval layer for many agents and are often their most frequently used tool. Traditional search APIs provide URLs, titles, and snippets that preview website contents. Because full-page retrieval is token-intensive, agent retrieval architectures increasingly use progressive disclosure: the agent first sees snippets and then chooses whether to fetch full pages. In such systems, search API performance is often evaluated primarily by answer accuracy. We argue that a commercial search API is better understood as a \emph{decision surface}: the ranked snippets, URLs, and metadata that determine whether an agent answers immediately, searches again, or spends tokens opening pages. We test this claim with one frozen GPT-5.4 agent, two tools (\searchWeb{} and \fetchPage{}), and \NQueries{} questions from \textsc{SealQA-Hard}, varying only the search provider (Brave, Tavily, Firecrawl). A Kimi-K2.6 oracle labels every content element visible to the agent (URL, title, snippet, and fetched page, when fetched), producing \NJudgeValid{} valid per-URL judgments. We use an audited \emph{correct-answer} label, \semanticMatch{}, which preserves exact matches while accepting harmless formatting and naming variants. Under this measure, the providers remain close (\BraveCorrect{}, \TavilyCorrect{}, \FirecrawlCorrect{} / 100), but their evidence economies differ sharply: Brave offers gold-answer-rich snippets, Tavily concentrates gold-supporting URLs at rank 1, and Firecrawl is associated with broader exploration under this fixed agent policy. We also introduce a surface contradiction-to-gold URL ratio, which varies from \BraveContraRatio{} to \FirecrawlContraRatio{}. Provider choice is therefore a retrieval-budget and policy decision, not merely a recall decision.
+Search APIs expose ranked snippets, URLs, and metadata on which agents decide whether to answer, search again, or fetch pages. We evaluate these interfaces as \emph{decision surfaces} on a fixed sample of \NQueries{} questions from the 254-question \textsc{SealQA-Hard} subset, using one frozen GPT-5.4 agent, a fixed orchestration harness, and a shared page-fetch backend across Brave, Tavily, and Firecrawl. A Kimi-K2.6 oracle labels visible URL-level evidence; a separate answer audit yields \BraveCorrect{}, \TavilyCorrect{}, and \FirecrawlCorrect{} correct answers out of 100. These counts indicate similar observed accuracy but do not establish equivalence. Under the tested configurations, Brave exposes more pre-fetch support alongside a larger snippet surface; Tavily has a larger rank-1 share among trajectory-pooled supporting observations; and Firecrawl is associated with broader exploration. First-search query-level metrics distinguish support availability from ranking, while contradiction exposure complements contradiction-to-gold ratios. A retrospective oracle union covers 44/100 questions, versus 26/100 for the best individual provider: 18 percentage points of headroom. The observed evidence and action differences motivate evaluating search APIs jointly with agent policy and retrieval budget.
 \end{abstract}
 
 \section{Introduction}
@@ -10,17 +10,17 @@ This paper argues that the relevant object is the \emph{pre-fetch surface}. Befo
 
 For grounded language-model systems, the retrieval API is part of the grounding interface. It determines which evidence is exposed before generation, which contradictions enter context, and how much retrieval budget is spent before an answer is produced. Decision-surface evaluation therefore measures not only retrieval quality, but also the faithfulness and efficiency conditions under which grounded answers are generated.
 
-The distinction matters because final correctness can converge while the internal pipeline diverges. A provider may expose enough snippet evidence for immediate answering. Another may put the relevant URL at rank 1, making a top-result fetch policy effective. A third may expose sparse snippets and be associated with broader exploration under the same policy. These regimes can yield similar aggregate accuracy with different cost, latency, contamination, and failure modes.
+The distinction matters because observed correctness can be similar while the internal pipeline diverges. A provider may expose enough snippet evidence for immediate answering. Another may put the relevant URL at rank 1, making a top-result fetch policy effective. A third may expose sparse snippets and be associated with broader exploration under the same policy. These regimes can yield similar aggregate accuracy with different cost, latency, contamination, and failure modes.
 
-Under a controlled protocol, we freeze the answer model, prompt, tools, maximum iterations, judge, and page-fetch backend. The only experimental condition is the commercial search API: Brave, Tavily, or Firecrawl. We then judge every URL-level evidence item visible to the agent, separating pre-fetch snippet support from support discovered only after a page fetch. The per-URL oracle lets us ask not only whether the final answer was correct, but also what evidence and actions were available at the decision surface.
+Under a controlled protocol, we freeze the answer model, prompt, tools, maximum iterations, judge, and page-fetch backend. The only experimental condition is the commercial search API: Brave, Tavily, or Firecrawl. We analyze URL-level oracle records covering the evidence visible to the agent, separating pre-fetch snippet support from support discovered only after a page fetch. The per-URL oracle lets us ask not only whether the final answer was correct, but also what evidence and actions were available at the decision surface.
 
-We do not treat provider identity as a leaderboard variable; we use Brave, Tavily, and Firecrawl as production examples of different pre-fetch evidence surfaces, showing that equal answer accuracy can hide different grounding, contradiction, and retrieval-budget regimes.
+This study is a controlled comparison on a fixed sample of \NQueries{} questions from the 254-question \textsc{SealQA-Hard} subset, using one GPT-5.4 agent and a specific orchestration harness. The results characterize the tested provider--harness combinations, rather than establishing a general provider ranking or the best performance achievable with any API. Any of the evaluated APIs may yield higher end-to-end answer accuracy with a different model, prompting strategy, query formulation, search/fetch policy, or retrieval budget. We use the fixed harness to examine how different evidence surfaces interact with the same agent policy.
 
 \paragraph{Contributions.}
-\begin{enumerate}[leftmargin=*,topsep=2pt]
+\begin{enumerate}[leftmargin=*]
 \tightlist
 \item We formalize commercial search APIs as \emph{decision surfaces} for tool-using agents rather than static ranked-list retrievers.
-\item We introduce a per-URL oracle protocol that labels every API result element the agent saw, including fetched pages.
+\item We introduce a per-URL oracle protocol for auditing visible snippets and fetched pages.
 \item We distinguish pre-fetch surface support from post-fetch discovered support, and use the former to define a four-way decision partition (SMART, MISSED, BLIND, NO-OP).
 \item We show that similar correctness hides different provider-associated retrieval regimes under a fixed agent: pre-fetch support, rank concentration, blind exploration, contamination, and complementarity.
 \end{enumerate}
@@ -49,14 +49,14 @@ Brave, Tavily, Firecrawl, and Jina Reader expose different product surfaces \cit
 \begin{figure*}[!t]
 \centering
 \includegraphics[width=0.99\textwidth]{figures/fig1_pipeline.png}
-\caption{Execution and judging pipeline. The agent, prompt, tools, and fetch backend are fixed; only the search provider varies before the Kimi oracle replays every visible URL.}
+\caption{Execution and judging pipeline. The agent, prompt, tools, and fetch backend are fixed; only the search provider varies before URL-level records are assembled for oracle analysis.}
 \label{fig:architecture}
 \end{figure*}
 
 \section{Experimental Protocol}
 \label{sec:protocol}
 
-Figure~\ref{fig:architecture} summarizes the experiment. The frozen agent uses the same prompt, tools, and fetch backend in every condition while only the \searchWeb{} provider varies; the oracle then replays every visible URL in the same representation the answer model saw.
+Figure~\ref{fig:architecture} summarizes the experiment. The frozen agent uses the same prompt, tools, and fetch backend in every condition while only the \searchWeb{} provider varies; the analysis pairs URL-level oracle records with logged evidence and actions.
 
 \paragraph{Dataset.}
 We use a deterministic proportional stratified sample of \NQueries{} questions from the 254-row \textsc{SealQA-Hard} subset. The strata are \texttt{freshness} $\times$ \texttt{search\_results} $\times$ \texttt{topic}. We chose \textsc{SealQA-Hard} because it provides challenging questions that often require model exploration and are not yet fully resolved by a simple snippet-only search API response. Appendix~\ref{app:dataset} gives the full sampling summary.
@@ -65,25 +65,25 @@ We use a deterministic proportional stratified sample of \NQueries{} questions f
 The answer model is GPT-5.4 with a maximum of 10 iterations. It has two tools. \searchWeb{} accepts a query and returns up to ten ranked results, each with a document identifier, rank, title, URL, domain, snippet surface, and provider metadata. \fetchPage{} accepts a document identifier from a prior search result and returns extracted markdown plus fetch metadata. The tool interface allows the agent to issue \emph{multiple} \searchWeb{} calls or \emph{multiple} \fetchPage{} calls in a single turn; the trace records each call separately. The final answer must use the exact prefix \texttt{FINAL ANSWER:} and be grounded in retrieved evidence. Appendix~\ref{app:generation} gives the fixed prompt contract and trace schema.
 
 \paragraph{Providers and snippet normalization.}
-We compare Brave, Tavily, and Firecrawl Search. Each adapter normalizes provider output into the same result schema. Brave exposes additional provider-native snippet blocks. We aggregate those blocks into the generic \emph{snippet surface} rather than treating them as a separate evidence channel; the agent saw them as snippets, and the judge saw the same text. We still discuss this asymmetry as a limitation because it changes the amount of pre-fetch text Brave returns. Tavily is run with raw content disabled, and Firecrawl is run without provider-side markdown scraping. Page text visible to the agent therefore comes only from the shared Jina Reader backend.
+We compare Brave, Tavily, and Firecrawl Search. Each adapter normalizes provider output into the same result schema. Brave exposes additional provider-native snippet blocks. We aggregate those blocks into the generic \emph{snippet surface} rather than treating them as a separate evidence channel; the agent saw them as snippets, and the judge saw the same text. Thus, we compare configured product surfaces with unequal text volume; snippet normalization does not equalize their evidence budgets. Tavily is run with raw content disabled, and Firecrawl is run without provider-side markdown scraping. Page text visible to the agent therefore comes only from the shared Jina Reader backend.
 
 \paragraph{Run and reproducibility controls.}
-The main provider traces were collected on 2026-05-17 UTC, from 06:49--09:02 UTC across the three providers. All providers were asked for up to 10 web results under the fixed configuration in Appendix~\ref{app:providers}: Brave used US/en with moderate safe search, Tavily used basic/general search with raw content disabled, and Firecrawl used web search with provider-side markdown scraping disabled. All full-page text came from the shared Jina Reader \fetchPage{} backend with a 15s timeout, 2MB read limit, concurrency 4, and gzip cache keyed by normalized URL. Because commercial search outputs are time-sensitive and raw API results are not ours to redistribute, the released reproducibility package contains code, configuration, sampling logic, trace schemas, evaluation scripts, and aggregate derived outputs; the reported numbers are generated from private run artifacts.
+The main traces were collected sequentially on 2026-05-17 UTC: Brave 06:49--07:24, Tavily 07:32--08:11, and Firecrawl 08:32--09:02. Runs were not interleaved, so provider and collection-time effects are not fully separated. All providers were asked for up to 10 web results under the fixed configuration in Appendix~\ref{app:providers}: Brave used US/en with moderate safe search, Tavily used basic/general search with raw content disabled, and Firecrawl used web search with provider-side markdown scraping disabled. All full-page text came from the shared Jina Reader \fetchPage{} backend with a 15s timeout, 2MB read limit, concurrency 4, and gzip cache keyed by normalized URL. The release provides code, configuration, schemas, and derived results; complete traces containing provider responses and fetched content are excluded as described in the Reproducibility Statement.
 
 \paragraph{Traces.}
-The experiment produces \NTraces{} provider-query trajectories. A trace records every search call, every returned URL, every fetch decision, fetch status, token usage, latency, final answer, and gold answer. Provider-comparison scripts deterministically derive token, URL-hit, and per-query support fields from these traces. Answer correctness comes from the separate semantic audit TSV.
+The experiment produces \NTraces{} provider-query trajectories. A trace records every search call, every returned URL, every fetch decision, fetch status, token usage, latency, final answer, and gold answer. Provider-comparison scripts deterministically derive token, URL-hit, and per-query support fields from these traces. Answer correctness comes from the separate semantic answer audit.
 
 \section{Per-URL Oracle and Metrics}
 \label{sec:metrics}
 
 \paragraph{Judge input.}
-For every URL the agent saw, we run Kimi-K2.6 as the judge. The judge receives the question, gold answer, model final answer, and one retrieved document in the same XML-like format the answer model saw. For unfetched URLs, the judge sees title, URL, domain, snippet surface, and metadata. For fetched URLs, the same record also includes extracted markdown; the snippet-specific fields remain labeled separately.
+We prepare a Kimi-K2.6 judge record per visible URL. Each judge request contains the question, gold answer, model final answer, and one retrieved document in the same XML-like format the answer model saw. For unfetched URLs, the judge sees title, URL, domain, snippet surface, and metadata. For fetched URLs, the same record also includes extracted markdown; the snippet-specific fields remain labeled separately.
 
 \paragraph{Judge output.}
 The judge returns JSON only and is instructed not to use outside knowledge. The required schema is shown below.
 
 \begin{center}
-\fontsize{6.8}{7.6}\selectfont
+\footnotesize
 \begin{tabularx}{\linewidth}{@{}L{0.48\linewidth}Z@{}}
 \toprule
 \textbf{Field} & \textbf{Meaning} \\
@@ -106,7 +106,7 @@ The judge returns JSON only and is instructed not to use outside knowledge. The 
 Across providers, \NJudgeValid{} of \NJudgeTotal{} judge rows are valid; \NJudgeInvalid{} invalid rows are excluded. Valid rows are split into \NJudgeSnippetValid{} snippet-only and \NJudgePageValid{} page-visible rows. We use ``gold support'' in the question-conditioned sense: the evidence must make the gold answer answerable for the given question, not merely mention the answer string.
 
 \paragraph{Oracle validation.}
-To assess whether the single-judge oracle is usable as an audit instrument, we manually validated a balanced 180-case sample of URL-label judgments. The sample covers provider $\times$ surface $\times$ label $\times$ Kimi-value slices, with five cases per leaf slice. Table~\ref{tab:judge-validation} shows high agreement on clear human judgments overall (164/174, 94\%). The validation was performed as a single-annotator manual audit of Kimi labels, not as an inter-annotator agreement study. Cases marked unclear by the human auditor are excluded only from the agreement denominator, not from the sampling pool. The remaining disagreements were boundary cases involving inferential answerability, directness of contradiction, or whether sparse and low-information results should count as unusable.
+One author manually audited 180 URL-label cases with provider identity hidden, balanced across provider $\times$ surface $\times$ label $\times$ Kimi value (five per leaf slice). Agreement is 164/174 clear cases (94.3\%), with 10 disagreements; six unclear cases (3.3\% of 180) are excluded only from the agreement denominator (Table~\ref{tab:judge-validation}). This is a single-annotator audit of three generic labels, not inter-annotator agreement or direct validation of the two snippet/page-specific support fields. Appendix~\ref{app:examples} gives the audit procedure and scope.
 
 \begin{table}[!t]
 \centering
@@ -116,11 +116,11 @@ To assess whether the single-judge oracle is usable as an audit instrument, we m
 \toprule
 \textbf{Oracle label} & \textbf{Audited} & \textbf{Clear} & \textbf{Agree} & \textbf{Agreement} \\
 \midrule
-\path{contains_gold_answer} & 60 & 58 & 55 & 95\% \\
-\path{contradicts_gold_answer} & 60 & 56 & 53 & 95\% \\
-\path{is_garbage} & 60 & 60 & 56 & 93\% \\
+\path{contains_gold_answer} & 60 & 58 & 55 & 94.8\% \\
+\path{contradicts_gold_answer} & 60 & 56 & 53 & 94.6\% \\
+\path{is_garbage} & 60 & 60 & 56 & 93.3\% \\
 \midrule
-Overall & 180 & 174 & 164 & 94\% \\
+Overall & 180 & 174 & 164 & 94.3\% \\
 \bottomrule
 \end{tabularx}
 \caption{Human validation of Kimi per-URL oracle labels.}
@@ -128,30 +128,33 @@ Overall & 180 & 174 & 164 & 94\% \\
 \end{table}
 
 \paragraph{Answer metrics.}
-The headline \correctans{} metric is \semanticMatch{} from a separate semantic audit TSV. The table also reports legacy token F1: we normalize the final and gold answers by lowercasing, removing articles and punctuation, and mapping simple number words to digits, then compute token-overlap F1 per query and macro-average over the \NQueries{} queries.
+The headline \correctans{} metric is \semanticMatch{} from a separate answer audit. Exact matches were accepted automatically; one author reviewed non-exact answers with provider identity hidden. Eleven additional answers received semantic credit (Appendix~\ref{app:examples}). Legacy token F1 and its normalization are reported in Appendix~\ref{app:metrics} and Table~\ref{tab:app-token}.
 
 \paragraph{Support split.}
 We separate support by when it became visible. \emph{Pre-fetch surface support} exists for a provider-query pair when a valid judgment marks \goldSnip{} true, or when an unfetched snippet-only judgment marks \containsGold{} true. This captures support in the URL, title, snippet surface, or metadata before the agent decides whether to fetch. \emph{Post-fetch discovered support} exists when no pre-fetch support was present, but a fetched page-visible judgment marks \goldPage{} true. \emph{Trajectory-visible support} is the union of these two events.
 
 \paragraph{Decision partition.}
-We join the per-URL oracle with trace actions and assign each provider-query pair to one cell using pre-fetch support: \smart{} if pre-fetch support exists and the agent fetched a pre-fetch-supporting URL; \missed{} if pre-fetch support exists but the agent fetched none of those URLs; \blind{} if no pre-fetch support exists and the agent fetched at least one URL; and \noop{} if no pre-fetch support exists and no URL was fetched. The partition is descriptive, not causal: a \missed{} query may still be answered correctly from snippets, and a \blind{} query may still succeed if a page reveals support after the fetch.
+We count every recorded fetch attempt, including failed fetches and those with invalid judgments. Joining valid support labels to trace actions assigns each provider-query pair to one cell: \smart{} if pre-fetch support exists and the agent fetched a pre-fetch-supporting URL; \missed{} if pre-fetch support exists but the agent fetched none of those URLs; \blind{} if no pre-fetch support exists and the agent fetched at least one URL; and \noop{} if no pre-fetch support exists and no URL was fetched. The partition is descriptive, not causal: a \missed{} query may still be answered correctly from snippets, and a \blind{} query may still succeed if a page reveals support after the fetch.
 
 \paragraph{Surface contradiction-to-gold ratio.}
-We define the surface contradiction-to-gold ratio over snippet-only URL rows:
+We define the pooled surface contradiction-to-gold ratio over snippet-only URL observations, counting repeated appearances:
 \[
  r_{c:g}=\frac{|\{u:\contraGold(u)\}|}{|\{u:\containsGold(u)\}|}.
 \]
 The metric depends on the gold answer but is independent of the model's final answer; it uses only pre-fetch surface labels, not page text.
 
+\paragraph{Query-level diagnostics.}
+Using pre-fetch labels, we report first-search Support@1, mean reciprocal rank (MRR), and any support over all \NQueries{} questions, with zero for no observed support. Trajectory-level contradiction measures use valid snippet-only observations (definitions and coverage: Appendix~\ref{app:query-diagnostics}).
+
 \section{Results}
 \label{sec:results}
 
-\subsection{Correctness parity masks different evidence economies}
+\subsection{Similar correctness masks different evidence economies}
 
 \begin{figure*}[!t]
 \centering
 \includegraphics[width=0.98\textwidth]{figures/fig2_provider_profiles.png}
-\caption{Provider profiles under semantic correctness. Similar final accuracy hides different pre-fetch support, rank concentration, contradiction ratio, and fetch behavior.}
+\caption{Provider profiles under similar semantic correctness. Rank-1 percentages use gold-supporting pre-fetch observations pooled over full trajectories.}
 \label{fig:profiles}
 \end{figure*}
 
@@ -164,7 +167,6 @@ The metric depends on the gold answer but is independent of the model's final an
 \textbf{Metric} & \textbf{Brave} & \textbf{Tavily} & \textbf{Firecrawl} \\
 \midrule
 \correctans{} /100 & \BraveCorrect{} & \TavilyCorrect{} & \FirecrawlCorrect{} \\
-Token F1 & \BraveFone{} & \TavilyFone{} & \FirecrawlFone{} \\
 Avg. search calls & \BraveSearchAvg{} & \TavilySearchAvg{} & \FirecrawlSearchAvg{} \\
 Avg. fetch calls & \BraveFetchAvg{} & \TavilyFetchAvg{} & \FirecrawlFetchAvg{} \\
 Fetched queries & \BraveFetchedPct{} & \TavilyFetchedPct{} & \FirecrawlFetchedPct{} \\
@@ -175,11 +177,34 @@ Tokens/query & \BraveAvgTokens{} & \TavilyAvgTokens{} & \FirecrawlAvgTokens{} \\
 \label{tab:headline}
 \end{table}
 
-Table~\ref{tab:headline} and Figure~\ref{fig:profiles} show the headline. Under \correctans{}, the providers remain close: \BraveCorrect{}, \TavilyCorrect{}, and \FirecrawlCorrect{} correct answers out of 100. The low absolute accuracy reflects the intentionally hard \textsc{SealQA-Hard} sample; this setting is useful for our diagnostic purpose because it exposes cases where answer-bearing evidence is visible but not operationally used. The semantic audit changes absolute counts, but not the main conclusion: aggregate correctness alone suggests the providers are nearly interchangeable.
+Table~\ref{tab:headline} and Figure~\ref{fig:profiles} show the headline. Under \correctans{}, the providers remain close: \BraveCorrect{}, \TavilyCorrect{}, and \FirecrawlCorrect{} correct answers out of 100. The low absolute accuracy reflects the intentionally hard \textsc{SealQA-Hard} sample; this setting is useful for our diagnostic purpose because it exposes cases where answer-bearing evidence is visible but not operationally used.
 
-The evidence economy says otherwise. Brave exposes pre-fetch support on \BravePreFetchSupportQ{} queries, compared with \TavilyPreFetchSupportQ{} for Tavily and \FirecrawlPreFetchSupportQ{} for Firecrawl. Tavily's pre-fetch support is more concentrated at rank 1: \TavilyRankOneGold{} / \TavilyPreFetchSupportRows{} gold-supporting pre-fetch rows (\TavilyRankOnePct{}), compared with \BraveRankOneGold{} / \BravePreFetchSupportRows{} (\BraveRankOnePct{}) for Brave and \FirecrawlRankOneGold{} / \FirecrawlPreFetchSupportRows{} (\FirecrawlRankOnePct{}) for Firecrawl. Firecrawl is associated with the largest fetched-query share under this fixed agent policy (\FirecrawlFetchedPct{}). We summarize paired-bootstrap uncertainty for these main contrasts after the support split in Table~\ref{tab:claim-uncertainty}.
+The evidence economies differ. Brave exposes pre-fetch support on \BravePreFetchSupportQ{} queries, compared with \TavilyPreFetchSupportQ{} for Tavily and \FirecrawlPreFetchSupportQ{} for Firecrawl. Across full trajectories, Tavily has the largest rank-1 share among gold-supporting pre-fetch observations (\TavilyRankOnePct{}, versus \BraveRankOnePct{} for Brave and \FirecrawlRankOnePct{} for Firecrawl; counts in Table~\ref{tab:visible-support}). Firecrawl is associated with the largest fetched-query share under this fixed agent policy (\FirecrawlFetchedPct{}). We summarize paired-bootstrap uncertainty for these main contrasts after the support split in Table~\ref{tab:claim-uncertainty}.
 
 \subsection{Pre-fetch support and page-discovered support diverge}
+
+\begin{table}[!t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\linewidth}{@{}L{0.34\linewidth}YYY@{}}
+\toprule
+\textbf{Metric} & \textbf{Brave} & \textbf{Tavily} & \textbf{Firecrawl} \\
+\midrule
+\multicolumn{4}{@{}l}{\textit{First search call}} \\
+Observed support at any rank (\%) & \shortstack[r]{24\\{[16, 33]}} & \shortstack[r]{12\\{[6, 19]}} & \shortstack[r]{9\\{[4, 15]}} \\
+Observed Support@1 (\%) & \shortstack[r]{5\\{[1, 10]}} & \shortstack[r]{9\\{[4, 15]}} & \shortstack[r]{2\\{[0, 5]}} \\
+Observed MRR & \shortstack[r]{0.103\\{[0.060, 0.154]}} & \shortstack[r]{0.103\\{[0.050, 0.163]}} & \shortstack[r]{0.041\\{[0.014, 0.076]}} \\
+\midrule
+\multicolumn{4}{@{}l}{\textit{Full trajectory: valid snippet-only observations}} \\
+Questions with a contradiction (\%) & \shortstack[r]{27\\{[19, 36]}} & \shortstack[r]{21\\{[13, 29]}} & \shortstack[r]{28\\{[19, 37]}} \\
+Contradictory observations (\%) & \shortstack[r]{4.25\\{[2.47, 6.42]}} & \shortstack[r]{2.48\\{[1.28, 3.98]}} & \shortstack[r]{3.36\\{[1.89, 5.17]}} \\
+Contradiction/gold $r_{c:g}$ & \shortstack[r]{0.92\\{[0.49, 1.73]}} & \shortstack[r]{1.87\\{[0.83, 4.47]}} & \shortstack[r]{2.59\\{[1.11, 8.00]}} \\
+\bottomrule
+\end{tabularx}
+\caption{First-search ranking and snippet-only contradiction: estimates [95\% question-bootstrap intervals]. Query percentages use all \NQueries{} questions. Coverage: Appendix~\ref{app:query-diagnostics}.}
+\label{tab:query-diagnostics}
+\end{table}
 
 \begin{table}[!t]
 \centering
@@ -195,16 +220,17 @@ Trajectory support & \BraveTrajectoryVisibleSupportQ{} & \TavilyTrajectoryVisibl
 Snippet rows & \BraveSnippetRows{} & \TavilySnippetRows{} & \FirecrawlSnippetRows{} \\
 Page-visible rows & \BravePageRows{} & \TavilyPageRows{} & \FirecrawlPageRows{} \\
 Rank-1 among gold-supporting pre-fetch rows & \BraveRankOneGold{} / \BravePreFetchSupportRows{} (\BraveRankOnePct{}) & \TavilyRankOneGold{} / \TavilyPreFetchSupportRows{} (\TavilyRankOnePct{}) & \FirecrawlRankOneGold{} / \FirecrawlPreFetchSupportRows{} (\FirecrawlRankOnePct{}) \\
-Contradicting rows & \BraveContraRows{} & \TavilyContraRows{} & \FirecrawlContraRows{} \\
+Contradicting rows (snippet-only) & \BraveContraRows{} & \TavilyContraRows{} & \FirecrawlContraRows{} \\
 Gold rows (snippet-only) & \BraveGoldRows{} & \TavilyGoldRows{} & \FirecrawlGoldRows{} \\
-$r_{c:g}$ & \BraveContraRatio{} & \TavilyContraRatio{} & \FirecrawlContraRatio{} \\
 \bottomrule
 \end{tabularx}
-\caption{Support split and surface diagnostics. Rank-1 percentages divide the shown numerator by the shown gold-supporting pre-fetch-row denominator; $r_{c:g}$ divides contradicting snippet-only rows by gold snippet-only rows.}
+\caption{Full-trajectory support and snippet-only counts. Rank-1 percentages are conditional on gold-supporting pre-fetch observations.}
 \label{tab:visible-support}
 \end{table}
 
-Table~\ref{tab:visible-support} shows that the per-URL oracle sees a larger provider effect than headline correctness. Brave exposes substantially more pre-fetch support (\BravePreFetchSupportQ{} queries) than Tavily or Firecrawl (\TavilyPreFetchSupportQ{} and \FirecrawlPreFetchSupportQ{}), while Tavily recovers more support only after fetch. The contradiction ratio also varies substantially, from \BraveContraRatio{} for Brave to \FirecrawlContraRatio{} for Firecrawl contradicting rows per gold-supporting snippet-only row; the displayed counts make the smaller Tavily and Firecrawl denominators explicit.
+Table~\ref{tab:visible-support} separates the support available before and after fetching: Brave exposes more pre-fetch support, while Tavily recovers more support only after fetch. Table~\ref{tab:query-diagnostics} separates contradiction relative to gold support from question exposure (27\%/21\%/28\%, Brave/Tavily/Firecrawl). Independent-observation deduplication yields ratios of 0.80/1.93/2.50 and the same exposure counts (Appendix~\ref{app:cache-sensitivity}).
+
+First-search diagnostics distinguish availability from position: Brave exposes support on more questions, Tavily has more rank-1 hits, and their observed MRR point estimates are almost identical (Table~\ref{tab:query-diagnostics}).
 
 \begin{table}[!t]
 \centering
@@ -223,7 +249,7 @@ Firecrawl & 2,704 & 3,028.1 & 30 & 0.099 & 0.053 \\
 \label{tab:snippet-volume}
 \end{table}
 
-The token counts in Table~\ref{tab:snippet-volume} use the rendered pre-fetch \searchWeb{} observations sent to the model, including URLs, titles, domains, snippets, and provider-native extra snippets, while excluding fetched page text and raw provider payloads. Duplicate search observations are counted because they entered the model context. Because Brave exposes more provider-native snippet text, the table normalizes pre-fetch support by rendered snippet-surface token volume. Brave's row-normalized advantage over Tavily persists (0.113 vs. 0.057 gold-supporting rows per 1K tokens), but the contrast with Firecrawl shrinks (0.113 vs. 0.099), and Firecrawl is higher under query-normalized support (0.053 vs. 0.033 support queries per 1K tokens). We therefore interpret Brave's pre-fetch support advantage as partly explained by surface volume rather than purely higher per-token evidence density.
+The token counts in Table~\ref{tab:snippet-volume} use the rendered pre-fetch \searchWeb{} observations sent to the model, including URLs, titles, domains, snippets, and provider-native extra snippets, while excluding fetched page text and raw provider payloads. Duplicate search observations are counted because they entered the model context. Because Brave exposes more provider-native snippet text, the table normalizes pre-fetch support by rendered snippet-surface token volume. Brave's row-normalized advantage over Tavily persists (0.113 vs. 0.057 gold-supporting rows per 1K tokens), but the contrast with Firecrawl shrinks (0.113 vs. 0.099), and Firecrawl is higher under query-normalized support (0.053 vs. 0.033 support queries per 1K tokens). These descriptive normalizations do not isolate the effect of text volume from retrieval quality; that would require a matched-surface experiment.
 
 \begin{table}[!t]
 \centering
@@ -233,41 +259,41 @@ The token counts in Table~\ref{tab:snippet-volume} use the rendered pre-fetch \s
 \toprule
 \textbf{Claim} & \textbf{Contrast} & \textbf{Diff.} & \textbf{95\% interval} & \textbf{Takeaway} \\
 \midrule
-Correctness parity & Brave--Tavily & 0 q & [$-9$, 9] q & includes zero \\
-Correctness parity & Brave--Firecrawl & $-1$ q & [$-10$, 8] q & includes zero \\
+Correctness & Brave--Tavily & 0 q & [$-9$, 9] q & includes zero \\
+Correctness & Brave--Firecrawl & $-1$ q & [$-10$, 8] q & includes zero \\
 Pre-fetch support & Brave--Tavily & +14 q & [4, 24] q & positive \\
 Pre-fetch support & Brave--Firecrawl & +14 q & [6, 22] q & positive \\
-Rank-1 concentration & Tavily--Brave & +37.1 pp & [16.8, 67.3] pp & positive \\
-Rank-1 concentration & Tavily--Firecrawl & +36.7 pp & [18.8, 66.4] pp & positive \\
+Rank-1 support share & Tavily--Brave & +37.1 pp & [16.8, 67.3] pp & positive \\
+Rank-1 support share & Tavily--Firecrawl & +36.7 pp & [18.8, 66.4] pp & positive \\
 \bottomrule
 \end{tabularx}
-\caption{Paired-bootstrap intervals for main contrasts.}
+\caption{Paired-bootstrap intervals. Rank-1 shares condition on gold-supporting pre-fetch observations across trajectories.}
 \label{tab:claim-uncertainty}
 \end{table}
 
-Table~\ref{tab:claim-uncertainty} reports paired-bootstrap intervals over question IDs, with differences shown as left minus right in queries (q) or percentage points (pp). It makes the intended claim boundary explicit: at this sample size, final-answer correctness differences are not meaningful because the paired intervals all include zero. The stronger result is structural rather than accuracy-based. The intervals stay positive for Brave's pre-fetch-support advantage and for Tavily's rank-1 concentration, supporting the interpretation that similar correctness hides different evidence economies.
+Table~\ref{tab:claim-uncertainty} reports paired-bootstrap intervals over question IDs, with differences shown as left minus right in queries (q) or percentage points (pp). The point estimates are similar, but the paired intervals include zero and also permit differences of several percentage points. They do not establish accuracy equivalence. Intervals remain positive for Brave's pre-fetch-support advantage and Tavily's trajectory-pooled rank-1 share among supporting observations.
 
 \subsection{The same agent enters different decision regimes}
 
 \begin{figure*}[!t]
 \centering
 \includegraphics[width=0.98\textwidth]{figures/fig3_decision_partition.png}
-\caption{Decision partition by provider. Each cell reports queries / semantic-correct answers after joining pre-fetch support labels with agent fetch actions.}
+\caption{Decision partition by provider. Each cell reports queries / semantic-correct answers after joining pre-fetch support labels with recorded fetch attempts, including failed fetches.}
 \label{fig:partition}
 \end{figure*}
 
-Figure~\ref{fig:partition} shows the mechanism. Each entry is queries / correct answers after joining oracle labels with agent fetch actions. Under a strict pre-fetch definition, \smart{} fetches are rare for all three providers: much of the support observed in the trajectory appears only after a page is opened. Brave has the largest pre-fetch-support mass, but many such queries are \missed{} rather than \smart{}, consistent with a snippet-rich surface where fetching is not always needed. Firecrawl's largest regime is \blind{} exploration, and Tavily also shifts toward \blind{} once page-discovered support is separated from the pre-fetch surface.
+Figure~\ref{fig:partition} describes the observed decision regimes. Each entry is queries / correct answers after joining oracle labels with agent fetch actions. Each provider has only three \smart{} queries, so cell-specific correctness is descriptive and does not establish comparative policy effectiveness. Brave has the largest pre-fetch-support mass, but many such queries are \missed{} rather than \smart{}, consistent with a snippet-rich surface where fetching is not always needed. Firecrawl's largest regime is \blind{} exploration, and Tavily also shifts toward \blind{} once page-discovered support is separated from the pre-fetch surface.
 
 Decision-cell counts are visualized in Figure~\ref{fig:partition}; Wilson intervals are reported in Appendix~\ref{app:additional}, and paired-bootstrap intervals for aggregate metrics are reported in Appendix~\ref{app:uncertainty}.
 
 \subsection{Aggregate correctness hides complementarity}
 
-Only \AllCorrect{} questions are answered correctly by all three providers. \TwoCorrect{} are correct under exactly two providers, \OneCorrect{} under exactly one, and \AllWrong{} under none. Thus, provider choice changes \emph{which} questions are solved, not only how many. This suggests that provider routing or provider-aware fetch policies may matter more than choosing a single winner.
+Only \AllCorrect{} questions are answered correctly by all three providers. \TwoCorrect{} are correct under exactly two providers, \OneCorrect{} under exactly one, and \AllWrong{} under none. The retrospective oracle union is therefore 44/100, compared with 26/100 for the best individual provider: 18 percentage points of headroom. It selects a correct recorded answer using hindsight; it does not demonstrate a deployable router or an accuracy--cost gain. The overlap motivates testing provider routing because provider choice changes \emph{which} questions are solved.
 
 \begin{figure*}[!t]
 \centering
 \includegraphics[width=0.96\textwidth]{figures/fig4_complementarity.png}
-\caption{Correct-answer overlap across providers. Provider choice changes which questions are solved even when aggregate correct-answer counts are nearly tied.}
+\caption{Correct-answer overlap across providers. The 44/100 oracle union is a hindsight ceiling over recorded answers, compared with 26/100 for the best individual provider.}
 \label{fig:complementarity}
 \end{figure*}
 
@@ -276,34 +302,16 @@ Only \AllCorrect{} questions are answered correctly by all three providers. \Two
 
 The provider-comparison traces include deterministic retrieval proxies such as gold-URL hits and whether the gold answer string appears anywhere in retrieved text. These are \emph{not} the Kimi judge or document-support labels; they are normalized string and URL checks over titles, snippets, provider-returned snippet text, and fetched page text.
 
-\begin{center}
-\centering
-\scriptsize
-\setlength{\tabcolsep}{3pt}
-\begin{tabularx}{\linewidth}{@{}lYYY@{}}
-\toprule
-\textbf{Proxy} & \textbf{Brave} & \textbf{Tavily} & \textbf{Firecrawl} \\
-\midrule
-Gold URL exact hit & \BraveGoldURLExact{} & \TavilyGoldURLExact{} & \FirecrawlGoldURLExact{} \\
-Answer in snippet surface & \BraveSnippetSurfaceHit{} & \TavilySnippetSurfaceHit{} & \FirecrawlSnippetSurfaceHit{} \\
-Answer in fetched page & \BraveAnswerPage{} & \TavilyAnswerPage{} & \FirecrawlAnswerPage{} \\
-Wrong despite answer text & \BraveWrongWithAnswer{} & \TavilyWrongWithAnswer{} & \FirecrawlWrongWithAnswer{} \\
-\bottomrule
-\end{tabularx}
-\captionof{table}{Trace-derived retrieval proxies. These deterministic URL and answer-string checks are not oracle support labels, and visible answer text is not sufficient for correct final answers.}
-\label{tab:retrieval-proxies}
-\end{center}
-
-Table~\ref{tab:retrieval-proxies} shows why ordinary retrieval proxies are incomplete for agents. Gold URLs and answer strings often appear somewhere in the trajectory, yet the agent still has \BraveWrongWithAnswer{}, \TavilyWrongWithAnswer{}, and \FirecrawlWrongWithAnswer{} wrong answers despite visible answer text. The issue is not only whether evidence exists, but whether the decision surface makes the right evidence noticeable, trusted, and actionable.
+Appendix Table~\ref{tab:app-retrieval-diagnostics} shows why ordinary retrieval proxies are incomplete for agents. Gold URLs and answer strings often appear somewhere in the trajectory, yet the agent still has \BraveWrongWithAnswer{}, \TavilyWrongWithAnswer{}, and \FirecrawlWrongWithAnswer{} wrong answers despite visible answer text. String presence alone therefore does not establish usable support or successful evidence use.
 
 \paragraph{Qualitative examples.}
-Two Brave traces show how this happens. In a Blake Shelton query, one snippet listed the five relevant 2015--2023 winning seasons, but nearby snippets repeated his nine lifetime wins; with no fetch, the agent answered \emph{9} rather than \emph{5}. In a border query, rank 1 favored Canada--United States, while lower snippets preserved the key word \emph{continuous} and identified Kazakhstan--Russia; the agent again answered from the generic surface. These cases reinforce the core claim: a search surface shapes whether the model notices, trusts, fetches, and uses the right evidence amid distractors. Appendix~\ref{app:generation} shows the trace-level artifact structure used for these audits.
+Two Brave traces illustrate competing evidence. In a Blake Shelton query, one snippet listed the five relevant 2015--2023 winning seasons, but nearby snippets repeated his nine lifetime wins; with no fetch, the agent answered \emph{9} rather than \emph{5}. In a border query, rank 1 favored Canada--United States, while lower snippets preserved the key word \emph{continuous} and identified Kazakhstan--Russia; the agent again answered from the generic surface. These cases illustrate relevant evidence co-occurring with distractors; they do not isolate the cause of the final error. Appendix~\ref{app:generation} shows the trace-level artifact structure used for these audits.
 
 \section{Discussion}
 \label{sec:discussion}
 
 \paragraph{Provider choice is a policy choice.}
-The same agent policy has different utility under different provider surfaces. Brave's richer pre-fetch surface reduces the marginal value of fetching some support-bearing pages. Tavily's rank-one concentration suggests that, when pre-fetch support is present, top-result policies can be efficient. Firecrawl is associated with broader exploration and more page-time discovery under this fixed agent policy. A provider should therefore be paired with a provider-aware fetch policy, not a fixed universal heuristic.
+Under the tested policy, Brave exposes more pre-fetch support, Tavily has a larger rank-1 share among trajectory-pooled supporting observations, and Firecrawl is associated with broader exploration. These differences motivate testing provider-aware fetch policies, such as snippet sufficiency checks or rank-based fetch selection. This study does not establish their accuracy--cost benefit.
 
 \paragraph{Top-$k$ relevance is incomplete for agents.}
 Static relevance and gold URL hit rates remain useful, but they cannot see whether the surface was already answerable, whether a fetch was worthwhile, or whether contradictory snippets competed with gold support. Decision-surface metrics complement IR metrics by measuring the action state available before the fetch decision.
@@ -312,41 +320,45 @@ Static relevance and gold URL hit rates remain useful, but they cannot see wheth
 An agent-ready search API should optimize not only relevance but also actionability: calibrated snippets, stable document identifiers, source/freshness metadata, low contradiction-to-gold contamination, and rankings that align answer-bearing pages with common agent fetch policies.
 
 \paragraph{What practitioners can use now.}
-The metrics here can be computed from traces without rerunning provider APIs. A practitioner can run a small sample through candidate providers, judge visible URLs, and choose a policy based on whether the provider behaves like a snippet-rich surface, a rank-concentrated surface, or a volume/exploration surface.
+The metrics here can be computed from traces without rerunning provider APIs. A practitioner can run a small sample through candidate providers, judge visible URLs, and use the resulting surface profile to select policy hypotheses for evaluation on held-out questions.
 
-\section{Limitations}
+\section{Conclusion}
+Evaluating search APIs for tool-using agents requires looking beyond answer accuracy. On the selected \NQueries{} \textsc{SealQA-Hard} questions under our fixed GPT-5.4 harness and provider configurations, observed correctness counts are close, while pre-fetch support, page-time discovery, rank concentration, contradiction, fetch behavior, and instance-level correctness differ. These findings motivate evaluating search APIs jointly with the models and orchestration policies that consume their evidence surfaces.
+
+\section*{Limitations}
 \label{sec:limitations}
 
 \paragraph{Single agent and judge.}
-The decision partition is defined from one GPT-5.4 agent and one Kimi-K2.6 judge. The manual audit in Table~\ref{tab:judge-validation} supports the oracle as a useful measurement instrument, but a different answer model, judge, prompt, or fetch appetite may shift the cell counts.
+The analysis uses one GPT-5.4 answer model, one orchestration harness, and a Kimi-K2.6 judge. Answer accuracy, evidence exposure, and decision-cell counts depend on these choices. Alternative models, prompts, query strategies, search/fetch policies, or budgets may improve end-to-end performance and change the relative provider profiles. We do not estimate the best achievable performance of any provider.
 
 \paragraph{Lower-bound support.}
 Pre-fetch support is measured only over URLs actually returned to the agent, and post-fetch support is a lower bound because unfetched URLs are not page-judged. This prevents us from claiming full provider recall.
 
 \paragraph{Snippet-surface asymmetry.}
-Brave returns more provider-native snippet text under our configuration. We aggregate it into the snippet surface to avoid presenting it as special treatment, but it remains a real product-surface difference and a plausible contributor to Brave's pre-fetch support ceiling. The length-normalized check in Table~\ref{tab:snippet-volume} shows that this asymmetry explains part, but not all, of the observed pre-fetch support pattern.
+Brave returns more provider-native snippet text under our configuration. The length-normalized check in Table~\ref{tab:snippet-volume} is descriptive; without a matched-surface control, we cannot separate the effects of text volume and retrieval quality.
 
 \paragraph{Observational policy analysis.}
 The agent's actions are observed, not randomized. We do not intervene on ranks, snippets, or fetch decisions. Causal replay is future work.
 
 \paragraph{Scale and provider coverage.}
-The main experiment has 100 questions and three providers. Small cells should be read as diagnostic rather than definitive. Additional providers such as Bing, Google CSE, Serper, Exa, and others would broaden the claim.
-
-\section{Conclusion}
-Evaluating search APIs for tool-using agents requires looking beyond answer accuracy. In this controlled study, semantic correctness rates are close, but the internal retrieval economy changes sharply: pre-fetch support, page-time discovery, rank concentration, contradiction, fetch behavior, and instance-level correctness all depend on the provider surface. Search APIs for agents should therefore be evaluated as decision surfaces: ranked, snippet-bearing action states that allocate retrieval budget.
+The experiment covers a deterministic stratified sample of \NQueries{} questions from the 254-question \textsc{SealQA-Hard} subset, three search APIs, and one collection snapshot. The findings are specific to this sample and experimental configuration and need not generalize to the remaining \textsc{SealQA-Hard} questions, other benchmarks, broader search workloads, or later API versions. Small decision cells are diagnostic; broader coverage and repeated collections would strengthen generalization.
 
 \section*{Ethics Statement}
 This work evaluates commercial search APIs and LLM agents on public web-search QA data. We do not claim that one provider is universally better. Provider names are reported because they are experimental conditions and because reproduction requires knowing which APIs produced the surfaces. The study may help reduce unnecessary page fetches and improve handling of contradictory evidence. It could also be misread as a provider leaderboard without respecting the stated limitations; we discourage that use.
 
 \section*{Reproducibility Statement}
-We release the experiment code, configuration files, prompts, query-sampling logic, trace schema, evaluation scripts, bootstrap scripts, figure-generation code, paper sources, and aggregate derived artifacts needed to inspect the reported calculations at \ReleaseArtifactLink. We do not publicly redistribute raw search-provider responses, rendered trace JSONLs, judge prompts or responses containing provider snippets, or fetched page text. These artifacts contain provider search results and third-party web content subject to API terms and publisher rights, and are therefore not ours to redistribute.
+The accompanying \ReleaseArtifactLink{} provides experiment code, configurations, prompt templates, the query-sampling procedure, trace and judge schemas, evaluation and bootstrap scripts, figure-generation code, paper sources, and derived results.
 
-The reported numbers were generated from the private run artifacts using the released pipeline. Researchers can reproduce the protocol by running the same fixed query sample with their own API credentials and then applying the released evaluation scripts. Because commercial search APIs are live, time-varying systems, reruns reproduce the experimental procedure rather than bit-identical provider surfaces. To support auditability without redistributing raw provider content, we release aggregate summaries, row counts, semantic-audit labels, validation summaries, and deterministic scripts that map traces and judge rows to every reported table and figure.
+To respect provider policies and third-party content rights, we do not redistribute complete execution traces or records containing raw provider responses, search snippets, or fetched page text. This exclusion also applies to copies of that content within judge inputs, audit records, and rendered trajectory views.
+
+The released artifacts document the experimental procedure and reported analyses. Researchers can rerun the protocol using their own API credentials and applicable permissions. Because commercial search APIs are live, time-varying systems, such reruns may produce different retrieved evidence and outcomes.
 
 \bibliography{refs}
 
 \clearpage
 \appendix
 \setlength{\emergencystretch}{1.5em}
+\begin{reviewdisplay}
 \input{appendix_shared}
+\end{reviewdisplay}
 \endinput

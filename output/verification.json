@@ -1,0 +1,40 @@
+{
+  "pdf_sha256": "0045fbb0b5371ba1a3174ae79c8b7982fafc020b4a45675f865bcbf1181c4e9c",
+  "pages_total": 17,
+  "content_ends_page": 8,
+  "all_a4": true,
+  "all_fonts_embedded": true,
+  "authors_verified": true,
+  "no_review_line_numbers": true,
+  "pubcheck": "All Clear!",
+  "pubcheck_options": [
+    "--paper_type",
+    "long",
+    "--disable_name_check"
+  ],
+  "reference_validation": "All 31 entries manually checked during camera-ready reference review; external name service disabled for PubCheck.",
+  "offline_tests": {
+    "passed": 72,
+    "environment": "Isolated public-file export with no private research records."
+  },
+  "public_file_count": 145,
+  "released_result_csv_count": 15,
+  "result_checks": "Answer labels, oracle union, first-search counts, decision-cell counts and Wilson intervals, and 164/174 audit agreement match the paper.",
+  "public_only_paper_build": "Succeeded after latest corrections; all 17 pages text- and pixel-identical to final PDF.",
+  "standalone_source_build": "Succeeded after latest corrections; all 17 pages text- and pixel-identical to final PDF.",
+  "latex_no_overfull_or_undefined_references": true,
+  "visual_review": "All five changed pages inspected. Remaining 12 pages are pixel-identical to the previous final paper.",
+  "project_site_build": "Succeeded; local references validated and clean PDF included.",
+  "acknowledgments_funding_conflicts": "Author confirmed none applicable.",
+  "publication_status": "Prepared locally for author push; no remote mutations or OpenReview submission performed.",
+  "current_revision": "Abstract grammar, released appendix paths/labels, and BEIR/SealQA/AI bibliography casing corrected.",
+  "changed_pages_in_current_revision": [
+    1,
+    4,
+    10,
+    15,
+    16
+  ],
+  "all_result_tables_unchanged_in_current_revision": true,
+  "figure_macros_unchanged_in_current_revision": true
+}

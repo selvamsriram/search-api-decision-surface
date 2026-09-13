@@ -1,0 +1,28 @@
+provider,metric,label,unit,questions,estimate,ci_low,ci_high,undefined_replicates,missing_label_lower,missing_label_upper,sampling_and_missing_low,sampling_and_missing_high
+brave,first_support_at_1,First-search observed Support@1,percent,100,5.0,1.0,10.0,0,5.0,5.0,1.0,10.0
+brave,first_mrr,First-search observed mean reciprocal rank,MRR,100,0.10289682539682539,0.059760119047619055,0.15414345238095237,0,0.10289682539682539,0.1073968253968254,0.059760119047619055,0.15930257936507936
+brave,first_support_any,First-search observed support anywhere,percent,100,24.0,16.0,33.0,0,24.0,26.0,16.0,35.0
+brave,contradiction_query_pct,Questions with any judged snippet contradiction,percent,100,27.0,19.0,36.0,0,27.0,32.0,19.0,41.0
+brave,contradiction_row_pct,Contradictory snippet-only observations,percent,100,4.248210023866348,2.4726226517963563,6.415478615071283,0,,,,
+brave,pooled_cg_ratio,Pooled contradiction-to-gold ratio,ratio,100,0.9175257731958762,0.49205698672911785,1.730792682926829,0,,,,
+brave,deduplicated_contradiction_query_pct,Questions with retained contradiction,percent,100,27.0,19.0,36.0,0,,,,
+brave,deduplicated_contradiction_row_pct,Contradictory retained observations,percent,100,3.656413232733604,2.183644503342347,5.466878455159704,0,,,,
+brave,deduplicated_cg_ratio,Deduplicated contradiction-to-gold ratio,ratio,100,0.7974683544303798,0.4356395720217183,1.487209302325581,0,,,,
+tavily,first_support_at_1,First-search observed Support@1,percent,100,9.0,4.0,15.0,0,9.0,14.0,4.0,21.0
+tavily,first_mrr,First-search observed mean reciprocal rank,MRR,100,0.10333333333333333,0.05,0.16333333333333333,0,0.10333333333333333,0.15683333333333332,0.05,0.22783333333333336
+tavily,first_support_any,First-search observed support anywhere,percent,100,12.0,6.0,19.0,0,12.0,19.0,6.0,27.0
+tavily,contradiction_query_pct,Questions with any judged snippet contradiction,percent,100,21.0,13.0,29.0,0,21.0,26.0,13.0,35.0
+tavily,contradiction_row_pct,Contradictory snippet-only observations,percent,100,2.4796921761436512,1.2758933419009024,3.983240374568304,0,,,,
+tavily,pooled_cg_ratio,Pooled contradiction-to-gold ratio,ratio,100,1.8709677419354838,0.8285602678571429,4.466842105263155,0,,,,
+tavily,deduplicated_contradiction_query_pct,Questions with retained contradiction,percent,100,21.0,13.0,29.0,0,,,,
+tavily,deduplicated_contradiction_row_pct,Contradictory retained observations,percent,100,2.6226323457989316,1.3704731628253346,4.187506923673422,0,,,,
+tavily,deduplicated_cg_ratio,Deduplicated contradiction-to-gold ratio,ratio,100,1.9285714285714286,0.8292508710801394,5.0,0,,,,
+firecrawl,first_support_at_1,First-search observed Support@1,percent,100,2.0,0.0,5.0,0,2.0,5.0,0.0,10.0
+firecrawl,first_mrr,First-search observed mean reciprocal rank,MRR,100,0.04075,0.013583333333333334,0.0757520833333333,0,0.04075,0.0790515873015873,0.013583333333333334,0.1283736111111111
+firecrawl,first_support_any,First-search observed support anywhere,percent,100,9.0,4.0,15.0,0,9.0,17.0,4.0,25.0
+firecrawl,contradiction_query_pct,Questions with any judged snippet contradiction,percent,100,28.0,19.0,37.0,0,28.0,36.0,19.0,45.0
+firecrawl,contradiction_row_pct,Contradictory snippet-only observations,percent,100,3.357314148681055,1.891765870126446,5.174875355295652,0,,,,
+firecrawl,pooled_cg_ratio,Pooled contradiction-to-gold ratio,ratio,100,2.5925925925925926,1.1063549832026878,8.0,0,,,,
+firecrawl,deduplicated_contradiction_query_pct,Questions with retained contradiction,percent,100,28.0,19.0,37.0,0,,,,
+firecrawl,deduplicated_contradiction_row_pct,Contradictory retained observations,percent,100,3.509719222462203,2.006166011143887,5.3449044238662715,0,,,,
+firecrawl,deduplicated_cg_ratio,Deduplicated contradiction-to-gold ratio,ratio,100,2.5,1.0730958493795466,7.444444444444445,0,,,,

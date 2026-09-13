@@ -16,3 +16,32 @@ paper/*.log
 paper/*.out
 paper/*.synctex.gz
 paper/build/arxiv/
+paper/build/camera-ready/
+site/dist/
+
+# Local research records and manuscript revision history are not release inputs.
+/.camera-ready-local/
+/.venv/
+/data/traces/
+/results/*
+!/results/released/
+/docs/archive/
+/review/
+/errors-*.json
+/output/comparison-manifest.json
+/output/pdf/*-highlighted.pdf
+/paper/main.tex
+/paper/main.bbl
+/paper/main_submission.*
+/paper/main_preprint.*
+/paper/build/search-api-decision-surface-arxiv.*
+/paper/figures/decision_surface_audit.*
+/paper/figures/*.dot
+/paper/figures/*.svg
+/paper/figures/*.pdf
+/paper/figures/fig1_architecture.png
+/Submitted_72_Equal_Accuracy_Unequal_Evid.pdf
+/Equal Accuracy, Unequal Evidence*OpenReview.pdf
+
+# Historical third-party setup notes remain local.
+/skills-prompts/

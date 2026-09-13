@@ -379,6 +379,8 @@ def main() -> None:
     parser.add_argument("--reps", type=int, default=10_000)
     parser.add_argument("--seed", type=int, default=20260628)
     parser.add_argument("--out-dir", type=Path, default=repo_root() / "results/task4_uncertainty")
+    parser.add_argument("--decision-cells-only", action="store_true",
+                        help="Refresh corrected decision-cell intervals while preserving existing aggregate estimates.")
     args = parser.parse_args()
 
     root = repo_root()
@@ -401,8 +403,15 @@ def main() -> None:
 
     specs = make_metric_specs()
     replicates = resample_indices(len(qids), args.reps, args.seed)
-    provider_rows = provider_metric_rows(data, qids, specs, replicates)
-    pairwise_rows = pairwise_metric_rows(data, qids, specs, replicates)
+    if args.decision_cells_only:
+        previous = json.loads((args.out_dir / "uncertainty_summary.json").read_text())
+        if previous["replicates"] != args.reps or previous["seed"] != args.seed:
+            raise ValueError("Decision-only refresh must retain the existing bootstrap configuration")
+        provider_rows = previous["providers"]
+        pairwise_rows = previous["pairwise_differences"]
+    else:
+        provider_rows = provider_metric_rows(data, qids, specs, replicates)
+        pairwise_rows = pairwise_metric_rows(data, qids, specs, replicates)
     cell_rows = decision_cell_rows(data, qids, replicates)
 
     args.out_dir.mkdir(parents=True, exist_ok=True)

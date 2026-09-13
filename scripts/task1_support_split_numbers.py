@@ -3,7 +3,7 @@
 
 This script does not call providers, rerun the agent, rerun the judge, or touch
 paper sources. It reads the canonical Kimi per-URL judge JSONLs and the semantic
-audit TSV, then writes reproducible audit tables for the pre-fetch/post-fetch
+audit TSV and canonical traces, then writes reproducible audit tables for the pre-fetch/post-fetch
 support split.
 """
 from __future__ import annotations
@@ -16,6 +16,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from searchapi_eval.evaluation.trace_actions import canonical_trace_paths, fetch_actions, load_canonical_traces
+
 
 PROVIDERS = ("brave", "tavily", "firecrawl")
 PLABEL = {"brave": "Brave", "tavily": "Tavily", "firecrawl": "Firecrawl"}
@@ -27,6 +29,9 @@ class QueryState:
     pre_fetch_support_urls: set[str] = field(default_factory=set)
     page_extracted_gold_urls: set[str] = field(default_factory=set)
     fetched_urls: set[str] = field(default_factory=set)
+    fetch_attempt_count: int = 0
+    fetch_success_count: int = 0
+    legacy_judge_fetched_urls: set[str] = field(default_factory=set)
     legacy_visible_support_urls: set[str] = field(default_factory=set)
     valid_snippet_rows: int = 0
     valid_page_rows: int = 0
@@ -91,8 +96,21 @@ def url_id(row: dict[str, Any]) -> str:
     return str(row.get("normalized_url") or row.get("url") or "")
 
 
-def load_provider_states(path: Path, semantic_queries: dict[str, bool]) -> tuple[dict[str, QueryState], dict[str, int]]:
+def load_provider_states(
+    path: Path,
+    semantic_queries: dict[str, bool],
+    traces: dict[str, dict[str, Any]],
+) -> tuple[dict[str, QueryState], dict[str, int]]:
     states: dict[str, QueryState] = {query_id: QueryState() for query_id in semantic_queries}
+    if set(traces) != set(states):
+        raise ValueError("Trace/semantic query IDs differ")
+    for query_id, state in states.items():
+        actions = fetch_actions(traces[query_id])
+        if any(not row["provenance_joined"] for row in actions.provenance):
+            raise ValueError(f"Unresolved fetch provenance for {query_id}")
+        state.fetched_urls = actions.urls
+        state.fetch_attempt_count = actions.attempts
+        state.fetch_success_count = actions.successes
     totals = {
         "judge_total_rows": 0,
         "judge_valid_rows": 0,
@@ -117,7 +135,7 @@ def load_provider_states(path: Path, semantic_queries: dict[str, bool]) -> tuple
             url = url_id(row)
 
             if row.get("model_fetched_document"):
-                state.fetched_urls.add(url)
+                state.legacy_judge_fetched_urls.add(url)
 
             if judgment.get("contains_gold_answer"):
                 state.legacy_visible_support_urls.add(url)
@@ -146,7 +164,7 @@ def load_provider_states(path: Path, semantic_queries: dict[str, bool]) -> tuple
                     state.snippet_gold_in_snippets_rows += 1
             elif surface_class == "page_visible":
                 state.valid_page_rows += 1
-                state.fetched_urls.add(url)
+                state.legacy_judge_fetched_urls.add(url)
                 if pre_fetch_support:
                     state.page_visible_pre_fetch_support_rows += 1
                 if judgment.get("gold_answer_in_extracted_page"):
@@ -159,7 +177,7 @@ def load_provider_states(path: Path, semantic_queries: dict[str, bool]) -> tuple
 def decision_cell(state: QueryState) -> str:
     pre_fetch_support = bool(state.pre_fetch_support_urls)
     fetched_pre_fetch_support_url = bool(state.pre_fetch_support_urls & state.fetched_urls)
-    fetched_any_url = bool(state.fetched_urls)
+    fetched_any_url = state.fetch_attempt_count > 0
     if pre_fetch_support and fetched_pre_fetch_support_url:
         return "smart"
     if pre_fetch_support:
@@ -197,7 +215,7 @@ def summarize_provider(
         pre_fetch_support = bool(state.pre_fetch_support_urls)
         post_fetch_discovered_support = (not pre_fetch_support) and bool(state.page_extracted_gold_urls)
         trajectory_visible_support = pre_fetch_support or post_fetch_discovered_support
-        fetched_any_url = bool(state.fetched_urls)
+        fetched_any_url = state.fetch_attempt_count > 0
         fetched_pre_fetch_support_url = bool(state.pre_fetch_support_urls & state.fetched_urls)
         cell = decision_cell(state)
         correct = bool(semantic[query_id])
@@ -334,7 +352,7 @@ def write_summary_md(path: Path, provider_summaries: dict[str, dict[str, Any]]) 
     lines = [
         "# Task 1 support split numbers",
         "",
-        "These numbers are computed from existing Kimi judge JSONLs and `results/em_vs_semantic_audit.tsv`.",
+        "Support labels come from existing Kimi judge JSONLs and correctness from `results/em_vs_semantic_audit.tsv`. Fetch actions come from canonical trace JSONLs, independently of judge validity, and include failed attempts.",
         "",
         "## Support counts",
         "",
@@ -423,7 +441,7 @@ def main() -> None:
     args = parser.parse_args()
 
     judge_paths = default_judge_paths(root)
-    input_paths = [args.semantic_tsv, *judge_paths.values()]
+    input_paths = [args.semantic_tsv, *judge_paths.values(), *canonical_trace_paths(root).values()]
     missing = [str(path) for path in input_paths if not path.exists()]
     if missing:
         raise SystemExit("Missing input artifact(s): " + ", ".join(missing))
@@ -437,7 +455,8 @@ def main() -> None:
     all_query_rows: list[dict[str, Any]] = []
 
     for provider in PROVIDERS:
-        states, judge_totals = load_provider_states(judge_paths[provider], semantic[provider])
+        traces = load_canonical_traces(canonical_trace_paths(root)[provider], provider, set(semantic[provider]))
+        states, judge_totals = load_provider_states(judge_paths[provider], semantic[provider], traces)
         summary, decision_rows, query_rows = summarize_provider(provider, states, semantic[provider], judge_totals)
         provider_summaries[provider] = summary
         all_decision_rows.extend(decision_rows)

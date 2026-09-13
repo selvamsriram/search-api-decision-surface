@@ -1,11 +1,15 @@
 import json
 from argparse import Namespace
+from copy import deepcopy
+
+import pytest
 
 from scripts.run_llm_judge import (
     _build_query_url_reuse_cache,
     _build_kimi_client,
     _cached_output_record,
     _load_judge_cache,
+    _load_completed_records,
     _matching_cache_record,
     _matching_query_url_reuse_record,
     _query_url_duplicate_output_record,
@@ -18,6 +22,18 @@ from searchapi_eval.evaluation.llm_judge import (
     parse_json_object,
     render_document_judge_prompt,
 )
+
+
+def _with_request(record):
+    record = deepcopy(record)
+    record["request_snapshot"] = {
+        "provider": "azure_openai", "model_id": "azure:kimi-k2.6",
+        "deployment": "kimi-k2.6", "api_version": "2024-10-21",
+        "temperature": 0, "max_tokens_field": "max_tokens", "max_tokens": 4096,
+        "messages": deepcopy(record["messages"]),
+    }
+    record.setdefault("llm_response", {})
+    return record
 
 
 def _trace():
@@ -215,6 +231,7 @@ def test_judge_cache_reuses_only_valid_exact_document_matches(tmp_path):
         "llm_response": {"usage": {"total_tokens": 123}},
         "messages": [{"role": "user", "content": "same prompt"}],
     }
+    valid = _with_request(valid)
     invalid = {
         **valid,
         "rank": 2,
@@ -250,7 +267,7 @@ def test_judge_cache_reuses_only_valid_exact_document_matches(tmp_path):
     assert _matching_cache_record(cache, mismatched_prompt) is None
 
 
-def test_query_url_duplicate_reuse_ignores_provider_retrieval_rank_for_same_query_url():
+def test_query_url_duplicate_reuse_rejects_changed_snippet_at_same_url():
     trace = {
         "query_id": "q1",
         "provider_id": "fake",
@@ -296,22 +313,29 @@ def test_query_url_duplicate_reuse_ignores_provider_retrieval_rank_for_same_quer
     }
     args = Namespace(max_docs_per_query=0, max_docs_per_search=0, max_document_chars=0)
     records = _records_for_trace(trace, args)
-    source = {**records[0], "judgment": {"contains_gold_answer": True}}
-    target = {**records[1], "provider_id": "another-provider"}
+    source = _with_request({**records[0], "judgment": {"contains_gold_answer": True}})
+    target = _with_request({**records[1], "provider_id": "another-provider"})
 
-    assert _query_url_reuse_key(source) == _query_url_reuse_key(target)
+    assert _query_url_reuse_key(source) != _query_url_reuse_key(target)
     reuse_cache = _build_query_url_reuse_cache([source], enabled=True)
-    match = _matching_query_url_reuse_record(reuse_cache, target)
+    assert _matching_query_url_reuse_record(reuse_cache, target) is None
+    with pytest.raises(ValueError, match="verified identical request"):
+        _query_url_duplicate_output_record(source, target)
+
+    # Metadata may differ only when the complete supplied request is identical.
+    identical = _with_request({**target, "messages": deepcopy(source["messages"])})
+    match = _matching_query_url_reuse_record(reuse_cache, identical)
 
     assert match is source
-    reused = _query_url_duplicate_output_record(match, target)
+    reused = _query_url_duplicate_output_record(match, identical)
     assert reused["duplicate_reused"] is True
     assert reused["reuse_type"] == "query_url_duplicate"
     assert reused["retrieval_id"] == "ret2"
     assert reused["rank"] == 3
     assert reused["provider_id"] == "another-provider"
     assert reused["judgment"] == {"contains_gold_answer": True}
-    assert reused["reuse_prompt_content_match"] is False
+    assert reused["reuse_prompt_content_match"] is True
+    assert _matching_cache_record({_record_key(reused): reused}, identical) is reused
 
 
 def test_query_url_duplicate_reuse_does_not_mix_fetched_and_unfetched_surfaces():
@@ -381,8 +405,8 @@ def test_query_url_duplicate_reuse_does_not_mix_fetched_and_unfetched_surfaces()
     }
     args = Namespace(max_docs_per_query=0, max_docs_per_search=0, max_document_chars=0)
     records = _records_for_trace(trace, args)
-    snippet_only = {**records[0], "judgment": {"gold_answer_in_snippets": False}}
-    page_visible = {**records[1], "judgment": {"gold_answer_in_extracted_page": True}}
+    snippet_only = _with_request({**records[0], "judgment": {"gold_answer_in_snippets": False}})
+    page_visible = _with_request({**records[1], "judgment": {"gold_answer_in_extracted_page": True}})
 
     assert snippet_only["judge_surface_class"] == "snippet_only"
     assert page_visible["judge_surface_class"] == "page_visible"
@@ -390,6 +414,50 @@ def test_query_url_duplicate_reuse_does_not_mix_fetched_and_unfetched_surfaces()
 
     reuse_cache = _build_query_url_reuse_cache([page_visible], enabled=True)
     assert _matching_query_url_reuse_record(reuse_cache, snippet_only) is None
+
+
+def _cache_test_record():
+    record = _records_for_trace(_trace(), Namespace(max_docs_per_query=0, max_docs_per_search=0, max_document_chars=0))[0]
+    return _with_request({**record, "judgment": {"contains_gold_answer": True}})
+
+
+@pytest.mark.parametrize("changed", ["system", "snippet", "page", "model", "temperature", "missing_context"])
+def test_all_cache_paths_require_identical_evidence_and_judge_context(changed):
+    source = _cache_test_record()
+    target = deepcopy(source)
+    if changed == "system":
+        target["messages"][0]["content"] += " Changed instructions."
+    elif changed == "snippet":
+        target["messages"][-1]["content"] = target["messages"][-1]["content"].replace("Sweden won.", "Finland won.", 1)
+    elif changed == "page":
+        target["messages"][-1]["content"] += " Changed page text."
+    elif changed == "model":
+        target["request_snapshot"]["model_id"] = "another-model"
+    elif changed == "temperature":
+        target["request_snapshot"]["temperature"] = 1
+    else:
+        target.pop("request_snapshot")
+    if "request_snapshot" in target:
+        target["request_snapshot"]["messages"] = deepcopy(target["messages"])
+    assert _matching_cache_record({_record_key(source): source}, target) is None
+    assert _matching_query_url_reuse_record(_build_query_url_reuse_cache([source], enabled=True), target) is None
+
+
+def test_legacy_copied_label_cannot_reenter_through_exact_cache_or_resume(tmp_path):
+    source = _cache_test_record()
+    legacy = {**source, "cache_reused": True, "reuse_type": "exact_cache", "reuse_prompt_content_match": True}
+    path = tmp_path / "legacy.jsonl"
+    path.write_text(json.dumps(legacy) + "\n")
+    assert _matching_cache_record({_record_key(legacy): legacy}, source) is None
+    assert _build_query_url_reuse_cache([legacy], enabled=True) == {}
+    assert _load_judge_cache([str(path)]) == {}
+    assert _load_completed_records(path) == []
+
+    # Verified future reuse remains safe across a second exact-cache hop.
+    first = _cached_output_record(source, source)
+    second = _cached_output_record(first, source)
+    assert second["judgment"] == source["judgment"]
+    assert _matching_cache_record({_record_key(second): second}, source) is second
 
 
 def test_kimi_env_slot_uses_slot_specific_endpoint_without_primary_fallback(monkeypatch):

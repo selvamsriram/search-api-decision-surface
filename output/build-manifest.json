@@ -1,0 +1,18 @@
+{
+  "sources": {
+    "main_camera_ready.tex": "fd2177bd08eb9eb9fc51e23b04479b2b2b088f9b42afbfedbdc36da3cd784be9",
+    "paper_shared.tex": "31a5ac4a8288b43c74dfe2089a4327cb252e9f6280e181058bf9d599d50fa73f",
+    "appendix_shared.tex": "5d00044dedfabbcd7d2c6b5deb2823cfe033c892ba4d111ae36c8751803b21c0",
+    "preamble.tex": "d2fb6606594a6d57c6a8f38db44cb60b138ed870dee758ab3b7730e5ea9d3233",
+    "refs.bib": "af3e55261ccaa15fd66a677ee8e99c13e78aa4858e9175e5348ee20db4183a04",
+    "acl.sty": "19dfeddc2c0e448f3926a0bef048a9db3f3611b46265b760caabd7ada4f361de",
+    "acl_natbib.bst": "6fbb306202290f4b68e74ac1460a8b27398500cb6dfeb4492e74c457eae7cd1e",
+    "figures/numbers.tex": "87e5733b80c8854f28d7ad567921a52b8feee3e030d2b7e109dbdacdc56d1422",
+    "figures/fig1_pipeline.png": "b4b4d2f938311a60178e90c1f15258d8ceab6b78120fab49f93c68dac1f6d4a9",
+    "figures/fig2_provider_profiles.png": "b0a03746af48b6d48981484f1938ea3b33fdd19c1be618351fa00167a3042d24",
+    "figures/fig3_decision_partition.png": "c6a79fba1957642821e4c0633a9b58a769c5e48820128242efa2a8f5664e4ebb",
+    "figures/fig4_complementarity.png": "d1f1a7299eb53dbea4badb747ae2657c34683e880e22cb9bdc8bd5fe4df220a2"
+  },
+  "pdf_sha256": "0045fbb0b5371ba1a3174ae79c8b7982fafc020b4a45675f865bcbf1181c4e9c",
+  "source_zip_sha256": "22d31dd835f21d9cc879ebaf8fb3fefcf07a1de101011ea1d42ccd25a64131db"
+}

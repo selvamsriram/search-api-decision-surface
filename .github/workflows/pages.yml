@@ -1,0 +1,61 @@
+name: Publish project page
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - 'scripts/build_project_site.py'
+      - 'paper/figures/numbers.tex'
+      - 'output/pdf/camera-ready.pdf'
+      - '.github/workflows/pages.yml'
+  pull_request:
+    paths:
+      - 'site/**'
+      - 'scripts/build_project_site.py'
+      - 'paper/figures/numbers.tex'
+      - 'output/pdf/camera-ready.pdf'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the project
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          # Raw trace and judge LFS artifacts are not needed for the site.
+          lfs: false
+      - name: Build the static project page
+        run: python3 scripts/build_project_site.py
+      - name: Upload only the public site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/dist
+
+  deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Publish to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

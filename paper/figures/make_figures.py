@@ -12,9 +12,13 @@ import argparse
 import csv
 import json
 import math
+import os
+import re
 import subprocess
 from pathlib import Path
 from typing import Any
+
+from searchapi_eval.evaluation.trace_actions import canonical_trace_paths, fetch_actions, load_canonical_traces
 
 HERE = Path(__file__).resolve().parent
 PAPER = HERE.parent
@@ -31,6 +35,7 @@ JUDGE_PATHS = {
 SEMANTIC_TSV = REPO / "results/em_vs_semantic_audit.tsv"
 PROVIDER_SUMMARY = REPO / "results/provider_comparison/brave_tavily_firecrawl_fetch_tool_jina/provider_summary.json"
 PER_QUERY = REPO / "results/provider_comparison/brave_tavily_firecrawl_fetch_tool_jina/provider_per_query.jsonl"
+TRACE_PATHS = canonical_trace_paths(REPO)
 
 FALLBACK = {
     "meta": {
@@ -79,7 +84,7 @@ FALLBACK = {
             "page_rows": 125, "gold_rows": 31, "contra_rows": 58,
             "pre_fetch_support_rows": 34, "post_fetch_discovered_rows": 9,
             "contra_ratio": 1.87, "rank1_count": 17, "rank1_pct": 50,
-            "bucket": {"smart": [3, 1], "missed": [13, 7], "blind": [63, 16], "noop": [21, 1]},
+            "bucket": {"smart": [3, 1], "missed": [13, 7], "blind": [67, 16], "noop": [17, 1]},
         },
         "firecrawl": {
             "em": 23, "correct": 26, "correct_gain": 3, "f1": 0.282,
@@ -97,7 +102,7 @@ FALLBACK = {
             "page_rows": 124, "gold_rows": 27, "contra_rows": 70,
             "pre_fetch_support_rows": 30, "post_fetch_discovered_rows": 3,
             "contra_ratio": 2.59, "rank1_count": 4, "rank1_pct": 13,
-            "bucket": {"smart": [3, 1], "missed": [13, 7], "blind": [70, 18], "noop": [14, 0]},
+            "bucket": {"smart": [3, 1], "missed": [13, 7], "blind": [72, 18], "noop": [12, 0]},
         },
     },
     "pairwise": {
@@ -222,11 +227,15 @@ def valid_judge_row(r: dict[str, Any]) -> bool:
 def compute_from_judge(data: dict[str, Any], sem: dict[tuple[str, str], bool]) -> bool:
     if not sem:
         return False
-    if any((not p.exists()) or is_lfs_pointer(p) for p in JUDGE_PATHS.values()):
+    if any((not p.exists()) or is_lfs_pointer(p) for p in [*JUDGE_PATHS.values(), *TRACE_PATHS.values()]):
         return False
     total = valid_total = snippet_total = page_total = 0
     for p in PROVIDERS:
         provider_qids = sorted(q for provider, q in sem if provider == p)
+        traces = load_canonical_traces(TRACE_PATHS[p], p, set(provider_qids))
+        actions = {q: fetch_actions(traces[q]) for q in provider_qids}
+        if any(not item["provenance_joined"] for a in actions.values() for item in a.provenance):
+            raise ValueError(f"Unresolved fetch provenance for {p}")
         rows_all = load_jsonl(JUDGE_PATHS[p])
         rows = [r for r in rows_all if valid_judge_row(r)]
         snip = [r for r in rows if r.get("judge_surface_class") == "snippet_only"]
@@ -237,7 +246,7 @@ def compute_from_judge(data: dict[str, Any], sem: dict[tuple[str, str], bool]) -
         rank1 = 0
         pre_fetch_support_rows = 0
         qstate: dict[str, dict[str, set[str]]] = {
-            q: {"pre": set(), "page": set(), "fetched": set(), "legacy": set()}
+            q: {"pre": set(), "page": set(), "fetched": actions[q].urls, "legacy": set()}
             for q in provider_qids
         }
         for r in rows:
@@ -262,11 +271,8 @@ def compute_from_judge(data: dict[str, Any], sem: dict[tuple[str, str], bool]) -
                 if int(r.get("rank") or 0) == 1:
                     rank1 += 1
             if surface == "page_visible":
-                qstate[q]["fetched"].add(u)
                 if j.get("gold_answer_in_extracted_page"):
                     qstate[q]["page"].add(u)
-            elif r.get("model_fetched_document"):
-                qstate[q]["fetched"].add(u)
         buckets = {"smart": [0, 0], "missed": [0, 0], "blind": [0, 0], "noop": [0, 0]}
         pre_fetch_support_q = post_fetch_discovered_q = trajectory_visible_support_q = 0
         post_fetch_discovered_rows = 0
@@ -276,7 +282,7 @@ def compute_from_judge(data: dict[str, Any], sem: dict[tuple[str, str], bool]) -
             pre = bool(st["pre"])
             post = (not pre) and bool(st["page"])
             trajectory = pre or post
-            fetched = bool(st["fetched"])
+            fetched = actions[q].attempts > 0
             fetched_pre = bool(st["pre"] & st["fetched"])
             if pre:
                 pre_fetch_support_q += 1
@@ -456,6 +462,41 @@ def render_dot(name: str, dot: str) -> None:
         formats.append("png")
     for fmt in formats:
         subprocess.run(["dot", f"-T{fmt}", str(dot_path), "-o", str(HERE / f"{name}.{fmt}")], check=True)
+
+
+def render_partition_designer(data: dict[str, Any]) -> None:
+    """Update all twelve designer cells and export the original paper design."""
+    path = HERE / "Figure 3.html"
+    source = path.read_text(encoding="utf-8")
+    match = re.search(r'(<script type="__bundler/template">\s*)(.*?)(\s*</script>)', source, re.DOTALL)
+    if match is None:
+        raise ValueError("Figure 3 designer template not found")
+    template = json.loads(match.group(2))
+    for provider in PROVIDERS:
+        pattern = rf'(<!-- ===== {PLABEL[provider]} row ===== -->)(.*?)(?=<!-- ===== |\n    </div>\n\n  </div>)'
+        row_match = re.search(pattern, template, re.DOTALL)
+        if row_match is None:
+            raise ValueError(f"Designer row not found: {provider}")
+        block = row_match.group(2)
+        cells = [data["providers"][provider]["bucket"][c] for c in ("smart", "missed", "blind", "noop")]
+        replacements = [
+            (r'(font:600 24px/1 \'IBM Plex Mono\'; color:#1c1f28;">)\d+', [str(n) for n, c in cells]),
+            (r'(font:500 14px/1 \'IBM Plex Mono\'; color:var\(--sub\);">/ )\d+', [str(c) for n, c in cells]),
+            (r'(font:700 14px/1 \'IBM Plex Mono\'; color:#[0-9a-f]+;">)\d+%', [rate(c, n) for n, c in cells]),
+            (r'(height:6px; border-radius:3px; width:)\d+%', [f"{n}%" for n, c in cells]),
+        ]
+        for cell_pattern, values in replacements:
+            if len(re.findall(cell_pattern, block)) != 4:
+                raise ValueError(f"Expected four designer cells for {provider}: {cell_pattern}")
+            iterator = iter(values)
+            block = re.sub(cell_pattern, lambda m: m.group(1) + next(iterator), block)
+        template = template[:row_match.start(2)] + block + template[row_match.end(2):]
+    encoded = json.dumps(template, ensure_ascii=False).replace("</", "<\\u002F")
+    path.write_text(source[:match.start(2)] + encoded + source[match.end(2):], encoding="utf-8")
+    subprocess.run([
+        os.environ.get("NODE_BINARY", "node"), str(REPO / "scripts/render_paper_figure.mjs"),
+        str(path), str(HERE / "fig3_decision_partition.png"),
+    ], check=True)
 
 
 def make_architecture() -> str:
@@ -648,6 +689,8 @@ def write_audit_md(data: dict[str, Any], stats: dict[str, dict[str, int]], examp
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--render-only", action="store_true")
+    ap.add_argument("--figures", nargs="+", type=int, choices=(1, 2, 3, 4), default=[1, 2, 3, 4],
+                    help="Figures to export; macros and numerical audit are always refreshed.")
     args = ap.parse_args()
     strict = not args.render_only
 
@@ -656,8 +699,8 @@ def main() -> None:
     load_provider_summary(data)
     raw_ok = compute_from_judge(data, sem)
     if strict and not raw_ok:
-        missing = [str(path.relative_to(REPO)) for path in JUDGE_PATHS.values() if (not path.exists()) or is_lfs_pointer(path)]
-        raise SystemExit("Raw judge JSONLs are missing or still Git LFS pointers: " + ", ".join(missing) + "\nRun `git lfs pull` from the repository root.")
+        missing = [str(path.relative_to(REPO)) for path in [*JUDGE_PATHS.values(), *TRACE_PATHS.values()] if (not path.exists()) or is_lfs_pointer(path)]
+        raise SystemExit("Raw judge/trace JSONLs are missing or still Git LFS pointers: " + ", ".join(missing) + "\nRun `git lfs pull` from the repository root.")
     comp, pairwise = semantic_complementarity(sem)
     data["meta"].update(comp)
     data["pairwise"] = pairwise
@@ -668,10 +711,17 @@ def main() -> None:
     mode = "raw_judge+semantic_tsv" if raw_ok else "render_only_semantic_tsv+validated_surface_constants"
     write_numbers(data, stats, examples, mode)
     write_audit_md(data, stats, examples, mode)
-    render_dot("fig1_architecture", make_architecture())
-    render_dot("fig2_provider_profiles", make_profiles(data, stats))
-    render_dot("fig3_decision_partition", make_partition(data))
-    render_dot("fig4_complementarity", make_complementarity(data["meta"]))
+    figures = {
+        1: ("fig1_architecture", lambda: make_architecture()),
+        2: ("fig2_provider_profiles", lambda: make_profiles(data, stats)),
+        3: ("fig3_decision_partition", lambda: make_partition(data)),
+        4: ("fig4_complementarity", lambda: make_complementarity(data["meta"])),
+    }
+    for number in args.figures:
+        name, make_dot = figures[number]
+        render_dot(name, make_dot())
+        if number == 3:
+            render_partition_designer(data)
     print(f"Wrote figures/macros in {HERE} ({mode})")
 
 

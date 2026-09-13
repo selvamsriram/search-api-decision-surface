@@ -1,0 +1,13 @@
+provider,cell,queries,correct
+brave,BLIND,54,11
+brave,MISSED,27,11
+brave,NOOP,16,0
+brave,SMART,3,3
+firecrawl,BLIND,72,18
+firecrawl,MISSED,13,7
+firecrawl,NOOP,12,0
+firecrawl,SMART,3,1
+tavily,BLIND,67,16
+tavily,MISSED,13,7
+tavily,NOOP,17,1
+tavily,SMART,3,1

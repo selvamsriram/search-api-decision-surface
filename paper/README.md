@@ -1,66 +1,40 @@
-# ACL paper package: Beyond Answer Accuracy: Search APIs as Decision Surfaces for Tool-Using Agents
+# Camera-ready paper
 
-This directory contains the ACL review and preprint sources for the paper.
+**Similar Accuracy, Unequal Evidence: Search APIs as Decision Surfaces for Tool-Using Agents**
 
-## Entry points
-
-- `main_submission.tex` — anonymous ACL review build.
-- `main.tex` — alias for `main_submission.tex`.
-- `main_preprint.tex` — author-visible preprint build.
-
-## Build
-
-From the repository root, make sure large trace and judge files are present before producing a final paper:
+`main_camera_ready.tex` is the author-visible ACL final wrapper. Build from the
+repository root with a TeX installation and `latexmk` on PATH:
 
 ```bash
-git lfs pull
-cd paper
-make submission
-make preprint
+make -C paper
 ```
 
-The default build is strict: `figures/make_figures.py` refuses to use Git LFS pointer files for judge JSONLs because decision-cell correctness is computed from `semantic_match` joined with the per-URL judge rows. The render-only target is for layout drafting only:
+The default target builds from the frozen figures and `figures/numbers.tex`.
+It does not regenerate measurements or require private traces, judge records,
+Git LFS, or API credentials. The main paper is eight pages; statements,
+references, and appendices bring the total to 17 pages.
 
-```bash
-make render-only
-make quick
-```
+Outputs are `output/pdf/camera-ready.pdf`, `output/camera-ready-source.zip`,
+and `output/build-manifest.json`. The ZIP includes `main.bbl`; extract it and
+run `latexmk -pdf main.tex` to build independently. Temporary build files live
+in the ignored `paper/build/camera-ready/` directory.
 
-## arXiv package
+## Optional regeneration using local research records
 
-Use the author-visible preprint build for arXiv. Do not upload this whole
-directory, because `main.tex` is the anonymous ACL wrapper and the directory
-also contains auxiliary files. Instead run:
+`make -C paper figures` explicitly reruns the figure and macro generator.
+This requires locally held trace, judge, and answer-audit records. Those inputs
+are withheld from the public release. Do not use this target merely to compile
+the PDF. The figure source and exported images are included for inspection.
 
-```bash
-cd paper
-make preprint
-make arxiv
-```
+Figure 3's PNG renderer additionally needs Node.js, Playwright, and Chromium.
+`NODE_BINARY`, `PLAYWRIGHT_MODULE`, and `CHROMIUM_EXECUTABLE` can select local
+installations. Fonts are embedded in the designer HTML and rendering blocks
+network requests. The published figures are already exported.
 
-This writes a clean source archive to:
+The ACL style and bibliography files are included. The final build retains
+the Section 4 judge-schema table in the main paper. Original submitted PDFs
+and highlighted revision comparisons are author-local review records.
 
-```text
-paper/build/search-api-decision-surface-arxiv.tar.gz
-```
-
-The archive stages `main_preprint.tex` as `main.tex`, copies
-`main_preprint.bbl` as `main.bbl`, includes only the TeX sources, ACL style,
-bibliography files, generated paper macros, and the four figures actually used
-by the manuscript, then recompiles the staged package before creating the
-tarball.
-
-## Layout notes
-
-The main paper and appendix stay in ACL two-column layout. The local `acl.sty` and `acl_natbib.bst` files mirror the official ACL style repository linked by the EMNLP/ARR submission instructions: `https://github.com/acl-org/acl-style-files`. The appendix uses compact audit tables, appendix-local line-breaking tolerance, and final-page column balancing to keep the supporting material readable without switching formats. Figures 1--4 are static PNG exports from the designer HTML files in `figures/`. The deterministic Graphviz DOT/PDF/SVG outputs remain committed as audit artifacts for the figure-generation script.
-
-## Generated files
-
-`figures/make_figures.py` writes:
-
-- `figures/numbers.tex`
-- `figures/fig1_architecture.{dot,pdf,svg}`
-- `figures/fig2_provider_profiles.{dot,pdf,svg}`
-- `figures/fig3_decision_partition.{dot,pdf,svg}`
-- `figures/fig4_complementarity.{dot,pdf,svg}`
-- `figures/decision_surface_audit.{json,md}`
+The designer HTML embeds IBM Plex Sans and Mono fonts. Their upstream copyright
+notice and SIL Open Font License are included in `figures/LICENSE-IBM-Plex.txt`
+([IBM Plex source](https://github.com/IBM/plex/blob/master/LICENSE.txt)).
